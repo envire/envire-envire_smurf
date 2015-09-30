@@ -1,12 +1,14 @@
-robot
+Envire SMURF
 =============
-Provides the tools to load a robot from a model into an envire representation.
+Provides the tools to load populate a envire representation from a SMURF or URDF model.
 
-The model of the robot that is stored either as URDF or as SMURF (extension of URDF) can be uploaded to a envireTransformationGraph with this tool. The components of the robot are localized as nodes o graph incorporate their relative positions (transformations)
+The model of the robot that is stored either as URDF or as SMURF (extension of URDF) can be uploaded to a Envire TransformationGraph with this tool. The components of the robot are localized as nodes, the edges of the graph store the relative positions (transformations) between the nodes they connect.
+
+The tool also allows to load other objects (not only robots) defined in the SMURF file.
 
 License
 -------
-dummy-license
+GPL-v2 or later
 
 Installation
 ------------

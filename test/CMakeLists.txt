@@ -1,3 +1,3 @@
 rock_testsuite(test_suite suite.cpp
-   test_Dummy.cpp
-   DEPS robot)
+  test_robot.cpp
+   DEPS envire_smurf)

@@ -1,10 +1,9 @@
 #include <iostream>
-#include <robot/Dummy.hpp>
+#include <envire_smurf/Robot.hpp>
 
 int main(int argc, char** argv)
 {
-    robot::DummyClass dummyClass;
-    dummyClass.welcome();
+    envire_smurf::Robot robot;
 
     return 0;
 }

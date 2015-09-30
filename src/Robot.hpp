@@ -1,9 +1,9 @@
-#ifndef _DUMMYPROJECT_DUMMY_HPP_
-#define _DUMMYPROJECT_DUMMY_HPP_
+#ifndef _ROBOTPROJECT_ROBOT_HPP_
+#define _ROBOTPROJECT_ROBOT_HPP_
 
-namespace robot
+namespace envire_smurf
 {
-    class DummyClass
+    class Robot
     {
         public: 
             /**
@@ -15,4 +15,4 @@ namespace robot
 
 } // end namespace robot
 
-#endif // _DUMMYPROJECT_DUMMY_HPP_
+#endif // _ROBOTPROJECT_ROBOT_HPP_
