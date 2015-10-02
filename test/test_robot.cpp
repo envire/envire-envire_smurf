@@ -18,7 +18,8 @@ BOOST_AUTO_TEST_CASE(load_asguard_smurf)
     std::string path = orocos_cpp::ConfigurationHelper::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(ASGUARD4)%>");
     std::cout << "Path to robot model " << path << std::endl;
     envire::core::TransformGraph robotGraph;
+    robot.loadFromSmurf(robotGraph, path);
     envire::core::GraphViz viz;
     viz.write(robotGraph, "load_asguard_smurf.dot");
-    //robot.loadFromSmurf();
+
 }

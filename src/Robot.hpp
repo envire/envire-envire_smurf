@@ -2,8 +2,6 @@
 #define _ROBOTPROJECT_ROBOT_HPP_
 #include <envire_core/graph/TransformGraph.hpp>
 
-using namespace envire::core;
-
 namespace envire{ namespace smurf
 {
     class Robot
@@ -17,7 +15,7 @@ namespace envire{ namespace smurf
 
             Robot(){};
 
-            void loadFromSmurf(const std::string &path, const envire::core::TransformGraph &graph); 
+            void loadFromSmurf( envire::core::TransformGraph &graph, const std::string &path); 
             /**
              * Generates the robot entity in the transformation graph from the
              * information in the SMURF file, it will only contain the static
