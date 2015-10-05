@@ -15,15 +15,25 @@ namespace envire{ namespace smurf
 
             Robot(){};
 
-            void loadFromSmurf( envire::core::TransformGraph &graph, const std::string &path); 
             /**
              * Generates the robot entity in the transformation graph from the
              * information in the SMURF file, it will only contain the static
              * transformations and the information of each link and joint.
              *
              */
+            void loadFromSmurf( envire::core::TransformGraph &graph, const std::string &path); 
 
-            void loadDynamicTransforms(const std::string &path, const envire::core::TransformGraph &graph);
+          
+    };
+
+    class Environment
+    {
+        public:
+
+            Environment(){};
+
+            void loadFromSmurfs( envire::core::TransformGraph &graph, const std::string &path);
+
             /**
              *
              * Populates the transformation graph with the dynamic
@@ -32,9 +42,11 @@ namespace envire{ namespace smurf
              * it.
              *
              */
+            void loadDynamicTransforms(const envire::core::TransformGraph &graph, const std::string &path);
 
-          
+
     };
+
 
 } // end namespace smurf
 } // end namespace envire

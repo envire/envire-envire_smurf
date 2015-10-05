@@ -24,46 +24,41 @@ void envire::smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, co
     ::smurf::Robot robot;
     robot.loadFromSmurf(path);
     // From this object dump into a graph
+    // Frames
+    std::vector<::smurf::Frame *> frames= robot.getFrames();
+    std::cout << "Iterate over the frames:" << std::endl;
+    for(std::vector<::smurf::Frame *>::iterator it = frames.begin(); it != frames.end(); ++it) {
+        base::Time time = base::Time::now();
+        base::TransformWithCovariance tf_cov;
+        envire::core::Transform envire_tf(time, tf_cov);
+        std::cout << "Include the following frame in the graph: " << (*it)->getName() << std::endl;
+        //graph.addFrame(frame->getName());
+    }
+    // Static Transformations:
     std::vector<::smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
-    std::cout << "Iterate over the static transformations:" << std::endl;
+    std::cout << "All transformations are considered static initially " << std::endl;
     for(std::vector<::smurf::StaticTransformation *>::iterator it = staticTfs.begin(); it != staticTfs.end(); ++it) {
         ::smurf::Frame source = (*it) -> getSourceFrame();
         envire::core::FrameId sourceId = source.getName();
         ::smurf::Frame target = (*it) -> getTargetFrame();
         envire::core::FrameId targetId = target.getName();
         Eigen::Affine3d tf_smurf = (*it) -> getTransformation();
+        std::cout << "Transformation from " << sourceId <<" to " << targetId << " is " << tf_smurf.matrix() << std::endl;
         base::Time time = base::Time::now();
         base::TransformWithCovariance tf_cov(tf_smurf);
         envire::core::Transform envire_tf(time, tf_cov);
         graph.addTransform(sourceId, targetId, envire_tf);
-    }   
-    std::vector<::smurf::Joint *> joints = robot.getJoints();
-    std::cout << "Iterate over the joints:" << std::endl;
-    for(std::vector<::smurf::Joint *>::iterator it = joints.begin(); it != joints.end(); ++it) {
-        std::cout << "There is some joint:" << std::endl;
+    }
+    std::vector<::smurf::DynamicTransformation *> dynamicTfs = robot.getDynamicTransforms();
+    std::cout << "Iterate over the dynamic Tfs" << std::endl;
+    for(std::vector<::smurf::DynamicTransformation *>::iterator it = dynamicTfs.begin(); it != dynamicTfs.end(); ++it) {
         ::smurf::Frame source = (*it) -> getSourceFrame();
         envire::core::FrameId sourceId = source.getName();
         ::smurf::Frame target = (*it) -> getTargetFrame();
         envire::core::FrameId targetId = target.getName();
-        //This transformation is in the smurf but tools::Smurf seems to drop it (I guess there is a initial value)
-        Eigen::Affine3d tf_smurf = (*it) -> getAxisTransformation(); 
-        base::Time time = base::Time::now();
-        base::TransformWithCovariance tf_cov(tf_smurf);
-        envire::core::Transform envire_tf(time, tf_cov);
-        graph.addTransform(sourceId, targetId, envire_tf);
-    }   
-    //std::vector<::smurf::DynamicTransformation *> dynamicTfs= robot.getDynamicTransforms();
-    //std::cout << "Iterate over the dynamic transformations:" << std::endl;
-    //for(std::vector<::smurf::DynamicTransformation *>::iterator it = dynamicTfs.begin(); it != dynamicTfs.end(); ++it) {
-    //    ::smurf::Frame source = (*it) -> getSourceFrame();
-    //    envire::core::FrameId sourceId = source.getName();
-    //    ::smurf::Frame target = (*it) -> getTargetFrame();
-    //    envire::core::FrameId targetId = target.getName();
-    //    //This transformation is in the smurf but tools::Smurf seems to drop it (I guess there is a initial value)
-    //    Eigen::Affine3d tf_smurf = (*it) -> getTransformation(); 
-    //    base::Time time = base::Time::now();
-    //    base::TransformWithCovariance tf_cov(tf_smurf);
-    //    envire::core::Transform envire_tf(time, tf_cov);
-    //    graph.addTransform(sourceId, targetId, envire_tf);
-    //}   
+        // GET THE CONFIG MAP OF THE TARGET NODE AND PUT IT IN THE TREE
+        // MAYBE WHAT YOU CAN ADD IS THE DYNAMIC TRANSFORMATION
+        // Include in the frames the objects from the robot
+        std::cout << "The node " << targetId << " is dynamic." << std::endl;
+    } 
 }
