@@ -4,10 +4,6 @@
 #include <envire_core/items/Transform.hpp>
 #include <base/Time.hpp>
 
-//using namespace std;
-//using namespace envire::smurf;
-//using namespace envire::core;
-
 void envire::smurf::Robot::welcome()
 {
     std::cout << "You successfully compiled and executed the envire_smurf Project. Welcome!" << std::endl;
@@ -15,15 +11,10 @@ void envire::smurf::Robot::welcome()
 
 void envire::smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path)
 {
-  // This method should be very similar to
-  // tools/smurf::Robot::loadFromSmurf but shoul populate a envireTransformGraph
-  // Other similar methods are to be found the simulation libraries that instantiate objects in the simulation from SMURFS
-  // - mars/entity_generation/smurf/src/ which generates SimEntities
-  // - mars/sim/src/core/simEntity.h
-  //
+  // We want to be able to verify that every frame defined is connected through
+  //some tranformation. That's why all the frames are included first
     ::smurf::Robot robot;
     robot.loadFromSmurf(path);
-    // From this object dump into a graph
     // Frames
     std::vector<::smurf::Frame *> frames= robot.getFrames();
     std::cout << "Iterate over the frames:" << std::endl;
@@ -32,11 +23,20 @@ void envire::smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, co
         base::TransformWithCovariance tf_cov;
         envire::core::Transform envire_tf(time, tf_cov);
         std::cout << "Include the following frame in the graph: " << (*it)->getName() << std::endl;
+        // Make sure this method works 
         //graph.addFrame(frame->getName());
+        //
+        // By now we need: objects in that frame and type: link, joint (with
+        // type) and sensor. This information goes in the config map of the
+        // envire item
+        //
+        // Add an Item ConfigMap with this information to the frame
+        //
+        // Fill configMap with the node information and add it to the frame
     }
-    // Static Transformations:
+    // Static Transformations: All transformations are considered static initially
     std::vector<::smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
-    std::cout << "All transformations are considered static initially " << std::endl;
+    std::cout << " Static transformations " << std::endl;
     for(std::vector<::smurf::StaticTransformation *>::iterator it = staticTfs.begin(); it != staticTfs.end(); ++it) {
         ::smurf::Frame source = (*it) -> getSourceFrame();
         envire::core::FrameId sourceId = source.getName();
@@ -49,16 +49,4 @@ void envire::smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, co
         envire::core::Transform envire_tf(time, tf_cov);
         graph.addTransform(sourceId, targetId, envire_tf);
     }
-    std::vector<::smurf::DynamicTransformation *> dynamicTfs = robot.getDynamicTransforms();
-    std::cout << "Iterate over the dynamic Tfs" << std::endl;
-    for(std::vector<::smurf::DynamicTransformation *>::iterator it = dynamicTfs.begin(); it != dynamicTfs.end(); ++it) {
-        ::smurf::Frame source = (*it) -> getSourceFrame();
-        envire::core::FrameId sourceId = source.getName();
-        ::smurf::Frame target = (*it) -> getTargetFrame();
-        envire::core::FrameId targetId = target.getName();
-        // GET THE CONFIG MAP OF THE TARGET NODE AND PUT IT IN THE TREE
-        // MAYBE WHAT YOU CAN ADD IS THE DYNAMIC TRANSFORMATION
-        // Include in the frames the objects from the robot
-        std::cout << "The node " << targetId << " is dynamic." << std::endl;
-    } 
 }
