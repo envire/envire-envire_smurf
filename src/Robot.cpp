@@ -4,21 +4,21 @@
 #include <envire_core/items/Transform.hpp>
 #include <base/Time.hpp>
 
-void envire::smurf::Robot::welcome()
+void envire::envire_smurf::Robot::welcome()
 {
     std::cout << "You successfully compiled and executed the envire_smurf Project. Welcome!" << std::endl;
 }
 
-void envire::smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path)
+void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path)
 {
   // We want to be able to verify that every frame defined is connected through
   //some tranformation. That's why all the frames are included first
-    ::smurf::Robot robot;
+    smurf::Robot robot;
     robot.loadFromSmurf(path);
     // Frames
-    std::vector<::smurf::Frame *> frames= robot.getFrames();
+    std::vector<smurf::Frame *> frames= robot.getFrames();
     std::cout << "Iterate over the frames:" << std::endl;
-    for(std::vector<::smurf::Frame *>::iterator it = frames.begin(); it != frames.end(); ++it) {
+    for(std::vector<smurf::Frame *>::iterator it = frames.begin(); it != frames.end(); ++it) {
         base::Time time = base::Time::now();
         base::TransformWithCovariance tf_cov;
         envire::core::Transform envire_tf(time, tf_cov);
@@ -35,12 +35,12 @@ void envire::smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, co
         // Fill configMap with the node information and add it to the frame
     }
     // Static Transformations: All transformations are considered static initially
-    std::vector<::smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
+    std::vector<smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
     std::cout << " Static transformations " << std::endl;
-    for(std::vector<::smurf::StaticTransformation *>::iterator it = staticTfs.begin(); it != staticTfs.end(); ++it) {
-        ::smurf::Frame source = (*it) -> getSourceFrame();
+    for(std::vector<smurf::StaticTransformation *>::iterator it = staticTfs.begin(); it != staticTfs.end(); ++it) {
+        smurf::Frame source = (*it) -> getSourceFrame();
         envire::core::FrameId sourceId = source.getName();
-        ::smurf::Frame target = (*it) -> getTargetFrame();
+        smurf::Frame target = (*it) -> getTargetFrame();
         envire::core::FrameId targetId = target.getName();
         Eigen::Affine3d tf_smurf = (*it) -> getTransformation();
         std::cout << "Transformation from " << sourceId <<" to " << targetId << " is " << tf_smurf.matrix() << std::endl;

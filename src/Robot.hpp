@@ -2,7 +2,7 @@
 #define _ROBOTPROJECT_ROBOT_HPP_
 #include <envire_core/graph/TransformGraph.hpp>
 
-namespace envire{ namespace smurf
+namespace envire{ namespace envire_smurf
 {
     class Robot
     {
