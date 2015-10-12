@@ -3,6 +3,7 @@
 #include <orocos_cpp/ConfigurationHelper.hpp>
 #include <envire_core/graph/TransformGraph.hpp>
 #include <envire_core/graph/GraphViz.hpp>
+#include <envire_core/items/Item.hpp>
 
 BOOST_AUTO_TEST_CASE(it_should_not_crash_when_welcome_is_called)
 {
@@ -19,6 +20,17 @@ BOOST_AUTO_TEST_CASE(load_asguard_smurf)
     robot.loadFromSmurf(transformGraph, path);
     envire::core::GraphViz viz;
     viz.write(transformGraph, "load_asguard_smurf.dot");
+
+    // The following lines are an example of how to add an item to a frame of the graph, they should be removed from the test ASAP
+    std::string item_content = "example";
+    boost::shared_ptr<envire::core::Item<std::string> >itemPtr (new  envire::core::Item<std::string> );
+    itemPtr -> setData(item_content);
+    std::string frame_id = "NewFrame";
+    transformGraph.addFrame(frame_id);
+    transformGraph.addItemToFrame(frame_id, itemPtr);
+    viz.write(transformGraph, "withExtraFrame.dot");
+    // The previous lines are an example of how to add an item to a frame of the graph, they should be removed from the test ASAP
+
     // Load now the dynamic transformations information
     //envire::envire_smurf::Environment environment;
     //environment.loadDynamicTransforms(transformGraph, "<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/tools/envire_smurf/test/dynamicTransformations/simulatedAsguard.yml");
