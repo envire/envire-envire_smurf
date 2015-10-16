@@ -44,7 +44,7 @@ void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &gr
         collisons_itemPtr-> setData(frame_collisons);
         graph.addItemToFrame(frame_id, collisons_itemPtr);
 //////////////////////////////////////////////adding smurf visuals//////////////////////////////////////
-        std::vector<smurf::Visual> frame_visuals= (*it)->getgetVisuals();
+        std::vector<smurf::Visual> frame_visuals= (*it)->getVisuals();
         boost::shared_ptr<envire::core::Item<std::vector<smurf::Visual> > >visuals_itemPtr (new  envire::core::Item<std::vector<smurf::Visual> > );
         visuals_itemPtr-> setData(frame_visuals);
         graph.addItemToFrame(frame_id, visuals_itemPtr);
