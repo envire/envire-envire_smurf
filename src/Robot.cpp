@@ -3,6 +3,7 @@
 #include <smurf/Smurf.hpp>
 #include <envire_core/items/Transform.hpp>
 #include <base/Time.hpp>
+#include <envire_core/items/Item.hpp>
 
 void envire::envire_smurf::Robot::welcome()
 {
@@ -19,10 +20,10 @@ void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &gr
     std::vector<smurf::Frame *> frames= robot.getFrames();
     std::cout << "Iterate over the frames:" << std::endl;
     for(std::vector<smurf::Frame *>::iterator it = frames.begin(); it != frames.end(); ++it) {
-        base::Time time = base::Time::now();
-        base::TransformWithCovariance tf_cov;
-        envire::core::Transform envire_tf(time, tf_cov);
-        std::cout << "Include the following frame in the graph: " << (*it)->getName() << std::endl;
+//        base::Time time = base::Time::now();
+//        base::TransformWithCovariance tf_cov;
+//        envire::core::Transform envire_tf(time, tf_cov);
+//        std::cout << "Include the following frame in the graph: " << (*it)->getName() << std::endl;
         // Make sure this method works 
         //graph.addFrame(frame->getName());
         //
@@ -33,6 +34,24 @@ void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &gr
         // Add an Item ConfigMap with this information to the frame
         //
         // Fill configMap with the node information and add it to the frame
+
+        std::string frame_id = (*it)->getName();
+        graph.addFrame(frame_id);
+
+//////////////////////////////////////////////adding smurf collisions//////////////////////////////////////
+        std::vector<smurf::Collidable> frame_collisons= (*it)->getCollisionObjects();
+        boost::shared_ptr<envire::core::Item<std::vector<smurf::Collidable> > >collisons_itemPtr (new  envire::core::Item<std::vector<smurf::Collidable> > );
+        collisons_itemPtr-> setData(frame_collisons);
+        graph.addItemToFrame(frame_id, collisons_itemPtr);
+//////////////////////////////////////////////adding smurf visuals//////////////////////////////////////
+        std::vector<smurf::Visual> frame_visuals= (*it)->getgetVisuals();
+        boost::shared_ptr<envire::core::Item<std::vector<smurf::Visual> > >visuals_itemPtr (new  envire::core::Item<std::vector<smurf::Visual> > );
+        visuals_itemPtr-> setData(frame_visuals);
+        graph.addItemToFrame(frame_id, visuals_itemPtr);
+
+
+
+
     }
     // Static Transformations: All transformations are considered static initially
     std::vector<smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
