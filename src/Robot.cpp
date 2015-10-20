@@ -4,6 +4,7 @@
 #include <envire_core/items/Transform.hpp>
 #include <base/Time.hpp>
 #include <envire_core/items/Item.hpp>
+#include <configmaps/ConfigData.h>
 
 void envire::envire_smurf::Robot::welcome()
 {
@@ -19,7 +20,8 @@ void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &gr
     // Frames
     std::vector<smurf::Frame *> frames= robot.getFrames();
     std::cout << "Iterate over the frames:" << std::endl;
-    for(std::vector<smurf::Frame *>::iterator it = frames.begin(); it != frames.end(); ++it) {
+    for(std::vector<smurf::Frame *>::iterator it = frames.begin(); it != frames.end(); ++it)
+    {
 //        base::Time time = base::Time::now();
 //        base::TransformWithCovariance tf_cov;
 //        envire::core::Transform envire_tf(time, tf_cov);
@@ -39,20 +41,42 @@ void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &gr
         graph.addFrame(frame_id);
 
 //////////////////////////////////////////////adding smurf collisions//////////////////////////////////////
+        std::pair <std::string ,  std::vector<smurf::Collidable> >  smurf_collidable;
+        smurf_collidable.first="SMURF::COLLIDABLE";
         std::vector<smurf::Collidable> frame_collisons= (*it)->getCollisionObjects();
-        boost::shared_ptr<envire::core::Item<std::vector<smurf::Collidable> > >collisons_itemPtr (new  envire::core::Item<std::vector<smurf::Collidable> > );
-        collisons_itemPtr-> setData(frame_collisons);
+        smurf_collidable.second=frame_collisons;
+        boost::shared_ptr<envire::core::Item<std::pair <std::string ,  std::vector<smurf::Collidable> >  > >collisons_itemPtr (new  envire::core::Item<std::pair <std::string ,  std::vector<smurf::Collidable> >  > );
+        collisons_itemPtr-> setData(smurf_collidable);
         graph.addItemToFrame(frame_id, collisons_itemPtr);
+
 //////////////////////////////////////////////adding smurf visuals//////////////////////////////////////
+        std::pair <std::string ,  std::vector<smurf::Visual> >  smurf_visual;
+        smurf_visual.first="SMURF::VISUAL";
         std::vector<smurf::Visual> frame_visuals= (*it)->getVisuals();
-        boost::shared_ptr<envire::core::Item<std::vector<smurf::Visual> > >visuals_itemPtr (new  envire::core::Item<std::vector<smurf::Visual> > );
-        visuals_itemPtr-> setData(frame_visuals);
+        smurf_visual.second=frame_visuals;
+        boost::shared_ptr<envire::core::Item<  std::pair <std::string ,  std::vector<smurf::Visual> >    > >visuals_itemPtr (new  envire::core::Item< std::pair <std::string ,  std::vector<smurf::Visual> > > );
+        visuals_itemPtr-> setData(smurf_visual);
         graph.addItemToFrame(frame_id, visuals_itemPtr);
-
-
-
-
     }
+
+//////////////////////////////////////////////////////////////adding sensors///////////////////////////////////////////////////////////////////////////
+
+    std::vector<smurf::Sensor *> robot_Sensors= robot.getSensors();
+    std::cout << "Iterate over the  Sensors: " << std::endl;
+    std::string frame_id;
+    for(std::vector<smurf::Sensor *>::iterator it = robot_Sensors.begin(); it != robot_Sensors.end(); ++it)
+    {
+//        std::cout<<"------------------------------------------------------------" <<std::endl;
+//        std::cout<<"frame_id: "<< frame_id<<std::endl;
+        frame_id=(*it)->getattachmentPoint()->getName();
+        std::pair <std::string ,  smurf::Sensor >  smurf_sensor;
+        smurf_sensor.first="SMURF::SENSOR";
+        smurf_sensor.second=*(*it);
+        boost::shared_ptr<envire::core::Item<std::pair< std::string , smurf::Sensor > > > sensor_itemPtr (new  envire::core::Item< std::pair <std::string ,  smurf::Sensor > > );
+        sensor_itemPtr-> setData(smurf_sensor);
+        graph.addItemToFrame(frame_id, sensor_itemPtr);
+    }
+
     // Static Transformations: All transformations are considered static initially
     std::vector<smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
     std::cout << " Static transformations " << std::endl;
