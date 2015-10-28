@@ -6,6 +6,8 @@
 #include <envire_core/items/Item.hpp>
 #include <configmaps/ConfigData.h>
 
+
+
 void envire::envire_smurf::Robot::welcome()
 {
     std::cout << "You successfully compiled and executed the envire_smurf Project. Welcome!" << std::endl;
@@ -39,34 +41,10 @@ void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &gr
 
         std::string frame_id = (*it)->getName();
         graph.addFrame(frame_id);
-
-        std::pair <std::string ,  smurf::Frame* >  link;
-        link.first="LINK";
-        //link.second=*(*it);
-        link.second=(*it);
-        boost::shared_ptr<envire::core::Item<std::pair <std::string , smurf::Frame *  >  > >link_itemPtr (new  envire::core::Item<std::pair <std::string ,smurf::Frame *  >  > );
-        link_itemPtr->setData(link);
+        boost::shared_ptr<envire::core::Item< smurf::Frame * > >link_itemPtr (new  envire::core::Item<smurf::Frame *> );
+        link_itemPtr->setData(*it);
         graph.addItemToFrame(frame_id, link_itemPtr);
 
-/*
-//////////////////////////////////////////////adding smurf collisions//////////////////////////////////////
-        std::pair <std::string ,  std::vector<smurf::Collidable> >  smurf_collidable;
-        smurf_collidable.first="SMURF::COLLIDABLE";
-        std::vector<smurf::Collidable> frame_collisons= (*it)->getCollisionObjects();
-        smurf_collidable.second=frame_collisons;
-        boost::shared_ptr<envire::core::Item<std::pair <std::string ,  std::vector<smurf::Collidable> >  > >collisons_itemPtr (new  envire::core::Item<std::pair <std::string ,  std::vector<smurf::Collidable> >  > );
-        collisons_itemPtr-> setData(smurf_collidable);
-        graph.addItemToFrame(frame_id, collisons_itemPtr);
-
-//////////////////////////////////////////////adding smurf visuals//////////////////////////////////////
-        std::pair <std::string ,  std::vector<smurf::Visual> >  smurf_visual;
-        smurf_visual.first="SMURF::VISUAL";
-        std::vector<smurf::Visual> frame_visuals= (*it)->getVisuals();
-        smurf_visual.second=frame_visuals;
-        boost::shared_ptr<envire::core::Item<  std::pair <std::string ,  std::vector<smurf::Visual> >    > >visuals_itemPtr (new  envire::core::Item< std::pair <std::string ,  std::vector<smurf::Visual> > > );
-        visuals_itemPtr-> setData(smurf_visual);
-        graph.addItemToFrame(frame_id, visuals_itemPtr);
-*/
     }
 
 //////////////////////////////////////////////////////////////adding sensors///////////////////////////////////////////////////////////////////////////
@@ -76,14 +54,11 @@ void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &gr
     std::string frame_id;
     for(std::vector<smurf::Sensor *>::iterator it = robot_Sensors.begin(); it != robot_Sensors.end(); ++it)
     {
-
         frame_id=(*it)->getattachmentPoint()->getName();
-        std::pair <std::string ,  smurf::Sensor* >  smurf_sensor;
-        smurf_sensor.first="SENSOR";
-        //smurf_sensor.second=*(*it);
-        smurf_sensor.second=(*it);
-        boost::shared_ptr<envire::core::Item<std::pair< std::string , smurf::Sensor* > > > sensor_itemPtr (new  envire::core::Item< std::pair <std::string ,  smurf::Sensor* > > );
-        sensor_itemPtr-> setData(smurf_sensor);
+//        std::cout<<"------------------------------------------" <<std::endl;
+//        std::cout<<"frame_id: "<<frame_id <<std::endl;
+        boost::shared_ptr<envire::core::Item< smurf::Sensor*  > > sensor_itemPtr (new  envire::core::Item< smurf::Sensor* > );
+        sensor_itemPtr-> setData(*it);
         graph.addItemToFrame(frame_id, sensor_itemPtr);
     }
 
@@ -101,14 +76,59 @@ void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &gr
         base::TransformWithCovariance tf_cov(tf_smurf);
         envire::core::Transform envire_tf(time, tf_cov);
         graph.addTransform(sourceId, targetId, envire_tf);
-
-        std::pair <std::string ,  smurf::StaticTransformation* >  jonit;
-        jonit.first="JOINT";
-        jonit.second=(*it);
-        boost::shared_ptr<envire::core::Item<std::pair< std::string , smurf::StaticTransformation* > > > joint_itemPtr (new  envire::core::Item< std::pair <std::string ,  smurf::StaticTransformation* > > );
-        joint_itemPtr->setData(jonit);
+        boost::shared_ptr<envire::core::Item<smurf::StaticTransformation*  > > joint_itemPtr (new  envire::core::Item< smurf::StaticTransformation* > );
+        joint_itemPtr->setData(*it);
         graph.addItemToFrame(sourceId,joint_itemPtr);
     }
 
 
+}
+
+bool envire::envire_smurf::Robot::frameHas(envire::core::TransformGraph &graph,FRAME_ITEM_TYPE itemType, envire::core::FrameId frameID)
+{
+    //envire::core::Frame frame=graph.getFrame(frameID);
+    using namespace boost;
+    bool has_item=false;
+    switch (itemType)
+    {
+        case SENSOR :
+        {
+//            std::cout << "item is sensor";
+            envire::core::TransformGraph::ItemIterator<envire::core::Item<smurf::Sensor*>::Ptr> begin, end;
+            tie(begin, end) = graph.getItems<envire::core::Item<smurf::Sensor*>::Ptr>(frameID);
+            if(begin!=end)
+                has_item=true;
+            break;
+
+        }
+
+        case JOINT:
+        {
+//            std::cout << "item is joint";
+            envire::core::TransformGraph::ItemIterator<envire::core::Item<smurf::StaticTransformation*>::Ptr> begin, end;
+            tie(begin, end) = graph.getItems<envire::core::Item<smurf::StaticTransformation*>::Ptr>(frameID);
+            if(begin!=end)
+                has_item=true;
+            break;
+        }
+
+        case LINK:
+        {
+//            std::cout << "item is link";
+            envire::core::TransformGraph::ItemIterator<envire::core::Item<smurf::Frame *>::Ptr> begin, end;
+            tie(begin, end) = graph.getItems<envire::core::Item<smurf::Frame *>::Ptr>(frameID);
+            if(begin!=end)
+                has_item=true;
+            break;
+        }
+
+
+    }
+
+    return has_item;
+}
+
+std::vector<envire::core::FrameId>  envire::envire_smurf::Robot::getTransformFrames(envire::core::FrameId &sourceFrame,envire::core::FrameId &targetFrame, envire::core::TransformGraph &graph)
+{
+    return graph.getPath(sourceFrame, targetFrame);
 }

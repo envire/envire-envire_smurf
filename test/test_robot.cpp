@@ -35,4 +35,47 @@ BOOST_AUTO_TEST_CASE(load_asguard_smurf)
     //envire::envire_smurf::Environment environment;
     //environment.loadDynamicTransforms(transformGraph, "<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/tools/envire_smurf/test/dynamicTransformations/simulatedAsguard.yml");
     //viz.write(transformGraph, "simulatedAsguard.dot");
+
+
+}
+
+BOOST_AUTO_TEST_CASE(get_transform_frames)
+{
+    envire::envire_smurf::Robot robot;
+    std::string path = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(ASGUARD4)%>");
+    envire::core::TransformGraph transformGraph;
+    robot.loadFromSmurf(transformGraph, path);
+
+    envire::core::FrameId sourceFrame("front_left");
+    envire::core::FrameId targetFrame("front_right_2");
+    std::vector<envire::core::FrameId>  frames_path=robot.getTransformFrames(sourceFrame,targetFrame,transformGraph);
+    for(std::vector<envire::core::FrameId>::iterator it=frames_path.begin();it!=frames_path.end();it++)
+    {
+        std::cout<<*it <<std::endl;
+    }
+
+}
+
+BOOST_AUTO_TEST_CASE(test_frameHas)
+{
+    envire::envire_smurf::Robot robot;
+    std::string path = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(ASGUARD4)%>");
+    envire::core::TransformGraph transformGraph;
+    robot.loadFromSmurf(transformGraph, path);
+    FRAME_ITEM_TYPE itemType;
+    itemType=SENSOR;
+    envire::core::FrameId frameID("hokuyo_link");
+    if(robot.frameHas(transformGraph,itemType,frameID))
+    {
+        std::cout<<"The frame " <<frameID<< " has sensor" <<std::endl;
+    }
+    frameID.clear();
+    frameID="velodyne_link";
+    if(robot.frameHas(transformGraph,itemType,frameID))
+    {
+
+        std::cout<<"The frame " <<frameID<< " has sensor" <<std::endl;
+
+    }
+
 }
