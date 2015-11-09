@@ -1,11 +1,12 @@
 #include "Robot.hpp"
 #include <iostream>
-#include <smurf/Smurf.hpp>
 #include <envire_core/items/Transform.hpp>
 #include <base/Time.hpp>
 #include <envire_core/items/Item.hpp>
 #include <configmaps/ConfigData.h>
-
+#include <mars/sim/ConfigMapItem.h>
+#include <mars/interfaces/NodeData.h>
+#include <mars/utils/Vector.h>
 
 
 void envire::envire_smurf::Robot::welcome()
@@ -15,7 +16,7 @@ void envire::envire_smurf::Robot::welcome()
 
 void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path)
 {
-    smurf::Robot robot;
+    //smurf::Robot robot;
     robot.loadFromSmurf(path);
     // Frames
     std::vector<smurf::Frame *> frames= robot.getFrames();
@@ -56,7 +57,32 @@ void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &gr
         graph.addItemToFrame(sourceId,joint_itemPtr);
     }
 }
-
+    /*
+     * This method creates all the required simulation objects in the envire graph that are required to simulate the robot. The created objects are detected by the envire_physics plugin
+     * 
+     * Why not generate directly the PhysicsConfigMapItem in the frame in loadFromSmurf? Because you may not want to simulate
+     */
+void envire::envire_smurf::Robot::simulationReady(envire::core::TransformGraph &graph){
+    // Get all the smurf::Frame objects and generate the correspondent PhysicsConfigMapItem in the same frames
+    std::vector<smurf::Frame *> frames= robot.getFrames();
+    for(std::vector<smurf::Frame *>::iterator it = frames.begin(); it != frames.end(); ++it)
+    {
+        std::string frame_id = (*it)->getName();
+        graph.getFrame(frame_id);
+	//mars::sim::PhysicsConfigMapItem simFrame;
+	mars::sim::PhysicsConfigMapItem::Ptr item(new mars::sim::PhysicsConfigMapItem);
+	mars::interfaces::NodeData data;
+	// This data has to be taken from the smurf::Frame object, but I think that that one doesn't have anything
+	data.init(frame_id);
+	data.initPrimitive(mars::interfaces::NODE_TYPE_BOX, mars::utils::Vector(0.1, 0.1, 0.1), 0.1);
+	data.movable = true;
+	data.toConfigMap(&(item.get()->getData()));
+        graph.addItemToFrame(frame_id, item);
+    }
+    // Get all the smurf::StaticTransformation objects and generate the correspondent JointConfigMapItem in the same frames
+    // Get all the smurf::Sensor objecst and generate the correspondet SensorConfigMapItem in the same frames (The SensorConfigMapItem) is not defined yet
+  
+}
 bool envire::envire_smurf::Robot::frameHas(envire::core::TransformGraph &graph,FRAME_ITEM_TYPE itemType, envire::core::FrameId frameID)
 {
     //envire::core::Frame frame=graph.getFrame(frameID);

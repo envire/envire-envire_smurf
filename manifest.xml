@@ -10,4 +10,5 @@
   <depend package="slam/envire_core" />
   <depend package="tools/orocos_cpp" />
   <depend package="tools/smurf" />
+  <depens package="simulation/mars/interfaces" />
 </package>

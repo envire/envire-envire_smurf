@@ -2,6 +2,7 @@
 #define _ROBOTPROJECT_ROBOT_HPP_
 #include <envire_core/graph/TransformGraph.hpp>
 #include <boost/graph/labeled_graph.hpp>
+#include <smurf/Smurf.hpp>
 typedef enum {SENSOR,JOINT,LINK}FRAME_ITEM_TYPE;
 
 namespace envire{ namespace envire_smurf
@@ -23,10 +24,12 @@ namespace envire{ namespace envire_smurf
              * transformations and the information of each link and joint.
              *
              */
-            void loadFromSmurf( envire::core::TransformGraph &graph, const std::string &path); 
+            void loadFromSmurf( envire::core::TransformGraph &graph, const std::string &path);
+	    void simulationReady(envire::core::TransformGraph &graph);
             bool frameHas(envire::core::TransformGraph &graph,FRAME_ITEM_TYPE itemType, envire::core::FrameId frameID);
             std::vector<envire::core::FrameId> getTransformFrames(envire::core::FrameId &sourceFrame,envire::core::FrameId &targetFrame, envire::core::TransformGraph &graph);
           
+	    smurf::Robot robot;
     };
 
     class Environment
