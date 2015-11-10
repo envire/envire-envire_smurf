@@ -24,7 +24,11 @@ namespace envire{ namespace envire_smurf
              * transformations and the information of each link and joint.
              *
              */
-            void loadFromSmurf( envire::core::TransformGraph &graph, const std::string &path);
+            envire::core::vertex_descriptor loadFromSmurf( envire::core::TransformGraph &graph, const std::string &path);
+	    /**
+	     * Links the robot to the provided vertex with a dummy transformation
+	     */
+	    envire::core::vertex_descriptor loadFromSmurf( envire::core::TransformGraph &graph, const std::string &path, envire::core::vertex_descriptor linkTo);
 	    void simulationReady(envire::core::TransformGraph &graph);
             bool frameHas(envire::core::TransformGraph &graph,FRAME_ITEM_TYPE itemType, envire::core::FrameId frameID);
             std::vector<envire::core::FrameId> getTransformFrames(envire::core::FrameId &sourceFrame,envire::core::FrameId &targetFrame, envire::core::TransformGraph &graph);

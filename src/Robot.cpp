@@ -14,23 +14,41 @@ void envire::envire_smurf::Robot::welcome()
     std::cout << "You successfully compiled and executed the envire_smurf Project. Welcome!" << std::endl;
 }
 
-void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path)
+
+envire::core::vertex_descriptor envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path, envire::core::vertex_descriptor linkTo)
 {
+    envire::core::vertex_descriptor robotRoot = loadFromSmurf(graph, path);
+    // Add a transformation to the root from the center received to the robotRoot
+    envire::core::Transform robotPose;
+    robotPose.transform.translation << 0, 0, 0;
+    robotPose.transform.orientation = base::Quaterniond::Identity();
+    // Use vertex_descriptors instead of Ids
+    envire::core::FrameId linkToId = graph.getFrameId(linkTo);
+    envire::core::FrameId robotRootId = graph.getFrameId(robotRoot);
+    graph.addTransform(linkToId, robotRootId, robotPose);
+    return robotRoot;
+}
+
+envire::core::vertex_descriptor envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path)
+{
+    envire::core::vertex_descriptor robotRoot;
     //smurf::Robot robot;
     robot.loadFromSmurf(path);
     // Frames
+    envire::core::FrameId frame_id;
     std::vector<smurf::Frame *> frames= robot.getFrames();
     for(std::vector<smurf::Frame *>::iterator it = frames.begin(); it != frames.end(); ++it)
     {
-        std::string frame_id = (*it)->getName();
+	frame_id = (*it)->getName();
+	if (frame_id == "root")
+	  robotRoot = graph.vertex(frame_id);
         graph.addFrame(frame_id);
-        boost::shared_ptr<envire::core::Item< smurf::Frame * > >link_itemPtr (new  envire::core::Item<smurf::Frame *> );
+	boost::shared_ptr<envire::core::Item< smurf::Frame * > >link_itemPtr (new  envire::core::Item<smurf::Frame *> );
         link_itemPtr->setData(*it);
         graph.addItemToFrame(frame_id, link_itemPtr);
     }
 //////////////////////////////////////////////////////////////adding sensors///////////////////////////////////////////////////////////////////////////
     std::vector<smurf::Sensor *> robot_Sensors= robot.getSensors();
-    std::string frame_id;
     for(std::vector<smurf::Sensor *>::iterator it = robot_Sensors.begin(); it != robot_Sensors.end(); ++it)
     {
         frame_id=(*it)->getattachmentPoint()->getName();
@@ -56,6 +74,7 @@ void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &gr
         joint_itemPtr->setData(*it);
         graph.addItemToFrame(sourceId,joint_itemPtr);
     }
+    return robotRoot;
 }
     /*
      * This method creates all the required simulation objects in the envire graph that are required to simulate the robot. The created objects are detected by the envire_physics plugin
@@ -77,11 +96,11 @@ void envire::envire_smurf::Robot::simulationReady(envire::core::TransformGraph &
 	data.initPrimitive(mars::interfaces::NODE_TYPE_BOX, mars::utils::Vector(0.1, 0.1, 0.1), 0.1);
 	data.movable = true;
 	data.toConfigMap(&(item.get()->getData()));
+	data.noPhysical = false;
         graph.addItemToFrame(frame_id, item);
     }
     // Get all the smurf::StaticTransformation objects and generate the correspondent JointConfigMapItem in the same frames
     // Get all the smurf::Sensor objecst and generate the correspondet SensorConfigMapItem in the same frames (The SensorConfigMapItem) is not defined yet
-  
 }
 bool envire::envire_smurf::Robot::frameHas(envire::core::TransformGraph &graph,FRAME_ITEM_TYPE itemType, envire::core::FrameId frameID)
 {
