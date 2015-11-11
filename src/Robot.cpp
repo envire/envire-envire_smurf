@@ -18,15 +18,13 @@ void envire::envire_smurf::Robot::welcome()
 
 envire::core::vertex_descriptor envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path, envire::core::vertex_descriptor linkTo)
 {
+    LOG_DEBUG("Debug message in loadFromSmurf with a linkto frame");
+    // Debug message for other libraries appear, check why
     envire::core::vertex_descriptor robotRoot = loadFromSmurf(graph, path);
-    // Add a transformation to the root from the center received to the robotRoot
     envire::core::Transform robotPose;
     robotPose.transform.translation << 0, 0, 0;
     robotPose.transform.orientation = base::Quaterniond::Identity();
-    // Use vertex_descriptors instead of Ids
-    envire::core::FrameId linkToId = graph.getFrameId(linkTo);
-    envire::core::FrameId robotRootId = graph.getFrameId(robotRoot);
-    graph.addTransform(linkToId, robotRootId, robotPose);
+    graph.addTransform(linkTo, robotRoot, robotPose);
     return robotRoot;
 }
 
@@ -41,9 +39,9 @@ envire::core::vertex_descriptor envire::envire_smurf::Robot::loadFromSmurf(envir
     for(std::vector<smurf::Frame *>::iterator it = frames.begin(); it != frames.end(); ++it)
     {
 	frame_id = (*it)->getName();
-	if (frame_id == "root")
-	  robotRoot = graph.vertex(frame_id);
         graph.addFrame(frame_id);
+	if (frame_id == "root")
+	  robotRoot = graph.getVertex(frame_id);
 	boost::shared_ptr<envire::core::Item< smurf::Frame * > >link_itemPtr (new  envire::core::Item<smurf::Frame *> );
         link_itemPtr->setData(*it);
         graph.addItemToFrame(frame_id, link_itemPtr);
