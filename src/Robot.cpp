@@ -2,6 +2,7 @@
 #include <iostream>
 #include <envire_core/items/Transform.hpp>
 #include <base/Time.hpp>
+#include <base/Logging.hpp>
 #include <envire_core/items/Item.hpp>
 #include <configmaps/ConfigData.h>
 #include <mars/sim/ConfigMapItem.h>
