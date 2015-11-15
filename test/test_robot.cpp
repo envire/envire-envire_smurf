@@ -5,10 +5,9 @@
 #include <envire_core/graph/GraphViz.hpp>
 #include <envire_core/items/Item.hpp>
 
-BOOST_AUTO_TEST_CASE(it_should_not_crash_when_welcome_is_called)
+BOOST_AUTO_TEST_CASE(it_should_not_crash_when_created)
 {
     envire::envire_smurf::Robot robot;
-    robot.welcome();
 }
 
 BOOST_AUTO_TEST_CASE(load_asguard_smurf)

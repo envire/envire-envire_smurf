@@ -10,40 +10,64 @@
 #include <mars/utils/Vector.h>
 
 
-void envire::envire_smurf::Robot::welcome()
+envire::envire_smurf::Robot::Robot(){};
+
+envire::envire_smurf::Robot::Robot(envire::core::Transform pose)
 {
-    std::cout << "You successfully compiled and executed the envire_smurf Project. Welcome!" << std::endl;
+    iniPose = pose;
 }
 
+void envire::envire_smurf::Robot::loadVisuals(envire::core::TransformGraph &graph)
+{
+    using visualsItemPtr = envire::core::Item<std::vector<smurf::Visual>>::Ptr;
+    std::vector<smurf::Frame *> frames= robot.getFrames();
+    for(smurf::Frame* frame : frames)
+    {
+	visualsItemPtr visuals_itemPtr (new  envire::core::Item<std::vector<smurf::Visual>>(frame->getVisuals()));
+	LOG_DEBUG("Added a vector of smurf::Visual to the frame");
+        graph.addItemToFrame(frame -> getName(), visuals_itemPtr);
+    }
+}
 
 envire::core::vertex_descriptor envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path, envire::core::vertex_descriptor linkTo)
 {
-    LOG_DEBUG("Debug message in loadFromSmurf with a linkto frame");
-    // Debug message for other libraries appear, check why
+    LOG_DEBUG("loadFromSmurf with a given frame to link to");
     envire::core::vertex_descriptor robotRoot = loadFromSmurf(graph, path);
-    envire::core::Transform robotPose;
-    robotPose.transform.translation << 0, 0, 0;
-    robotPose.transform.orientation = base::Quaterniond::Identity();
-    graph.addTransform(linkTo, robotRoot, robotPose);
+    graph.addTransform(linkTo, robotRoot, iniPose);
+    LOG_DEBUG_S << "Transform to linkTo added: " << graph.getFrameId(linkTo) << " and " << graph.getFrameId(robotRoot);
     return robotRoot;
 }
 
+//void envire::envire_smurf::Robot::loadFrames(envire::core::TransformGraph &graph, const std::string& path)
+//{
+//}
 envire::core::vertex_descriptor envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path)
 {
+    // TODO Glossary
+    // Frame: Envire Frame
+    // Link: URDF link, which in SMURF are called frames too
+    // Should we just not mention the link?
+    using linkItemPtr = envire::core::Item<smurf::Frame>::Ptr;
+    using sensorItemPtr = boost::shared_ptr<envire::core::Item< smurf::Sensor*  > >;
+    using staticTransPtr = boost::shared_ptr<envire::core::Item<smurf::StaticTransformation*  > >;
     envire::core::vertex_descriptor robotRoot;
     //smurf::Robot robot;
     robot.loadFromSmurf(path);
     // Frames
     envire::core::FrameId frame_id;
     std::vector<smurf::Frame *> frames= robot.getFrames();
-    for(std::vector<smurf::Frame *>::iterator it = frames.begin(); it != frames.end(); ++it)
+    for(smurf::Frame* frame : frames)
     {
-	frame_id = (*it)->getName();
+
+      frame_id = frame->getName();
         graph.addFrame(frame_id);
-	if (frame_id == "root")
+	LOG_DEBUG("Frame Added");
+	if (frame_id == rootName)
 	  robotRoot = graph.getVertex(frame_id);
-	boost::shared_ptr<envire::core::Item< smurf::Frame * > >link_itemPtr (new  envire::core::Item<smurf::Frame *> );
-        link_itemPtr->setData(*it);
+	// Make a define for this
+	linkItemPtr link_itemPtr (new  envire::core::Item<smurf::Frame>(*frame));
+	LOG_DEBUG("Added an smurf::frame to the frame");
+     //   link_itemPtr->setData(*frame);
         graph.addItemToFrame(frame_id, link_itemPtr);
     }
 //////////////////////////////////////////////////////////////adding sensors///////////////////////////////////////////////////////////////////////////
@@ -53,7 +77,7 @@ envire::core::vertex_descriptor envire::envire_smurf::Robot::loadFromSmurf(envir
         frame_id=(*it)->getattachmentPoint()->getName();
 //        std::cout<<"------------------------------------------" <<std::endl;
 //        std::cout<<"frame_id: "<<frame_id <<std::endl;
-        boost::shared_ptr<envire::core::Item< smurf::Sensor*  > > sensor_itemPtr (new  envire::core::Item< smurf::Sensor* > );
+        sensorItemPtr sensor_itemPtr (new  envire::core::Item< smurf::Sensor* > );
         sensor_itemPtr-> setData(*it);
         graph.addItemToFrame(frame_id, sensor_itemPtr);
     }
@@ -69,11 +93,11 @@ envire::core::vertex_descriptor envire::envire_smurf::Robot::loadFromSmurf(envir
         base::TransformWithCovariance tf_cov(tf_smurf);
         envire::core::Transform envire_tf(time, tf_cov);
         graph.addTransform(sourceId, targetId, envire_tf);
-        boost::shared_ptr<envire::core::Item<smurf::StaticTransformation*  > > joint_itemPtr (new  envire::core::Item< smurf::StaticTransformation* > );
+        staticTransPtr joint_itemPtr (new  envire::core::Item< smurf::StaticTransformation* > );
         joint_itemPtr->setData(*it);
         graph.addItemToFrame(sourceId,joint_itemPtr);
     }
-    return robotRoot;
+return robotRoot;
 }
     /*
      * This method creates all the required simulation objects in the envire graph that are required to simulate the robot. The created objects are detected by the envire_physics plugin
@@ -89,14 +113,8 @@ void envire::envire_smurf::Robot::simulationReady(envire::core::TransformGraph &
         graph.getFrame(frame_id);
 	//mars::sim::PhysicsConfigMapItem simFrame;
 	mars::sim::PhysicsConfigMapItem::Ptr item(new mars::sim::PhysicsConfigMapItem);
-	mars::interfaces::NodeData data;
-	// This data has to be taken from the smurf::Frame object, but I think that that one doesn't have anything
-	data.init(frame_id);
-	data.initPrimitive(mars::interfaces::NODE_TYPE_BOX, mars::utils::Vector(0.1, 0.1, 0.1), 0.1);
-	data.movable = true;
-	data.toConfigMap(&(item.get()->getData()));
-	data.noPhysical = false;
         graph.addItemToFrame(frame_id, item);
+	// What has to go in a PhysicsConfigMap?
     }
     // Get all the smurf::StaticTransformation objects and generate the correspondent JointConfigMapItem in the same frames
     // Get all the smurf::Sensor objecst and generate the correspondet SensorConfigMapItem in the same frames (The SensorConfigMapItem) is not defined yet
