@@ -24,53 +24,85 @@ void envire::envire_smurf::Robot::loadVisuals(envire::core::TransformGraph &grap
     for(smurf::Frame* frame : frames)
     {
 	visualsItemPtr visuals_itemPtr (new  envire::core::Item<std::vector<smurf::Visual>>(frame->getVisuals()));
-	LOG_DEBUG("Added a vector of smurf::Visual to the frame");
+	LOG_DEBUG("[envire_smurf::Robot]Added a vector of smurf::Visual to the frame");
         graph.addItemToFrame(frame -> getName(), visuals_itemPtr);
     }
 }
 
-envire::core::vertex_descriptor envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path, envire::core::vertex_descriptor linkTo)
+void envire::envire_smurf::Robot::loadFrames(envire::core::TransformGraph &graph)
 {
-    LOG_DEBUG("loadFromSmurf with a given frame to link to");
-    envire::core::vertex_descriptor robotRoot = loadFromSmurf(graph, path);
-    graph.addTransform(linkTo, robotRoot, iniPose);
-    LOG_DEBUG_S << "Transform to linkTo added: " << graph.getFrameId(linkTo) << " and " << graph.getFrameId(robotRoot);
-    return robotRoot;
+    envire::core::FrameId frame_id;
+    std::vector<smurf::Frame *> frames= robot.getFrames();
+    for(smurf::Frame* frame : frames)
+    {
+      frame_id = frame->getName();
+      graph.addFrame(frame_id);
+      LOG_DEBUG_S << "[envire_smurf::Robot]Frame Added: " << frame_id;
+    }
 }
 
-//void envire::envire_smurf::Robot::loadFrames(envire::core::TransformGraph &graph, const std::string& path)
-//{
-//}
-envire::core::vertex_descriptor envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path)
+void envire::envire_smurf::Robot::loadTfs(envire::core::TransformGraph &graph)
+{
+    using staticTransPtr = boost::shared_ptr<envire::core::Item<smurf::StaticTransformation*  > >;
+    // Static Transformations: All transformations are considered static initially
+    std::vector<smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
+    for(std::vector<smurf::StaticTransformation *>::iterator it = staticTfs.begin(); it != staticTfs.end(); ++it) {
+        smurf::Frame source = (*it) -> getSourceFrame();
+        envire::core::FrameId sourceId = source.getName();
+        smurf::Frame target = (*it) -> getTargetFrame();
+        envire::core::FrameId targetId = target.getName();
+        Eigen::Affine3d tf_smurf = (*it) -> getTransformation();
+        base::Time time = base::Time::now();
+        base::TransformWithCovariance tf_cov(tf_smurf);
+        envire::core::Transform envire_tf(time, tf_cov);
+        graph.addTransform(sourceId, targetId, envire_tf);
+	// Smurf::StaticTransformation: Not yet used
+        //staticTransPtr joint_itemPtr (new  envire::core::Item< smurf::StaticTransformation* > );
+        //joint_itemPtr->setData(*it);
+        //graph.addItemToFrame(sourceId,joint_itemPtr);
+    }
+}
+
+void envire::envire_smurf::Robot::loadPhysics(envire::core::TransformGraph& graph)
+{
+    // Add Physics (The stuff the simulator reacts to) Better outside this method
+    using linkItemPtr = envire::core::Item<smurf::Frame>::Ptr;
+    envire::core::FrameId frame_id;
+    std::vector<smurf::Frame *> frames= robot.getFrames();
+    for(smurf::Frame* frame : frames)
+    {
+	linkItemPtr link_itemPtr (new  envire::core::Item<smurf::Frame>(*frame));
+        graph.addItemToFrame(frame -> getName(), link_itemPtr);
+	LOG_DEBUG("Added an smurf::frame to the frame");
+    }
+}
+
+void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path, envire::core::vertex_descriptor linkTo)
+{
+    LOG_DEBUG("[envire_smurf::Robot]loadFromSmurf with a given frame to link to");
+    LOG_DEBUG_S << "[envire_smurf::Robot]Transform to linkTo added: " << graph.getFrameId(linkTo) << " and " << rootName;
+    // Load the robot
+    loadFromSmurf(graph, path); // This one should not add the simulation reactive stuff
+    // Create the transform between the linkTo and the robot Root
+    envire::core::FrameId frame_id = rootName;
+    graph.addTransform(graph.getFrameId(linkTo), rootName, iniPose);
+}
+
+
+void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path)
 {
     // TODO Glossary
     // Frame: Envire Frame
     // Link: URDF link, which in SMURF are called frames too
     // Should we just not mention the link?
-    using linkItemPtr = envire::core::Item<smurf::Frame>::Ptr;
-    using sensorItemPtr = boost::shared_ptr<envire::core::Item< smurf::Sensor*  > >;
-    using staticTransPtr = boost::shared_ptr<envire::core::Item<smurf::StaticTransformation*  > >;
-    envire::core::vertex_descriptor robotRoot;
-    //smurf::Robot robot;
     robot.loadFromSmurf(path);
-    // Frames
-    envire::core::FrameId frame_id;
-    std::vector<smurf::Frame *> frames= robot.getFrames();
-    for(smurf::Frame* frame : frames)
-    {
-
-      frame_id = frame->getName();
-        graph.addFrame(frame_id);
-	LOG_DEBUG("Frame Added");
-	if (frame_id == rootName)
-	  robotRoot = graph.getVertex(frame_id);
-	// Make a define for this
-	linkItemPtr link_itemPtr (new  envire::core::Item<smurf::Frame>(*frame));
-	LOG_DEBUG("Added an smurf::frame to the frame");
-     //   link_itemPtr->setData(*frame);
-        graph.addItemToFrame(frame_id, link_itemPtr);
-    }
-//////////////////////////////////////////////////////////////adding sensors///////////////////////////////////////////////////////////////////////////
+    // Add Frames (no physical or visual stuff
+    loadFrames(graph);
+    // Add Transformations
+    loadTfs(graph);
+    /*
+    // Add Sensors 
+    using sensorItemPtr = boost::shared_ptr<envire::core::Item< smurf::Sensor*  > >;
     std::vector<smurf::Sensor *> robot_Sensors= robot.getSensors();
     for(std::vector<smurf::Sensor *>::iterator it = robot_Sensors.begin(); it != robot_Sensors.end(); ++it)
     {
@@ -81,6 +113,9 @@ envire::core::vertex_descriptor envire::envire_smurf::Robot::loadFromSmurf(envir
         sensor_itemPtr-> setData(*it);
         graph.addItemToFrame(frame_id, sensor_itemPtr);
     }
+    */
+
+    /*
     // Static Transformations: All transformations are considered static initially
     std::vector<smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
     for(std::vector<smurf::StaticTransformation *>::iterator it = staticTfs.begin(); it != staticTfs.end(); ++it) {
@@ -97,7 +132,8 @@ envire::core::vertex_descriptor envire::envire_smurf::Robot::loadFromSmurf(envir
         joint_itemPtr->setData(*it);
         graph.addItemToFrame(sourceId,joint_itemPtr);
     }
-return robotRoot;
+    return robotRoot;
+    */
 }
     /*
      * This method creates all the required simulation objects in the envire graph that are required to simulate the robot. The created objects are detected by the envire_physics plugin
