@@ -24,20 +24,6 @@ namespace envire{ namespace envire_smurf
 	    
 	    void loadTfs(envire::core::TransformGraph &graph);
 	    
-	    /**
-	     * Load in the vertex from where a static connection to other frames exist a Smurf::StaticTransformation.
-	     * To this objects the simulation reacts by creating the simulation joint between the connected links. The sourceFrame and the targetFrame are included in the tf
-	     * 
-	     */
-	    void loadStaticJoints(envire::core::TransformGraph &graph);
-	    
-	    /**
-	     * 
-	     * This method includes in the frames the physical objects that the simulator will react to
-	     * 
-	     */
-	    void loadPhysics(envire::core::TransformGraph &graph);
-	    
             /**
              * Generates the robot entity in the transformation graph from the
              * information in the SMURF file, it will only contain the static
@@ -54,6 +40,25 @@ namespace envire{ namespace envire_smurf
 	     * 
 	     */
 	    void loadFromSmurf( envire::core::TransformGraph &graph, const std::string &path, envire::core::vertex_descriptor linkTo);
+	    
+	    /**
+	     * 
+	     */
+	    void loadVisuals(envire::core::TransformGraph &graph);
+	    
+	    /**
+	     * 
+	     * This method includes in the frames the physical objects that the simulator will react to
+	     * 
+	     */
+	    void loadPhysics(envire::core::TransformGraph &graph);
+	    
+	    /**
+	     * Load in the vertex from where a static connection to other frames exist a Smurf::StaticTransformation.
+	     * To this objects the simulation reacts by creating the simulation joint between the connected links. The sourceFrame and the targetFrame are included in the tf
+	     * 
+	     */
+	    void loadStaticJoints(envire::core::TransformGraph &graph);
 	    
 	    /**
 	     * Includes in the graph all the necessary information about the robot needed for the physical simulation.
@@ -76,11 +81,7 @@ namespace envire{ namespace envire_smurf
 	     */
             std::vector<envire::core::FrameId> getTransformFrames(envire::core::FrameId &sourceFrame,envire::core::FrameId &targetFrame, envire::core::TransformGraph &graph);
           
-	    /**
-	     * 
-	     */
-	    void loadVisuals(envire::core::TransformGraph &graph);
-	    
+
 	    smurf::Robot robot;
 	    
 	private:
