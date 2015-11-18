@@ -25,6 +25,13 @@ namespace envire{ namespace envire_smurf
 	    void loadTfs(envire::core::TransformGraph &graph);
 	    
 	    /**
+	     * Load in the vertex from where a static connection to other frames exist a Smurf::StaticTransformation.
+	     * To this objects the simulation reacts by creating the simulation joint between the connected links. The sourceFrame and the targetFrame are included in the tf
+	     * 
+	     */
+	    void loadStaticJoints(envire::core::TransformGraph &graph);
+	    
+	    /**
 	     * 
 	     * This method includes in the frames the physical objects that the simulator will react to
 	     * 

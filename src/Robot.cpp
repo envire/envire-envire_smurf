@@ -31,6 +31,7 @@ void envire::envire_smurf::Robot::loadVisuals(envire::core::TransformGraph &grap
 
 void envire::envire_smurf::Robot::loadFrames(envire::core::TransformGraph &graph)
 {
+    // Load the fram of each link
     envire::core::FrameId frame_id;
     std::vector<smurf::Frame *> frames= robot.getFrames();
     for(smurf::Frame* frame : frames)
@@ -39,6 +40,7 @@ void envire::envire_smurf::Robot::loadFrames(envire::core::TransformGraph &graph
       graph.addFrame(frame_id);
       LOG_DEBUG_S << "[envire_smurf::Robot]Frame Added: " << frame_id;
     }
+
 }
 
 void envire::envire_smurf::Robot::loadTfs(envire::core::TransformGraph &graph)
@@ -61,6 +63,23 @@ void envire::envire_smurf::Robot::loadTfs(envire::core::TransformGraph &graph)
         //joint_itemPtr->setData(*it);
         //graph.addItemToFrame(sourceId,joint_itemPtr);
     }
+}
+
+void envire::envire_smurf::Robot::loadStaticJoints(envire::core::TransformGraph &graph)
+{
+    // Load the static trasformations as simulation joints
+    using staticTransPtr = boost::shared_ptr<envire::core::Item<smurf::StaticTransformation  > >;
+    std::vector<smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
+    for(smurf::StaticTransformation* tf : staticTfs) {
+        smurf::Frame source = tf -> getSourceFrame();
+        envire::core::FrameId sourceId = source.getName();
+        smurf::Frame target = tf -> getTargetFrame();
+        envire::core::FrameId targetId = target.getName();
+	// Smurf::StaticJoint
+	staticTransPtr joint_itemPtr (new  envire::core::Item< smurf::StaticTransformation > (*tf));
+        graph.addItemToFrame(sourceId, joint_itemPtr);
+	LOG_DEBUG_S << "[Envire Smurf] Added a new Item< smurf::StaticTransformation >";
+    } 
 }
 
 void envire::envire_smurf::Robot::loadPhysics(envire::core::TransformGraph& graph)
