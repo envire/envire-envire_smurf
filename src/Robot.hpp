@@ -24,6 +24,8 @@ namespace envire{ namespace envire_smurf
 	    
 	    void loadTfs(envire::core::TransformGraph &graph);
 	    
+	    void loadSensors(envire::core::TransformGraph &graph);
+	    
             /**
              * Generates the robot entity in the transformation graph from the
              * information in the SMURF file, it will only contain the static

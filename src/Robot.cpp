@@ -49,33 +49,21 @@ void envire::envire_smurf::Robot::loadTfs(envire::core::TransformGraph &graph)
     }
 }
 
-void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path)
+void envire::envire_smurf::Robot::loadSensors(envire::core::TransformGraph &graph)
 {
-    // TODO Glossary
-    // Frame: Envire Frame
-    // Link: URDF link, which in SMURF are called frames too
-    // Should we just not mention the link?
-    robot.loadFromSmurf(path);
-    // Add Frames (no physical or visual stuff
-    loadFrames(graph);
-    // Add Transformations
-    loadTfs(graph);
-    /*
     // Add Sensors 
-    using sensorItemPtr = boost::shared_ptr<envire::core::Item< smurf::Sensor*  > >;
-    std::vector<smurf::Sensor *> robot_Sensors= robot.getSensors();
-    for(std::vector<smurf::Sensor *>::iterator it = robot_Sensors.begin(); it != robot_Sensors.end(); ++it)
+    using sensorItemPtr = boost::shared_ptr<envire::core::Item< smurf::Sensor > >;
+    std::vector<smurf::Sensor*> sensors= robot.getSensors();
+    for(smurf::Sensor* sensor : sensors)
     {
-        frame_id=(*it)->getattachmentPoint()->getName();
-//        std::cout<<"------------------------------------------" <<std::endl;
-//        std::cout<<"frame_id: "<<frame_id <<std::endl;
-        sensorItemPtr sensor_itemPtr (new  envire::core::Item< smurf::Sensor* > );
-        sensor_itemPtr-> setData(*it);
-        graph.addItemToFrame(frame_id, sensor_itemPtr);
+        std::string frameName = sensor->getattachmentPoint()->getName();
+        sensorItemPtr sensor_itemPtr (new  envire::core::Item< smurf::Sensor>(*sensor) );
+        graph.addItemToFrame(frameName, sensor_itemPtr);
+	LOG_DEBUG_S << "[Envire SMURF] Attached sensor " << sensor->getname() << " to frame " << frameName;
     }
-    */
+}
 
-    /*
+/*
     // Static Transformations: All transformations are considered static initially
     std::vector<smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
     for(std::vector<smurf::StaticTransformation *>::iterator it = staticTfs.begin(); it != staticTfs.end(); ++it) {
@@ -92,8 +80,23 @@ void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &gr
         joint_itemPtr->setData(*it);
         graph.addItemToFrame(sourceId,joint_itemPtr);
     }
-    return robotRoot;
-    */
+
+}
+*/
+
+void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path)
+{
+    // TODO Glossary
+    // Frame: Envire Frame
+    // Link: URDF link, which in SMURF are called frames too
+    // Should we just not mention the link?
+    robot.loadFromSmurf(path);
+    // Add Frames (no physical or visual stuff
+    loadFrames(graph);
+    // Add Transformations
+    loadTfs(graph);
+    // Add Sensors
+    loadSensors(graph);
 }
 
 void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path, envire::core::vertex_descriptor linkTo)
@@ -104,6 +107,7 @@ void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &gr
     loadFromSmurf(graph, path); // This one should not add the simulation reactive stuff
     // Create the transform between the linkTo and the robot Root
     envire::core::FrameId frame_id = rootName;
+    iniPose.time = base::Time::now();
     graph.addTransform(graph.getFrameId(linkTo), rootName, iniPose);
 }
 
