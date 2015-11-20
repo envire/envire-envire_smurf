@@ -62,6 +62,13 @@ namespace envire{ namespace envire_smurf
 	     */
 	    void loadStaticJoints(envire::core::TransformGraph &graph);
 	    
+	    void loadJoints(envire::core::TransformGraph &graph);
+	    void loadRotationalJoints(envire::core::TransformGraph &graph);
+	    //void loadTransationalJoints(envire::core::TransformGraph &graph);
+	    void loadDynamicTransformations(envire::core::TransformGraph &graph);
+	    
+	    void loadDynamicJoints(envire::core::TransformGraph &graph);
+	    
 	    /**
 	     * Includes in the graph all the necessary information about the robot needed for the physical simulation.
 	     * 
