@@ -5,41 +5,119 @@
 #include <envire_core/graph/GraphViz.hpp>
 #include <envire_core/items/Item.hpp>
 
+const std::string path = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(ASGUARD4)%>");
+//const std::string robotPath = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(SPACECLIMBER)%>");
+
 BOOST_AUTO_TEST_CASE(it_should_not_crash_when_created)
 {
     envire::envire_smurf::Robot robot;
 }
 
+BOOST_AUTO_TEST_CASE(load_frames)
+{
+    envire::core::TransformGraph transformGraph;
+    envire::core::GraphViz viz;
+    std::cout << "Path to robot model " << path << std::endl;
+    envire::envire_smurf::Robot robot(path);
+    std::cout << "Load the Frames" << std::endl;
+    robot.loadFrames(transformGraph);
+    viz.write(transformGraph, "loadFramesTest.dot");
+}
+
+BOOST_AUTO_TEST_CASE(load_dynamic_joints)
+{
+    envire::core::TransformGraph transformGraph;
+    envire::core::GraphViz viz;
+    std::cout << "Path to robot model " << path << std::endl;
+    envire::envire_smurf::Robot robot(path);
+    std::cout << "Load the Frames" << std::endl;
+    robot.loadFrames(transformGraph);
+    robot.loadDynamicJoints(transformGraph);
+    viz.write(transformGraph, "loadJointsTest.dot");
+    
+}
+
+BOOST_AUTO_TEST_CASE(load_dynamic_tfs)
+{
+    envire::core::TransformGraph transformGraph;
+    envire::core::GraphViz viz;
+    envire::envire_smurf::Robot robot(path);
+    robot.loadFrames(transformGraph);
+    robot.loadDynamicTfs(transformGraph);
+    viz.write(transformGraph, "loadDynamicTfsTest.dot");
+}
+
+BOOST_AUTO_TEST_CASE(load_static_tfs)
+{
+    envire::core::TransformGraph transformGraph;
+    envire::core::GraphViz viz;
+    envire::envire_smurf::Robot robot(path);
+    robot.loadFrames(transformGraph);
+    robot.loadStaticTfs(transformGraph);
+    viz.write(transformGraph, "loadStaticTfsTest.dot");
+}
+
+BOOST_AUTO_TEST_CASE(load_tfs)
+{
+    envire::core::TransformGraph transformGraph;
+    envire::core::GraphViz viz;
+    envire::envire_smurf::Robot robot(path);
+    robot.loadFrames(transformGraph);
+    robot.loadTfs(transformGraph);
+    viz.write(transformGraph, "loadTfsTest.dot");
+}
+
+BOOST_AUTO_TEST_CASE(load_static_joints)
+{
+    envire::core::TransformGraph transformGraph;
+    envire::core::GraphViz viz;
+    envire::envire_smurf::Robot robot(path);
+    robot.loadFrames(transformGraph);
+    robot.loadStaticJoints(transformGraph);
+    viz.write(transformGraph, "loadStaticJointsTest.dot");
+}
+
+BOOST_AUTO_TEST_CASE(load_physics)
+{
+    envire::core::TransformGraph transformGraph;
+    envire::core::GraphViz viz;
+    envire::envire_smurf::Robot robot(path);
+    robot.loadFrames(transformGraph);
+    robot.loadPhysics(transformGraph);
+    viz.write(transformGraph, "loadPhysicsTest.dot");
+}
+
 BOOST_AUTO_TEST_CASE(load_asguard_smurf)
 {
+    /*
     envire::envire_smurf::Robot robot;
+    envire::core::TransformGraph transformGraph;
+    envire::core::GraphViz viz;
     //std::string path = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(ASGUARD4)%>");
     std::string path = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(SPACECLIMBER)%>");
     std::cout << "Path to robot model " << path << std::endl;
-    envire::core::TransformGraph transformGraph;
     robot.loadFromSmurf(transformGraph, path);
-    envire::core::GraphViz viz;
     viz.write(transformGraph, "load_asguard_smurf.dot");
     //robot.loadJoints(transformGraph);
     //robot.loadDynamicTransformations(transformGraph);
-
-    /*
-    // The following lines are an example of how to add an item to a frame of the graph, they should be removed from the test ASAP
-    std::string item_content = "example";
-    boost::shared_ptr<envire::core::Item<std::string> >itemPtr (new  envire::core::Item<std::string> );
-    itemPtr -> setData(item_content);
-    std::string frame_id = "NewFrame";
-    transformGraph.addFrame(frame_id);
-    transformGraph.addItemToFrame(frame_id, itemPtr);
-    viz.write(transformGraph, "withExtraFrame.dot");
-    // The previous lines are an example of how to add an item to a frame of the graph, they should be removed from the test ASAP
     */
+    /*
+     *    // The following lines are an example of how to add an item to a frame of the graph, they should be removed from the test ASAP
+     *    std::string item_content = "example";
+     *    boost::shared_ptr<envire::core::Item<std::string> >itemPtr (new  envire::core::Item<std::string> );
+     *    itemPtr -> setData(item_content);
+     *    std::string frame_id = "NewFrame";
+     *    transformGraph.addFrame(frame_id);
+     *    transformGraph.addItemToFrame(frame_id, itemPtr);
+     *    viz.write(transformGraph, "withExtraFrame.dot");
+     *    // The previous lines are an example of how to add an item to a frame of the graph, they should be removed from the test ASAP
+     */
     // Load now the dynamic transformations information
     //envire::envire_smurf::Environment environment;
     //environment.loadDynamicTransforms(transformGraph, "<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/tools/envire_smurf/test/dynamicTransformations/simulatedAsguard.yml");
     //viz.write(transformGraph, "simulatedAsguard.dot");
-
-
+    
+    
 }
 
 BOOST_AUTO_TEST_CASE(get_transform_frames)
@@ -56,7 +134,7 @@ BOOST_AUTO_TEST_CASE(get_transform_frames)
     //{
     //    std::cout<<*it <<std::endl;
     //}
-
+    
 }
 
 BOOST_AUTO_TEST_CASE(test_frameHas)
@@ -80,5 +158,5 @@ BOOST_AUTO_TEST_CASE(test_frameHas)
     //    std::cout<<"The frame " <<frameID<< " has sensor" <<std::endl;
     //
     //}
-
+    
 }

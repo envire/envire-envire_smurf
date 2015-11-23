@@ -9,85 +9,147 @@
 #include <mars/interfaces/NodeData.h>
 #include <mars/utils/Vector.h>
 
-
 envire::envire_smurf::Robot::Robot(){};
 
-envire::envire_smurf::Robot::Robot(envire::core::Transform pose)
+envire::envire_smurf::Robot::Robot(envire::core::Transform pose):iniPose(pose){};
+
+envire::envire_smurf::Robot::Robot(const std::string& path)
 {
-    iniPose = pose;
+    robot.loadFromSmurf(path);
+}
+
+envire::envire_smurf::Robot::Robot(envire::core::Transform pose,  const std::string& path):iniPose(pose)
+{
+    robot.loadFromSmurf(path);
 }
 
 void envire::envire_smurf::Robot::loadFrames(envire::core::TransformGraph &graph)
 {
-    // Load the fram of each link
+    // Load the frame of each frame in the smurf model
+    LOG_DEBUG_S << "[envire_smurf::Robot] LoadFrames start";
     envire::core::FrameId frame_id;
     std::vector<smurf::Frame *> frames= robot.getFrames();
     for(smurf::Frame* frame : frames)
     {
-      frame_id = frame->getName();
-      graph.addFrame(frame_id);
-      LOG_DEBUG_S << "[envire_smurf::Robot] Frame Added: " << frame_id;
+        frame_id = frame->getName();
+        graph.addFrame(frame_id);
+        LOG_DEBUG_S << "[envire_smurf::Robot] Frame Added: " << frame_id;
     }
+    // Load the frame of each dynamic transformation in the smurf model
+    std::vector<smurf::DynamicTransformation *> dynamicTfs= robot.getDynamicTransforms();
+    for(smurf::DynamicTransformation* dynamicTf : dynamicTfs)
+    {
+        frame_id = dynamicTf -> getName();
+        graph.addFrame(frame_id);
+        LOG_DEBUG_S << "[envire_smurf::Robot] Frame Added for a dynamic transformation: " << frame_id;
+    }
+}
+
+void envire::envire_smurf::Robot::loadDynamicJoints(envire::core::TransformGraph &graph)
+{
+    using jointsPtr = envire::core::Item<smurf::Joint>::Ptr ;
+    std::vector<smurf::Joint *> joints= robot.getJoints();
+    if (joints.empty())
+    {
+    LOG_DEBUG_S << "[Envire Smurf] There is no joint in the model";
+    }
+    for(smurf::Joint* joint : joints) 
+    {
+    //smurf::Frame jointFrame = joint->getName();
+    envire::core::FrameId frame_id= joint -> getName();
+    jointsPtr joint_itemPtr (new envire::core::Item<smurf::Joint>(*joint));
+        graph.addItemToFrame(frame_id, joint_itemPtr);
+    LOG_DEBUG_S << "[Envire Smurf] There is a joint in the frame " << joint -> getName() << " from " << joint->getSourceFrame().getName() << " to " << joint->getTargetFrame().getName();
+    } 
+  
+}
+
+void envire::envire_smurf::Robot::loadDynamicTfs(envire::core::TransformGraph &graph)
+{
+    // Joints need to be loaded to the graph
+    loadDynamicJoints(graph);
     using dynamicTransPtr = boost::shared_ptr<envire::core::Item<smurf::DynamicTransformation  > >;
     std::vector<smurf::DynamicTransformation *> dynamicTfs= robot.getDynamicTransforms();
     for(smurf::DynamicTransformation* dynamicTf : dynamicTfs)
     {
-	frame_id = dynamicTf -> getName();
-	graph.addFrame(frame_id);
-	LOG_DEBUG_S << "[envire_smurf::Robot] Frame Added for a dynamic transformation: " << frame_id;
+        // First part: identity transformation between dynamic joint and child (Target)
+        smurf::Frame target = dynamicTf-> getTargetFrame();
+        envire::core::FrameId targetId = target.getName();
+        envire::core::FrameId dynamicId = dynamicTf -> getName();
+        envire::core::Transform staticTf(base::Time::now(), base::TransformWithCovariance::Identity());
+        graph.addTransform(dynamicId, targetId, staticTf);
+        // Second part: getParentToJointOrigin transformation is set between parent and dynamic joint
+        using Iterator = envire::core::TransformGraph::ItemIterator<envire::core::Item<smurf::Joint>::Ptr>;
+        Iterator begin, end;
+        boost::tie(begin, end) = graph.getItems<envire::core::Item<smurf::Joint>::Ptr>(dynamicId);
+        envire::core::Transform parent2Joint;
+        if (begin == end)
+        {
+            LOG_DEBUG_S << "[Envire Smurf] No joint given for the dynamic transformation between " << dynamicId << " and " << targetId;
+            parent2Joint = envire::core::Transform(base::Time::now(), base::TransformWithCovariance::Identity());
+        }
+        else
+        {
+            LOG_DEBUG_S << "[Envire Smurf] Found joint for the dynamic transformation between " << dynamicId << " and " << targetId;
+            smurf::Joint joint = (*begin)->getData();
+            Eigen::Affine3d parentToJoint = joint.getParentToJointOrigin();
+            // If it is named parent to joint it should go from the parent to the joint origin and not after the joint
+            parent2Joint = envire::core::Transform(base::Time::now(), base::TransformWithCovariance(parentToJoint)); 
+        }
+        smurf::Frame source = dynamicTf-> getSourceFrame();
+        envire::core::FrameId sourceId = source.getName();
+        graph.addTransform(sourceId, dynamicId, parent2Joint);
+    }
+}
+
+void envire::envire_smurf::Robot::loadStaticTfs(envire::core::TransformGraph &graph)
+{
+    using staticTransPtr = boost::shared_ptr<envire::core::Item<smurf::StaticTransformation*  > >;
+    std::vector<smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
+    for(smurf::StaticTransformation* tf : staticTfs) {
+        smurf::Frame source = tf -> getSourceFrame();
+        envire::core::FrameId sourceId = source.getName();
+        smurf::Frame target = tf -> getTargetFrame();
+        envire::core::FrameId targetId = target.getName();
+        Eigen::Affine3d tf_smurf = tf -> getTransformation();
+        envire::core::Transform envire_tf(base::Time::now(), base::TransformWithCovariance(tf_smurf));
+        graph.addTransform(sourceId, targetId, envire_tf);
     }
 }
 
 void envire::envire_smurf::Robot::loadTfs(envire::core::TransformGraph &graph)
 {
-    
-    using dynamicTransPtr = boost::shared_ptr<envire::core::Item<smurf::DynamicTransformation  > >;
-    std::vector<smurf::DynamicTransformation *> dynamicTfs= robot.getDynamicTransforms();
-    for(smurf::DynamicTransformation* dynamicTf : dynamicTfs)
-    {
-        smurf::Frame source = dynamicTf-> getSourceFrame();
-	envire::core::FrameId sourceId = source.getName();
-	smurf::Frame target = dynamicTf-> getTargetFrame();
-	envire::core::FrameId targetId = target.getName();
-	envire::core::FrameId dynamicId = dynamicTf -> getName();
-	envire::core::Transform staticTf(base::Time::now(), base::TransformWithCovariance::Identity());
-	graph.addTransform(sourceId, dynamicId, staticTf);
-	// Grab the joint stored in that frame which contains the offset
-	using Iterator = envire::core::TransformGraph::ItemIterator<envire::core::Item<smurf::Joint>::Ptr>;
-	Iterator begin, end;
-	boost::tie(begin, end) = graph.getItems<envire::core::Item<smurf::Joint>::Ptr>(dynamicId);
-	envire::core::Transform axisTf;
-	if (begin == end)
-	{
-	  LOG_DEBUG_S << "[Envire Smurf] No joint given for the dynamic transformation between " << sourceId << " and " << targetId;
-	  axisTf = envire::core::Transform(base::Time::now(), base::TransformWithCovariance::Identity());
-	}
-	else
-	{
-	  LOG_DEBUG_S << "[Envire Smurf] Found joint for the dynamic transformation between " << sourceId << " and " << targetId;
-	  smurf::Joint joint = (*begin)->getData();
-	  Eigen::Affine3d parentToJoint = joint.getParentToJointOrigin();
-	  // If it is named parent to joint it should go from the parent to the joint origin and not after the joint
-	  axisTf = envire::core::Transform(base::Time::now(), base::TransformWithCovariance(parentToJoint)); 
-	}
-	graph.addTransform(dynamicId, targetId, axisTf);
-    }
-    
-    using staticTransPtr = boost::shared_ptr<envire::core::Item<smurf::StaticTransformation*  > >;
-    std::vector<smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
-    for(std::vector<smurf::StaticTransformation *>::iterator it = staticTfs.begin(); it != staticTfs.end(); ++it) {
-        smurf::Frame source = (*it) -> getSourceFrame();
-        envire::core::FrameId sourceId = source.getName();
-        smurf::Frame target = (*it) -> getTargetFrame();
-        envire::core::FrameId targetId = target.getName();
-	Eigen::Affine3d tf_smurf = (*it) -> getTransformation();
-        base::Time time = base::Time::now();
-        base::TransformWithCovariance tf_cov(tf_smurf);
-        envire::core::Transform envire_tf(time, tf_cov);
-	// Before adding the transformation check that no dynamic transformation is in between the frames
-        graph.addTransform(sourceId, targetId, envire_tf);
-    }
+    loadDynamicTfs(graph);
+    loadStaticTfs(graph);
+}
 
+void envire::envire_smurf::Robot::loadPhysics(envire::core::TransformGraph& graph)
+{
+    // Add Physic objects of which the simulator generated simple objects
+    using linkItemPtr = envire::core::Item<smurf::Frame>::Ptr;
+    envire::core::FrameId frame_id;
+    std::vector<smurf::Frame *> frames= robot.getFrames();
+    for(smurf::Frame* frame : frames)
+    {
+        linkItemPtr link_itemPtr (new  envire::core::Item<smurf::Frame>(*frame));
+        graph.addItemToFrame(frame -> getName(), link_itemPtr);
+        LOG_DEBUG_S << "Added an smurf::frame to the frame" << frame->getName();
+    }
+}
+
+void envire::envire_smurf::Robot::loadStaticJoints(envire::core::TransformGraph &graph)
+{
+    using staticTransPtr = boost::shared_ptr<envire::core::Item<smurf::StaticTransformation  > >;
+    std::vector<smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
+    for(smurf::StaticTransformation* tf : staticTfs) {
+        smurf::Frame source = tf -> getSourceFrame();
+        envire::core::FrameId sourceId = source.getName();
+        smurf::Frame target = tf -> getTargetFrame();
+        envire::core::FrameId targetId = target.getName();
+        staticTransPtr joint_itemPtr (new  envire::core::Item< smurf::StaticTransformation > (*tf));
+        graph.addItemToFrame(sourceId, joint_itemPtr);
+        LOG_DEBUG_S << "[Envire Smurf] Added a new Item< smurf::StaticTransformation >";
+    } 
 }
 
 void envire::envire_smurf::Robot::loadSensors(envire::core::TransformGraph &graph)
@@ -103,28 +165,6 @@ void envire::envire_smurf::Robot::loadSensors(envire::core::TransformGraph &grap
 	LOG_DEBUG_S << "[Envire SMURF] Attached sensor " << sensor->getname() << " to frame " << frameName;
     }
 }
-
-/*
-    // Static Transformations: All transformations are considered static initially
-    std::vector<smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
-    for(std::vector<smurf::StaticTransformation *>::iterator it = staticTfs.begin(); it != staticTfs.end(); ++it) {
-        smurf::Frame source = (*it) -> getSourceFrame();
-        envire::core::FrameId sourceId = source.getName();
-        smurf::Frame target = (*it) -> getTargetFrame();
-        envire::core::FrameId targetId = target.getName();
-        Eigen::Affine3d tf_smurf = (*it) -> getTransformation();
-        base::Time time = base::Time::now();
-        base::TransformWithCovariance tf_cov(tf_smurf);
-        envire::core::Transform envire_tf(time, tf_cov);
-        graph.addTransform(sourceId, targetId, envire_tf);
-        staticTransPtr joint_itemPtr (new  envire::core::Item< smurf::StaticTransformation* > );
-        joint_itemPtr->setData(*it);
-        graph.addItemToFrame(sourceId,joint_itemPtr);
-    }
-
-}
-*/
-
 void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path)
 {
     // TODO Glossary
@@ -132,16 +172,15 @@ void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &gr
     // Link: URDF link, which in SMURF are called frames too
     // Should we just not mention the link?
     robot.loadFromSmurf(path);
-    // Add Frames (no physical or visual stuff
+    // Add Frames (no physical or visual stuff)
     loadFrames(graph);
     // To load the Transformations we need the joints for the relative position of those
-    loadJoints(graph);
+    loadDynamicJoints(graph);
     // Add Transformations
     loadTfs(graph);
     // Add Sensors
     loadSensors(graph);
 }
-
 void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path, envire::core::vertex_descriptor linkTo)
 {
     LOG_DEBUG("[envire_smurf::Robot]loadFromSmurf with a given frame to link to");
@@ -153,7 +192,6 @@ void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &gr
     iniPose.time = base::Time::now();
     graph.addTransform(graph.getFrameId(linkTo), rootName, iniPose);
 }
-
 void envire::envire_smurf::Robot::loadVisuals(envire::core::TransformGraph &graph)
 {
     using visualsItemPtr = envire::core::Item<std::vector<smurf::Visual>>::Ptr;
@@ -166,55 +204,10 @@ void envire::envire_smurf::Robot::loadVisuals(envire::core::TransformGraph &grap
     }
 }
 
-void envire::envire_smurf::Robot::loadPhysics(envire::core::TransformGraph& graph)
-{
-    // Add Physics (The stuff the simulator reacts to) Better outside this method
-    using linkItemPtr = envire::core::Item<smurf::Frame>::Ptr;
-    envire::core::FrameId frame_id;
-    std::vector<smurf::Frame *> frames= robot.getFrames();
-    for(smurf::Frame* frame : frames)
-    {
-	linkItemPtr link_itemPtr (new  envire::core::Item<smurf::Frame>(*frame));
-        graph.addItemToFrame(frame -> getName(), link_itemPtr);
-	LOG_DEBUG("Added an smurf::frame to the frame");
-    }
-}
 
-void envire::envire_smurf::Robot::loadStaticJoints(envire::core::TransformGraph &graph)
-{
-    // Load the static trasformations as simulation joints
-    using staticTransPtr = boost::shared_ptr<envire::core::Item<smurf::StaticTransformation  > >;
-    std::vector<smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
-    for(smurf::StaticTransformation* tf : staticTfs) {
-        smurf::Frame source = tf -> getSourceFrame();
-        envire::core::FrameId sourceId = source.getName();
-        smurf::Frame target = tf -> getTargetFrame();
-        envire::core::FrameId targetId = target.getName();
-	// Smurf::StaticJoint
-	staticTransPtr joint_itemPtr (new  envire::core::Item< smurf::StaticTransformation > (*tf));
-        graph.addItemToFrame(sourceId, joint_itemPtr);
-	LOG_DEBUG_S << "[Envire Smurf] Added a new Item< smurf::StaticTransformation >";
-    } 
-}
 
-void envire::envire_smurf::Robot::loadJoints(envire::core::TransformGraph &graph)
-{
-    using jointsPtr = envire::core::Item<smurf::Joint>::Ptr ;
-    std::vector<smurf::Joint *> joints= robot.getJoints();
-    if (joints.empty())
-    {
-	LOG_DEBUG_S << "[Envire Smurf] There is no joint in the model";
-    }
-    for(smurf::Joint* joint : joints) 
-    {
-	//smurf::Frame jointFrame = joint->getName();
-	envire::core::FrameId frame_id= joint -> getName();
-	jointsPtr joint_itemPtr (new envire::core::Item<smurf::Joint>(*joint));
-        graph.addItemToFrame(frame_id, joint_itemPtr);
-	LOG_DEBUG_S << "[Envire Smurf] There is a joint in the frame " << joint -> getName() << " from " << joint->getSourceFrame().getName() << " to " << joint->getTargetFrame().getName();
-    } 
-  
-}
+
+
 
 void envire::envire_smurf::Robot::loadRotationalJoints(envire::core::TransformGraph &graph)
 {
@@ -224,44 +217,28 @@ void envire::envire_smurf::Robot::loadRotationalJoints(envire::core::TransformGr
   
 }
 
-void envire::envire_smurf::Robot::loadDynamicTransformations(envire::core::TransformGraph &graph)
-{
-    using dynamicTransPtr = boost::shared_ptr<envire::core::Item<smurf::DynamicTransformation  > >;
-    std::vector<smurf::DynamicTransformation *> dynamicTfs= robot.getDynamicTransforms();
-    for(smurf::DynamicTransformation* tf : dynamicTfs) {
-        smurf::Frame source = tf -> getSourceFrame();
-        envire::core::FrameId sourceId = source.getName();
-        smurf::Frame target = tf -> getTargetFrame();
-        envire::core::FrameId targetId = target.getName();
-	// The dynamic transformations are stored in the graph in a new frame between source and target
-	dynamicTransPtr joint_itemPtr (new  envire::core::Item< smurf::DynamicTransformation > (*tf));
-        graph.addItemToFrame(sourceId, joint_itemPtr);
-	LOG_DEBUG_S << "[Envire Smurf] Added a new Item< smurf::DynamicTransformation > it connects " << source.getName() << " and " << target.getName();
-	
-    } 
-  
-}
 
-void envire::envire_smurf::Robot::loadDynamicJoints(envire::core::TransformGraph &graph)
-{
-    // There are several classes in smurf::Robot that represent dynamicJoints: 
-    /*
-     * 				DynamicTransformation  (for the provider and the port)
-     * 					|
-     * 					Joint
-     * 					|
-     * 			-------------------------
-     * 			|			|
-     * 			RotationalJoint		TransationalJoint
-     * 
-     * All get loaded here
-     */
-    loadJoints(graph);
-    loadDynamicTransformations(graph);
-    
-    //loadRotationalJoints(graph);
-    //loadTransationalJoints(graph);
-}
+
+//void envire::envire_smurf::Robot::loadDynamicJoints(envire::core::TransformGraph &graph)
+//{
+//    // There are several classes in smurf::Robot that represent dynamicJoints: 
+//    /*
+//     * 				DynamicTransformation  (for the provider and the port)
+//     * 					|
+//     * 					Joint
+//     * 					|
+//     * 			-------------------------
+//     * 			|			|
+//     * 			RotationalJoint		TransationalJoint
+//     * 
+//     * All get loaded here
+//     */
+//    loadDynamicJoints(graph);
+//    //loadDynamicTransformations(graph);
+//    
+//    //loadRotationalJoints(graph);
+//    //loadTransationalJoints(graph);
+//}
 
 /*
      * This method creates all the required simulation objects in the envire graph that are required to simulate the robot. The created objects are detected by the envire_physics plugin
