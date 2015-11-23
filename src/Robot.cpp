@@ -162,35 +162,24 @@ void envire::envire_smurf::Robot::loadSensors(envire::core::TransformGraph &grap
         std::string frameName = sensor->getattachmentPoint()->getName();
         sensorItemPtr sensor_itemPtr (new  envire::core::Item< smurf::Sensor>(*sensor) );
         graph.addItemToFrame(frameName, sensor_itemPtr);
-	LOG_DEBUG_S << "[Envire SMURF] Attached sensor " << sensor->getname() << " to frame " << frameName;
+        LOG_DEBUG_S << "[Envire SMURF] Attached sensor " << sensor->getname() << " to frame " << frameName;
     }
 }
-void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path)
+void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph)
 {
-    // TODO Glossary
-    // Frame: Envire Frame
-    // Link: URDF link, which in SMURF are called frames too
-    // Should we just not mention the link?
-    robot.loadFromSmurf(path);
-    // Add Frames (no physical or visual stuff)
     loadFrames(graph);
-    // To load the Transformations we need the joints for the relative position of those
-    loadDynamicJoints(graph);
-    // Add Transformations
     loadTfs(graph);
-    // Add Sensors
-    loadSensors(graph);
 }
-void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, const std::string& path, envire::core::vertex_descriptor linkTo)
+void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, envire::core::vertex_descriptor linkTo)
 {
     LOG_DEBUG("[envire_smurf::Robot]loadFromSmurf with a given frame to link to");
-    LOG_DEBUG_S << "[envire_smurf::Robot]Transform to linkTo added: " << graph.getFrameId(linkTo) << " and " << rootName;
-    // Load the robot
-    loadFromSmurf(graph, path); // This one should not add the simulation reactive stuff
+    loadFromSmurf(graph);
     // Create the transform between the linkTo and the robot Root
-    envire::core::FrameId frame_id = rootName; //TODO get the rootName from the smurf::Robot instead of using a const here
+    //envire::core::FrameId robotRoot = robot.getRootFrame()->getName(); // FIXME This method fails
+    envire::core::FrameId robotRoot = "root";
+    LOG_DEBUG_S << "[envire_smurf::Robot]Transform to linkTo added: " << graph.getFrameId(linkTo) << " and " << robotRoot;
     iniPose.time = base::Time::now();
-    graph.addTransform(graph.getFrameId(linkTo), rootName, iniPose);
+    graph.addTransform(graph.getFrameId(linkTo), robotRoot, iniPose);
 }
 void envire::envire_smurf::Robot::loadVisuals(envire::core::TransformGraph &graph)
 {
@@ -198,25 +187,35 @@ void envire::envire_smurf::Robot::loadVisuals(envire::core::TransformGraph &grap
     std::vector<smurf::Frame *> frames= robot.getFrames();
     for(smurf::Frame* frame : frames)
     {
-	visualsItemPtr visuals_itemPtr (new  envire::core::Item<std::vector<smurf::Visual>>(frame->getVisuals()));
-	LOG_DEBUG("[envire_smurf::Robot]Added a vector of smurf::Visual to the frame");
+        visualsItemPtr visuals_itemPtr (new  envire::core::Item<std::vector<smurf::Visual>>(frame->getVisuals()));
+        LOG_DEBUG("[envire_smurf::Robot]Added a vector of smurf::Visual to the frame");
         graph.addItemToFrame(frame -> getName(), visuals_itemPtr);
     }
 }
-
-
-
-
-
-
-void envire::envire_smurf::Robot::loadRotationalJoints(envire::core::TransformGraph &graph)
-{
-    using rotationalPtr = boost::shared_ptr<envire::core::Item<smurf::RotationalJoint > >;
-    // No method returns the RotationalJoints by now
-    //std::vector<smurf::RotationalJoint *> rotationals = robot.getRotationalJoints();
-  
+void envire::envire_smurf::Robot::simulationReady(envire::core::TransformGraph &graph){
+    std::vector<smurf::Frame *> frames= robot.getFrames();
+    for(std::vector<smurf::Frame *>::iterator it = frames.begin(); it != frames.end(); ++it)
+    {
+        std::string frame_id = (*it)->getName();
+        graph.getFrame(frame_id);
+        //mars::sim::PhysicsConfigMapItem simFrame;
+        mars::sim::PhysicsConfigMapItem::Ptr item(new mars::sim::PhysicsConfigMapItem);
+        graph.addItemToFrame(frame_id, item);
+        // What has to go in a PhysicsConfigMap?
+    }
+    // Get all the smurf::StaticTransformation objects and generate the correspondent JointConfigMapItem in the same frames
+    // Get all the smurf::Sensor objecst and generate the correspondet SensorConfigMapItem in the same frames (The SensorConfigMapItem) is not defined yet
 }
 
+//
+//void envire::envire_smurf::Robot::loadRotationalJoints(envire::core::TransformGraph &graph)
+//{
+//    using rotationalPtr = boost::shared_ptr<envire::core::Item<smurf::RotationalJoint > >;
+//    // No method returns the RotationalJoints by now
+//    //std::vector<smurf::RotationalJoint *> rotationals = robot.getRotationalJoints();
+//  
+//}
+//
 
 
 //void envire::envire_smurf::Robot::loadDynamicJoints(envire::core::TransformGraph &graph)
@@ -240,26 +239,7 @@ void envire::envire_smurf::Robot::loadRotationalJoints(envire::core::TransformGr
 //    //loadTransationalJoints(graph);
 //}
 
-/*
-     * This method creates all the required simulation objects in the envire graph that are required to simulate the robot. The created objects are detected by the envire_physics plugin
-     * 
-     * Why not generate directly the PhysicsConfigMapItem in the frame in loadFromSmurf? Because you may not want to simulate
-     */
-void envire::envire_smurf::Robot::simulationReady(envire::core::TransformGraph &graph){
-    // Get all the smurf::Frame objects and generate the correspondent PhysicsConfigMapItem in the same frames
-    std::vector<smurf::Frame *> frames= robot.getFrames();
-    for(std::vector<smurf::Frame *>::iterator it = frames.begin(); it != frames.end(); ++it)
-    {
-        std::string frame_id = (*it)->getName();
-        graph.getFrame(frame_id);
-	//mars::sim::PhysicsConfigMapItem simFrame;
-	mars::sim::PhysicsConfigMapItem::Ptr item(new mars::sim::PhysicsConfigMapItem);
-        graph.addItemToFrame(frame_id, item);
-	// What has to go in a PhysicsConfigMap?
-    }
-    // Get all the smurf::StaticTransformation objects and generate the correspondent JointConfigMapItem in the same frames
-    // Get all the smurf::Sensor objecst and generate the correspondet SensorConfigMapItem in the same frames (The SensorConfigMapItem) is not defined yet
-}
+
 
 bool envire::envire_smurf::Robot::frameHas(envire::core::TransformGraph &graph,FRAME_ITEM_TYPE itemType, envire::core::FrameId frameID)
 {

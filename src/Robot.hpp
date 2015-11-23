@@ -5,6 +5,8 @@
 #include <smurf/Smurf.hpp>
 typedef enum {SENSOR,JOINT,LINK}FRAME_ITEM_TYPE;
 
+// TODO Glossary
+
 namespace envire
 { 
     namespace envire_smurf
@@ -51,36 +53,45 @@ namespace envire
             void loadStaticJoints(envire::core::TransformGraph &graph);
             void loadSensors(envire::core::TransformGraph &graph);
             /**
-             * Generates the robot entity in the transformation graph from the
-             * information in the SMURF file, it will only contain the static
-             * transformations and the information of each link and joint.
-             * 
-             * 
+             * Loads the robot entity in the transformation graph from the
+             * information in the SMURF file, it contains:
+             * - Static and Dynamic transformations. The dynamic transformations are located after a dynamic joint. As initial value they have the identity
+             * - Frames.
+             * It will not contain:
+             * - Links of the robot. 
+             * - Static joints for the simulation of the robot.
+             * - Sensors.
+             * The components that are required for simulation are loaded in simulationReady
              */
-            void loadFromSmurf( envire::core::TransformGraph& graph, const std::string& path);
+            void loadFromSmurf( envire::core::TransformGraph& graph);
             /**
              * Links the robot to the provided vertex with a dummy transformation
              * 
              * The vertex_descriptor that corresponds to the root frame of the robot. For this to occur the root frame of the robot must have same name that the constant attribute rootName of this class.
              * 
              */
-            void loadFromSmurf( envire::core::TransformGraph &graph, const std::string &path, envire::core::vertex_descriptor linkTo);
+            void loadFromSmurf( envire::core::TransformGraph &graph, envire::core::vertex_descriptor linkTo);
             /**
              * 
              */
             void loadVisuals(envire::core::TransformGraph &graph);
-
-            
-            
-            void loadRotationalJoints(envire::core::TransformGraph &graph);
-            //void loadTransationalJoints(envire::core::TransformGraph &graph);
-            //void loadDynamicTransformations(envire::core::TransformGraph &graph);
-            //void loadDynamicJoints(envire::core::TransformGraph &graph);
             /**
              * Includes in the graph all the necessary information about the robot needed for the physical simulation.
+             * Including:
+             * - Links of the robot. 
+             * - Static joints for the simulation of the robot.
+             * - Sensors.
              * 
              */
             void simulationReady(envire::core::TransformGraph &graph);
+
+            
+            
+            //void loadRotationalJoints(envire::core::TransformGraph &graph);
+            //void loadTransationalJoints(envire::core::TransformGraph &graph);
+            //void loadDynamicTransformations(envire::core::TransformGraph &graph);
+            //void loadDynamicJoints(envire::core::TransformGraph &graph);
+
             /**
              * Checks if the given frame contains any object of the given @itemType
              * 
@@ -100,7 +111,6 @@ namespace envire
              */
             smurf::Robot robot;
         private:
-            const envire::core::FrameId rootName = "root";
             envire::core::Transform iniPose;
         };
         class Environment

@@ -87,20 +87,43 @@ BOOST_AUTO_TEST_CASE(load_physics)
     viz.write(transformGraph, "loadPhysicsTest.dot");
 }
 
-BOOST_AUTO_TEST_CASE(load_asguard_smurf)
+BOOST_AUTO_TEST_CASE(load_sensors)
 {
-    /*
-    envire::envire_smurf::Robot robot;
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
-    //std::string path = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(ASGUARD4)%>");
-    std::string path = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(SPACECLIMBER)%>");
+    envire::envire_smurf::Robot robot(path);
+    robot.loadFrames(transformGraph);
+    robot.loadSensors(transformGraph);
+    viz.write(transformGraph, "loadSensorsTest.dot");
+}
+
+BOOST_AUTO_TEST_CASE(load_from_smurf)
+{
+    envire::core::TransformGraph transformGraph;
+    envire::core::GraphViz viz;
     std::cout << "Path to robot model " << path << std::endl;
-    robot.loadFromSmurf(transformGraph, path);
-    viz.write(transformGraph, "load_asguard_smurf.dot");
+    envire::envire_smurf::Robot robot(path);
+    robot.loadFromSmurf(transformGraph);
+    viz.write(transformGraph, "loadFromSmurfTest.dot");
+}
+
+BOOST_AUTO_TEST_CASE(load_from_smurf_2)
+{
+    envire::core::TransformGraph transformGraph;
+    envire::core::GraphViz viz;
+    std::cout << "Path to robot model " << path << std::endl;
+    envire::envire_smurf::Robot robot(path);
+    std::cout << "Before adding frame" << std::endl;
+    envire::core::FrameId id = "NodeToLinkRoot";
+    transformGraph.addFrame(id);
+    std::cout << "Added frame" << std::endl;
+    envire::core::vertex_descriptor vertex = transformGraph.getVertex(id);
+    std::cout << "getVertex executed" << std::endl;
+    robot.loadFromSmurf(transformGraph, vertex);
+    viz.write(transformGraph, "loadFromSmurfTest2.dot");
+}
     //robot.loadJoints(transformGraph);
     //robot.loadDynamicTransformations(transformGraph);
-    */
     /*
      *    // The following lines are an example of how to add an item to a frame of the graph, they should be removed from the test ASAP
      *    std::string item_content = "example";
@@ -118,7 +141,6 @@ BOOST_AUTO_TEST_CASE(load_asguard_smurf)
     //viz.write(transformGraph, "simulatedAsguard.dot");
     
     
-}
 
 BOOST_AUTO_TEST_CASE(get_transform_frames)
 {
