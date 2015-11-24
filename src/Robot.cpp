@@ -123,6 +123,24 @@ void envire::envire_smurf::Robot::loadTfs(envire::core::TransformGraph &graph)
     loadStaticTfs(graph);
 }
 
+void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph)
+{
+    loadFrames(graph);
+    loadTfs(graph);
+}
+
+void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, envire::core::vertex_descriptor linkTo)
+{
+    LOG_DEBUG("[envire_smurf::Robot]loadFromSmurf with a given frame to link to");
+    loadFromSmurf(graph);
+    // Create the transform between the linkTo and the robot Root
+    //envire::core::FrameId robotRoot = robot.getRootFrame()->getName(); // FIXME This method fails
+    envire::core::FrameId robotRoot = "root";
+    LOG_DEBUG_S << "[envire_smurf::Robot]Transform to linkTo added: " << graph.getFrameId(linkTo) << " and " << robotRoot;
+    iniPose.time = base::Time::now();
+    graph.addTransform(graph.getFrameId(linkTo), robotRoot, iniPose);
+}
+
 void envire::envire_smurf::Robot::loadStaticJoints(envire::core::TransformGraph &graph)
 {
     using staticTransPtr = boost::shared_ptr<envire::core::Item<smurf::StaticTransformation  > >;
@@ -150,24 +168,6 @@ void envire::envire_smurf::Robot::loadSensors(envire::core::TransformGraph &grap
         graph.addItemToFrame(frameName, sensor_itemPtr);
         LOG_DEBUG_S << "[Envire SMURF] Attached sensor " << sensor->getname() << " to frame " << frameName;
     }
-}
-
-void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph)
-{
-    loadFrames(graph);
-    loadTfs(graph);
-}
-
-void envire::envire_smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, envire::core::vertex_descriptor linkTo)
-{
-    LOG_DEBUG("[envire_smurf::Robot]loadFromSmurf with a given frame to link to");
-    loadFromSmurf(graph);
-    // Create the transform between the linkTo and the robot Root
-    //envire::core::FrameId robotRoot = robot.getRootFrame()->getName(); // FIXME This method fails
-    envire::core::FrameId robotRoot = "root";
-    LOG_DEBUG_S << "[envire_smurf::Robot]Transform to linkTo added: " << graph.getFrameId(linkTo) << " and " << robotRoot;
-    iniPose.time = base::Time::now();
-    graph.addTransform(graph.getFrameId(linkTo), robotRoot, iniPose);
 }
 
 void envire::envire_smurf::Robot::loadPhysics(envire::core::TransformGraph& graph)

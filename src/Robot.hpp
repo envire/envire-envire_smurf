@@ -38,16 +38,9 @@ namespace envire
             void loadDynamicTfs(envire::core::TransformGraph &graph);
             void loadStaticTfs(envire::core::TransformGraph &graph);
             /**
-             * Loads all the transformations on the graph. For the dynamic transformations an identity transformation is set for the children and the transformation to the parent is set to the father
-             * 
+             * Loads all the transformations on the graph. For the dynamic transformations an identity transformation is set for the children and the transformation to the parent is set to the father.
              */
             void loadTfs(envire::core::TransformGraph &graph);
-            /**
-             * Load in the vertex from where a static connection to other frames exist a Smurf::StaticTransformation.
-             * To this objects the simulation reacts by creating the simulation joint between the connected links. The sourceFrame and the targetFrame are included in the tf.
-             */
-            void loadStaticJoints(envire::core::TransformGraph &graph);
-            void loadSensors(envire::core::TransformGraph &graph);
             /**
              * Loads the robot entity in the transformation graph from the
              * information in the SMURF file, it contains:
@@ -67,6 +60,12 @@ namespace envire
              * 
              */
             void loadFromSmurf( envire::core::TransformGraph &graph, envire::core::vertex_descriptor linkTo);
+            /**
+             * Load in the vertex from where a static connection to other frames exist a Smurf::StaticTransformation.
+             * To this objects the simulation reacts by creating the simulation joint between the connected links. The sourceFrame and the targetFrame are included in the tf.
+             */
+            void loadStaticJoints(envire::core::TransformGraph &graph);
+            void loadSensors(envire::core::TransformGraph &graph);
             /**
              * This method includes in the frames the physical objects that the simulator will react to
              */

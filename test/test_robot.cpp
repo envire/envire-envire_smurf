@@ -67,6 +67,29 @@ BOOST_AUTO_TEST_CASE(load_tfs)
     viz.write(transformGraph, "loadTfsTest.dot");
 }
 
+BOOST_AUTO_TEST_CASE(load_from_smurf)
+{
+    envire::core::TransformGraph transformGraph;
+    envire::core::GraphViz viz;
+    std::cout << "Path to robot model " << path << std::endl;
+    envire::envire_smurf::Robot robot(path);
+    robot.loadFromSmurf(transformGraph);
+    viz.write(transformGraph, "loadFromSmurfTest.dot");
+}
+
+BOOST_AUTO_TEST_CASE(load_from_smurf_2)
+{
+    envire::core::TransformGraph transformGraph;
+    envire::core::GraphViz viz;
+    std::cout << "Path to robot model " << path << std::endl;
+    envire::envire_smurf::Robot robot(path);
+    envire::core::FrameId id = "NodeToLinkRoot";
+    transformGraph.addFrame(id);
+    envire::core::vertex_descriptor vertex = transformGraph.getVertex(id);
+    robot.loadFromSmurf(transformGraph, vertex);
+    viz.write(transformGraph, "loadFromSmurfTest2.dot");
+}
+
 BOOST_AUTO_TEST_CASE(load_static_joints)
 {
     envire::core::TransformGraph transformGraph;
@@ -97,32 +120,8 @@ BOOST_AUTO_TEST_CASE(load_sensors)
     viz.write(transformGraph, "loadSensorsTest.dot");
 }
 
-BOOST_AUTO_TEST_CASE(load_from_smurf)
-{
-    envire::core::TransformGraph transformGraph;
-    envire::core::GraphViz viz;
-    std::cout << "Path to robot model " << path << std::endl;
-    envire::envire_smurf::Robot robot(path);
-    robot.loadFromSmurf(transformGraph);
-    viz.write(transformGraph, "loadFromSmurfTest.dot");
-}
 
-BOOST_AUTO_TEST_CASE(load_from_smurf_2)
-{
-    envire::core::TransformGraph transformGraph;
-    envire::core::GraphViz viz;
-    std::cout << "Path to robot model " << path << std::endl;
-    envire::envire_smurf::Robot robot(path);
-    std::cout << "Before adding frame" << std::endl;
-    envire::core::FrameId id = "NodeToLinkRoot";
-    transformGraph.addFrame(id);
-    std::cout << "Added frame" << std::endl;
-    envire::core::vertex_descriptor vertex = transformGraph.getVertex(id);
-    std::cout << "getVertex executed" << std::endl;
-    robot.loadFromSmurf(transformGraph, vertex);
-    viz.write(transformGraph, "loadFromSmurfTest2.dot");
-}
-    //robot.loadJoints(transformGraph);
+//robot.loadJoints(transformGraph);
     //robot.loadDynamicTransformations(transformGraph);
     /*
      *    // The following lines are an example of how to add an item to a frame of the graph, they should be removed from the test ASAP
