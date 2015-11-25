@@ -4,6 +4,7 @@
 #include <envire_core/graph/TransformGraph.hpp>
 #include <envire_core/graph/GraphViz.hpp>
 #include <envire_core/items/Item.hpp>
+#include <smurf/Smurf.hpp>
 
 const std::string path = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(ASGUARD4)%>");
 //const std::string robotPath = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(SPACECLIMBER)%>");
@@ -34,7 +35,16 @@ BOOST_AUTO_TEST_CASE(load_dynamic_joints)
     robot.loadFrames(transformGraph);
     robot.loadDynamicJoints(transformGraph);
     viz.write(transformGraph, "loadJointsTest.dot");
-    
+    smurf::Robot smurfRobot;
+    smurfRobot.loadFromSmurf(path);
+    std::vector<smurf::Joint*> smurfJoints = smurfRobot.getJoints();
+    for(smurf::Joint* joint : smurfJoints) 
+    {
+        envire::core::FrameId frame_id= joint -> getName();
+        envire::core::Item<smurf::Joint>::Ptr itemJoint = transformGraph.getItem<envire::core::Item<smurf::Joint>::Ptr>(frame_id); // Can we avoid the Item twice here?
+        smurf::Joint graphJoint = itemJoint->getData();
+        std::cout << "[Envire Smurf Test] A joint was obtained from the graph " << graphJoint.getName() << " from " << graphJoint.getSourceFrame().getName() << " to " << graphJoint.getTargetFrame().getName() << std::endl;
+    } 
 }
 
 BOOST_AUTO_TEST_CASE(load_dynamic_tfs)
