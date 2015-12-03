@@ -186,11 +186,11 @@ void envire::envire_smurf::Robot::loadPhysics(envire::core::TransformGraph& grap
 }
 void envire::envire_smurf::Robot::loadVisuals(envire::core::TransformGraph &graph)
 {
-    using visualsItemPtr = envire::core::Item<std::vector<smurf::Visual>>::Ptr;
+    using visualsItemPtr = envire::core::Item<std::vector<urdf::Visual>>::Ptr;
     std::vector<smurf::Frame *> frames= robot.getFrames();
     for(smurf::Frame* frame : frames)
     {
-        visualsItemPtr visuals_itemPtr (new  envire::core::Item<std::vector<smurf::Visual>>(frame->getVisuals()));
+        visualsItemPtr visuals_itemPtr (new  envire::core::Item<std::vector<urdf::Visual>>(frame->getVisuals()));
         LOG_DEBUG("[envire_smurf::Robot]Added a vector of smurf::Visual to the frame");
         graph.addItemToFrame(frame -> getName(), visuals_itemPtr);
     }
