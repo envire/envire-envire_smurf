@@ -9,8 +9,20 @@ typedef enum {SENSOR,JOINT,LINK}FRAME_ITEM_TYPE;
 
 namespace envire
 { 
-    namespace envire_smurf
+    namespace smurf
     {
+        
+        /**A replacement for urdf::Visual that hides the visual offset, because
+         * in envire the offset is encoded by the structure of the TransformGraph*/
+        struct Visual
+        {
+            Visual(const urdf::Visual& urdfVisual);
+            boost::shared_ptr<urdf::Geometry> geometry;
+            std::string material_name;
+            boost::shared_ptr<urdf::Material> material;
+            std::string name;
+        };
+        
         class Robot
         {
         public: 
@@ -108,7 +120,7 @@ namespace envire
             /** 
              * 
              */
-            smurf::Robot robot;
+            ::smurf::Robot robot;
         private:
             envire::core::Transform iniPose;
         };

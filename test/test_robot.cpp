@@ -11,7 +11,7 @@ const std::string path = orocos_cpp::YAMLConfigParser::applyStringVariableInsert
 
 BOOST_AUTO_TEST_CASE(it_should_not_crash_when_created)
 {
-    envire::envire_smurf::Robot robot;
+    envire::smurf::Robot robot;
 }
 
 BOOST_AUTO_TEST_CASE(load_frames)
@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_CASE(load_frames)
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
     std::cout << "Path to robot model " << path << std::endl;
-    envire::envire_smurf::Robot robot(path);
+    envire::smurf::Robot robot(path);
     std::cout << "Load the Frames" << std::endl;
     robot.loadFrames(transformGraph);
     viz.write(transformGraph, "loadFramesTest.dot");
@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(load_dynamic_joints)
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
     std::cout << "Path to robot model " << path << std::endl;
-    envire::envire_smurf::Robot robot(path);
+    envire::smurf::Robot robot(path);
     std::cout << "Load the Frames" << std::endl;
     robot.loadFrames(transformGraph);
     robot.loadDynamicJoints(transformGraph);
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(load_dynamic_tfs)
 {
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
-    envire::envire_smurf::Robot robot(path);
+    envire::smurf::Robot robot(path);
     robot.loadFrames(transformGraph);
     robot.loadDynamicTfs(transformGraph);
     viz.write(transformGraph, "loadDynamicTfsTest.dot");
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(load_static_tfs)
 {
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
-    envire::envire_smurf::Robot robot(path);
+    envire::smurf::Robot robot(path);
     robot.loadFrames(transformGraph);
     robot.loadStaticTfs(transformGraph);
     viz.write(transformGraph, "loadStaticTfsTest.dot");
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(load_tfs)
 {
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
-    envire::envire_smurf::Robot robot(path);
+    envire::smurf::Robot robot(path);
     robot.loadFrames(transformGraph);
     robot.loadTfs(transformGraph);
     viz.write(transformGraph, "loadTfsTest.dot");
@@ -82,17 +82,29 @@ BOOST_AUTO_TEST_CASE(load_from_smurf)
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
     std::cout << "Path to robot model " << path << std::endl;
-    envire::envire_smurf::Robot robot(path);
+    envire::smurf::Robot robot(path);
     robot.loadFromSmurf(transformGraph);
     viz.write(transformGraph, "loadFromSmurfTest.dot");
 }
+
+BOOST_AUTO_TEST_CASE(load_visuals)
+{
+    envire::core::TransformGraph transformGraph;
+    envire::core::GraphViz viz;
+    std::cout << "Path to robot model " << path << std::endl;
+    envire::smurf::Robot robot(path);
+    robot.loadFromSmurf(transformGraph);
+    robot.loadVisuals(transformGraph);
+    viz.write(transformGraph, "loadVisualsTest.dot");
+}
+
 
 BOOST_AUTO_TEST_CASE(load_from_smurf_2)
 {
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
     std::cout << "Path to robot model " << path << std::endl;
-    envire::envire_smurf::Robot robot(path);
+    envire::smurf::Robot robot(path);
     envire::core::FrameId id = "NodeToLinkRoot";
     transformGraph.addFrame(id);
     envire::core::vertex_descriptor vertex = transformGraph.getVertex(id);
@@ -104,7 +116,7 @@ BOOST_AUTO_TEST_CASE(load_static_joints)
 {
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
-    envire::envire_smurf::Robot robot(path);
+    envire::smurf::Robot robot(path);
     robot.loadFrames(transformGraph);
     robot.loadStaticJoints(transformGraph);
     viz.write(transformGraph, "loadStaticJointsTest.dot");
@@ -114,7 +126,7 @@ BOOST_AUTO_TEST_CASE(load_physics)
 {
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
-    envire::envire_smurf::Robot robot(path);
+    envire::smurf::Robot robot(path);
     robot.loadFrames(transformGraph);
     robot.loadPhysics(transformGraph);
     viz.write(transformGraph, "loadPhysicsTest.dot");
@@ -124,7 +136,7 @@ BOOST_AUTO_TEST_CASE(load_sensors)
 {
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
-    envire::envire_smurf::Robot robot(path);
+    envire::smurf::Robot robot(path);
     robot.loadFrames(transformGraph);
     robot.loadSensors(transformGraph);
     viz.write(transformGraph, "loadSensorsTest.dot");
@@ -145,7 +157,7 @@ BOOST_AUTO_TEST_CASE(load_sensors)
      *    // The previous lines are an example of how to add an item to a frame of the graph, they should be removed from the test ASAP
      */
     // Load now the dynamic transformations information
-    //envire::envire_smurf::Environment environment;
+    //envire::smurf::Environment environment;
     //environment.loadDynamicTransforms(transformGraph, "<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/tools/envire_smurf/test/dynamicTransformations/simulatedAsguard.yml");
     //viz.write(transformGraph, "simulatedAsguard.dot");
     
@@ -153,7 +165,7 @@ BOOST_AUTO_TEST_CASE(load_sensors)
 
 BOOST_AUTO_TEST_CASE(get_transform_frames)
 {
-    //envire::envire_smurf::Robot robot;
+    //envire::smurf::Robot robot;
     //std::string path = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(ASGUARD4)%>");
     //envire::core::TransformGraph transformGraph;
     //robot.loadFromSmurf(transformGraph, path);
@@ -170,7 +182,7 @@ BOOST_AUTO_TEST_CASE(get_transform_frames)
 
 BOOST_AUTO_TEST_CASE(test_frameHas)
 {
-    //envire::envire_smurf::Robot robot;
+    //envire::smurf::Robot robot;
     //std::string path = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(ASGUARD4)%>");
     //envire::core::TransformGraph transformGraph;
     //robot.loadFromSmurf(transformGraph, path);

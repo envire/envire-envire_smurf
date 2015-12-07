@@ -3,6 +3,6 @@
 
 int main(int argc, char** argv)
 {
-    envire::envire_smurf::Robot robot;
+    envire::smurf::Robot robot;
     return 0;
 }
