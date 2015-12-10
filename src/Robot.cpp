@@ -171,6 +171,46 @@ void envire::smurf::Robot::loadSensors(envire::core::TransformGraph &graph)
     }
 }
 
+// TODO: [Refactor] This and loadVisuals are very similar, only the naming differs
+
+void envire::smurf::Robot::loadCollisions(envire::core::TransformGraph& graph)
+{
+    robot.loadCollidables();
+    // Add Physic objects of which the simulator generated simple objects
+    using collisionsVector = std::vector<urdf::Collision>;
+    using collisionItem = envire::core::Item<urdf::Collision>;
+    using collisionsItemPtr = collisionItem::Ptr;
+    envire::core::FrameId frame_id;
+    std::vector<::smurf::Frame *> frames= robot.getFrames();
+    for(::smurf::Frame* frame : frames)
+    {
+        const collisionsVector& collisions = frame->getCollisions();
+        for(urdf::Collision collision : collisions)
+        {
+            const base::Vector3d translation(collision.origin.position.x,            collision.origin.position.y, collision.origin.position.z); 
+            const base::Quaterniond rotation(collision.origin.rotation.w, collision.origin.rotation.x, collision.origin.rotation.y, collision.origin.rotation.z); 
+            collisionsItemPtr collision_itemPtr(new collisionItem(collision));
+            //check if the offset is an identity transform
+            if(translation == base::Vector3d::Zero() && (rotation.coeffs() == base::Quaterniond::Identity().coeffs() || rotation.coeffs() == -base::Quaterniond::Identity().coeffs()))
+            {
+                //if yes, just add the visual to the existing frame
+                graph.addItemToFrame(frame->getName(), collision_itemPtr);
+                LOG_DEBUG_S << "[envire::smurf::loadCollidables] Added an urdf::collision to the frame " << frame->getName();
+            }
+            else
+            {
+                //otherwise, create a new transformation in the graph to encode the offset
+                base::TransformWithCovariance tfCv(translation, rotation);
+                envire::core::Transform tf(base::Time::now(), tfCv);
+                const envire::core::FrameId collisionFrame(frame->getName() + "_collision_" + boost::lexical_cast<envire::core::FrameId>(collision.name));
+                graph.addTransform(frame->getName(), collisionFrame, tf);
+                graph.addItemToFrame(collisionFrame, collision_itemPtr);
+                LOG_DEBUG_S << "[envire::smurf::loadCollidables] Added an urdf::collision to the frame " << collisionFrame;
+            }
+        }
+    }
+}
+
 void envire::smurf::Robot::loadPhysics(envire::core::TransformGraph& graph)
 {
     // Add Physic objects of which the simulator generated simple objects
@@ -213,7 +253,7 @@ void envire::smurf::Robot::loadVisuals(envire::core::TransformGraph &graph)
             {
                 //otherwise, create a new transformation in the graph to encode the visual offset
                 envire::core::Transform tf(translation, rotation);
-                const envire::core::FrameId visualFrame(frame->getName() + "_visual_" + boost::lexical_cast<envire::core::FrameId>(visualNo));
+                const envire::core::FrameId visualFrame(frame->getName() + "_visual_" + boost::lexical_cast<envire::core::FrameId>(visualNo) );
                 ++visualNo;
                 graph.addTransform(frame->getName(), visualFrame, tf);
                 graph.addItemToFrame(visualFrame, visual_itemPtr);
@@ -228,48 +268,10 @@ void envire::smurf::Robot::simulationReady(envire::core::TransformGraph &graph){
     {
         std::string frame_id = (*it)->getName();
         graph.getFrame(frame_id);
-        //mars::sim::PhysicsConfigMapItem simFrame;
         mars::sim::PhysicsConfigMapItem::Ptr item(new mars::sim::PhysicsConfigMapItem);
         graph.addItemToFrame(frame_id, item);
-        // What has to go in a PhysicsConfigMap?
     }
-    // Get all the ::smurf::StaticTransformation objects and generate the correspondent JointConfigMapItem in the same frames
-    // Get all the ::smurf::Sensor objecst and generate the correspondet SensorConfigMapItem in the same frames (The SensorConfigMapItem) is not defined yet
 }
-
-//
-//void envire::smurf::Robot::loadRotationalJoints(envire::core::TransformGraph &graph)
-//{
-//    using rotationalPtr = boost::shared_ptr<envire::core::Item<smurf::RotationalJoint > >;
-//    // No method returns the RotationalJoints by now
-//    //std::vector<smurf::RotationalJoint *> rotationals = robot.getRotationalJoints();
-//  
-//}
-//
-
-
-//void envire::smurf::Robot::loadDynamicJoints(envire::core::TransformGraph &graph)
-//{
-//    // There are several classes in smurf::Robot that represent dynamicJoints: 
-//    /*
-//     * 				DynamicTransformation  (for the provider and the port)
-//     * 					|
-//     * 					Joint
-//     * 					|
-//     * 			-------------------------
-//     * 			|			|
-//     * 			RotationalJoint		TransationalJoint
-//     * 
-//     * All get loaded here
-//     */
-//    loadDynamicJoints(graph);
-//    //loadDynamicTransformations(graph);
-//    
-//    //loadRotationalJoints(graph);
-//    //loadTransationalJoints(graph);
-//}
-
-
 
 bool envire::smurf::Robot::frameHas(envire::core::TransformGraph &graph,FRAME_ITEM_TYPE itemType, envire::core::FrameId frameID)
 {

@@ -87,6 +87,10 @@ namespace envire
              */
             void loadVisuals(envire::core::TransformGraph &graph);
             /**
+             * 
+             */
+            void loadCollisions(envire::core::TransformGraph& graph);
+            /**
              * Includes in the graph all the necessary information about the robot needed for the physical simulation.
              * Including:
              * - Links of the robot. 
