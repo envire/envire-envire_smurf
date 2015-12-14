@@ -4,7 +4,7 @@
 #include <envire_core/graph/TransformGraph.hpp>
 #include <envire_core/graph/GraphViz.hpp>
 #include <envire_core/items/Item.hpp>
-#include <smurf/Smurf.hpp>
+#include <smurf/Robot.hpp>
 
 const std::string path = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(ASGUARD4)%>");
 //const std::string robotPath = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(SPACECLIMBER)%>");

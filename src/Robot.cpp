@@ -164,10 +164,10 @@ void envire::smurf::Robot::loadSensors(envire::core::TransformGraph &graph)
     std::vector<::smurf::Sensor*> sensors= robot.getSensors();
     for(::smurf::Sensor* sensor : sensors)
     {
-        std::string frameName = sensor->getattachmentPoint()->getName();
+        std::string frameName = sensor->getAttachmentPoint()->getName();
         sensorItemPtr sensor_itemPtr (new  envire::core::Item< ::smurf::Sensor>(*sensor) );
         graph.addItemToFrame(frameName, sensor_itemPtr);
-        LOG_DEBUG_S << "[Envire SMURF] Attached sensor " << sensor->getname() << " to frame " << frameName;
+        LOG_DEBUG_S << "[Envire SMURF] Attached sensor " << sensor->getName() << " to frame " << frameName;
     }
 }
 
@@ -175,7 +175,7 @@ void envire::smurf::Robot::loadSensors(envire::core::TransformGraph &graph)
 
 void envire::smurf::Robot::loadCollisions(envire::core::TransformGraph& graph)
 {
-    robot.loadCollidables();
+    robot.loadCollisions();
     // Add Physic objects of which the simulator generated simple objects
     using collisionsVector = std::vector<urdf::Collision>;
     using collisionItem = envire::core::Item<urdf::Collision>;
@@ -187,7 +187,7 @@ void envire::smurf::Robot::loadCollisions(envire::core::TransformGraph& graph)
         const collisionsVector& collisions = frame->getCollisions();
         for(urdf::Collision collision : collisions)
         {
-            const base::Vector3d translation(collision.origin.position.x,            collision.origin.position.y, collision.origin.position.z); 
+            const base::Vector3d translation(collision.origin.position.x, collision.origin.position.y, collision.origin.position.z); 
             const base::Quaterniond rotation(collision.origin.rotation.w, collision.origin.rotation.x, collision.origin.rotation.y, collision.origin.rotation.z); 
             collisionsItemPtr collision_itemPtr(new collisionItem(collision));
             //check if the offset is an identity transform

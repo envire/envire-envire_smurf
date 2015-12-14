@@ -2,7 +2,7 @@
 #define _ROBOTPROJECT_ROBOT_HPP_
 #include <envire_core/graph/TransformGraph.hpp>
 #include <boost/graph/labeled_graph.hpp>
-#include <smurf/Smurf.hpp>
+#include <smurf/Robot.hpp>
 typedef enum {SENSOR,JOINT,LINK}FRAME_ITEM_TYPE;
 
 // TODO Glossary
