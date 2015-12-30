@@ -1,27 +1,12 @@
 #include "Robot.hpp"
 #include <iostream>
-#include <envire_core/items/Transform.hpp>
 #include <base/Time.hpp>
 #include <base/Logging.hpp>
-#include <envire_core/items/Item.hpp>
-#include <configmaps/ConfigData.h>
-#include <mars/sim/ConfigMapItem.h>
 #include <mars/interfaces/NodeData.h>
 #include <mars/utils/Vector.h>
-
-envire::smurf::Robot::Robot(){};
-
-envire::smurf::Robot::Robot(envire::core::Transform pose):iniPose(pose){};
-
-envire::smurf::Robot::Robot(const std::string& path)
-{
-    robot.loadFromSmurf(path);
-}
-
-envire::smurf::Robot::Robot(envire::core::Transform pose,  const std::string& path):iniPose(pose)
-{
-    robot.loadFromSmurf(path);
-}
+#include <configmaps/ConfigData.h>
+#include <envire_core/items/Transform.hpp>
+#include <envire_core/items/Item.hpp>
 
 void envire::smurf::Robot::loadFrames(envire::core::TransformGraph &graph)
 {
@@ -260,16 +245,6 @@ void envire::smurf::Robot::loadVisuals(envire::core::TransformGraph &graph)
             }
         }
         LOG_DEBUG("[envire_smurf::Robot]Added smurf::Visuals to the frame");
-    }
-}
-void envire::smurf::Robot::simulationReady(envire::core::TransformGraph &graph){
-    std::vector<::smurf::Frame *> frames= robot.getFrames();
-    for(std::vector<::smurf::Frame *>::iterator it = frames.begin(); it != frames.end(); ++it)
-    {
-        std::string frame_id = (*it)->getName();
-        graph.getFrame(frame_id);
-        mars::sim::PhysicsConfigMapItem::Ptr item(new mars::sim::PhysicsConfigMapItem);
-        graph.addItemToFrame(frame_id, item);
     }
 }
 

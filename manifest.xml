@@ -11,4 +11,5 @@
   <depend package="tools/orocos_cpp" />
   <depend package="tools/smurf" />
   <depens package="simulation/mars/interfaces" />
+  <depens package="simulation/configmaps" />
 </package>

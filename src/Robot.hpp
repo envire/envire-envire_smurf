@@ -1,9 +1,8 @@
-#ifndef _ROBOTPROJECT_ROBOT_HPP_
-#define _ROBOTPROJECT_ROBOT_HPP_
+#ifndef _ENVIRE_SMURF_ROBOT_HPP_
+#define _ENVIRE_SMURF_ROBOT_HPP_
 #include <envire_core/graph/TransformGraph.hpp>
-#include <boost/graph/labeled_graph.hpp>
 #include <smurf/Robot.hpp>
-typedef enum {SENSOR,JOINT,LINK}FRAME_ITEM_TYPE;
+
 
 // TODO Glossary
 
@@ -11,6 +10,8 @@ namespace envire
 { 
     namespace smurf
     {
+
+        typedef enum {SENSOR,JOINT,LINK}FRAME_ITEM_TYPE;
         
         /**A replacement for urdf::Visual that hides the visual offset, because
          * in envire the offset is encoded by the structure of the TransformGraph*/
@@ -26,14 +27,30 @@ namespace envire
         class Robot
         {
         public: 
-            Robot();
+            //TODO: Shouldn't the Transform Graph be a class member? Seems to be used in every method
+            Robot(){};
             /**
              * Sets iniPose to the provided @param pose
              * 
              */
-            Robot(envire::core::Transform pose);
-            Robot(const std::string& path);
-            Robot(envire::core::Transform pose, const std::string& path);
+            Robot(envire::core::Transform pose):iniPose(pose){};
+            /**
+             *
+             * @param path the path to the smurf to be loaded
+             */
+            Robot(const std::string& path)
+            {
+                robot.loadFromSmurf(path);
+            };
+            /**
+             *
+             * @pose The initial pose to set the robot's root
+             * @param path the path to the smurf to be loaded
+             */
+            Robot(envire::core::Transform pose, const std::string& path):iniPose(pose)
+            {
+                robot.loadFromSmurf(path);
+            };
             /**
              * Adds the frames in the robot as vertex in the graph the @member robot has to have loaded an SMURF document in advance.
              * It adds a frame for each Frame in the smurf model and a frame also for each dynamic transformation.
@@ -90,17 +107,6 @@ namespace envire
              * 
              */
             void loadCollisions(envire::core::TransformGraph& graph);
-            /**
-             * Includes in the graph all the necessary information about the robot needed for the physical simulation.
-             * Including:
-             * - Links of the robot. 
-             * - Static joints for the simulation of the robot.
-             * - Sensors.
-             * 
-             */
-            void simulationReady(envire::core::TransformGraph &graph);
-
-            
             
             //void loadRotationalJoints(envire::core::TransformGraph &graph);
             //void loadTransationalJoints(envire::core::TransformGraph &graph);
@@ -120,6 +126,11 @@ namespace envire
              * 
              */
             std::vector<envire::core::FrameId> getTransformFrames(envire::core::FrameId &sourceFrame,envire::core::FrameId &targetFrame, envire::core::TransformGraph &graph);
+
+            ::smurf::Robot getRobot()
+            {
+                return robot;
+            }
             // Members
             /** 
              * 
@@ -153,4 +164,4 @@ namespace envire
     } // end namespace smurf
 } // end namespace envire
 
-#endif // _ROBOTPROJECT_ROBOT_HPP_
+#endif // _ENVIRE_SMURF_ROBOT_HPP
