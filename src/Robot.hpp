@@ -107,6 +107,10 @@ namespace envire
              * 
              */
             void loadCollisions(envire::core::TransformGraph& graph);
+            /**
+             * 
+             */
+            void loadCollidables(envire::core::TransformGraph& graph);
             
             //void loadRotationalJoints(envire::core::TransformGraph &graph);
             //void loadTransationalJoints(envire::core::TransformGraph &graph);

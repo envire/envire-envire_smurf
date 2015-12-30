@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(load_from_smurf)
     robot.loadFromSmurf(transformGraph);
     viz.write(transformGraph, "loadFromSmurfTest.dot");
 }
-BOOST_AUTO_TEST_CASE(load_collidables)
+BOOST_AUTO_TEST_CASE(load_collisions)
 {
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
@@ -93,6 +93,16 @@ BOOST_AUTO_TEST_CASE(load_collidables)
     envire::smurf::Robot robot(path);
     robot.loadFromSmurf(transformGraph);
     robot.loadCollisions(transformGraph);
+    viz.write(transformGraph, "loadCollisionsTest.dot");
+}
+BOOST_AUTO_TEST_CASE(load_collidables)
+{
+    envire::core::TransformGraph transformGraph;
+    envire::core::GraphViz viz;
+    std::cout << "Path to robot model " << path << std::endl;
+    envire::smurf::Robot robot(path);
+    robot.loadFromSmurf(transformGraph);
+    robot.loadCollidables(transformGraph);
     viz.write(transformGraph, "loadCollidablesTest.dot");
 }
 BOOST_AUTO_TEST_CASE(load_visuals)

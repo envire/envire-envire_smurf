@@ -178,7 +178,7 @@ void envire::smurf::Robot::loadCollisions(envire::core::TransformGraph& graph)
             //check if the offset is an identity transform
             if(translation == base::Vector3d::Zero() && (rotation.coeffs() == base::Quaterniond::Identity().coeffs() || rotation.coeffs() == -base::Quaterniond::Identity().coeffs()))
             {
-                //if yes, just add the visual to the existing frame
+                //if yes, just add the collision to the existing frame
                 graph.addItemToFrame(frame->getName(), collision_itemPtr);
                 LOG_DEBUG_S << "[envire::smurf::loadCollidables] Added an urdf::collision to the frame " << frame->getName();
             }
@@ -194,6 +194,11 @@ void envire::smurf::Robot::loadCollisions(envire::core::TransformGraph& graph)
             }
         }
     }
+}
+
+void envire::smurf::Robot::loadCollidables(envire::core::TransformGraph& graph)
+{
+    robot.loadCollidables();
 }
 
 void envire::smurf::Robot::loadPhysics(envire::core::TransformGraph& graph)
