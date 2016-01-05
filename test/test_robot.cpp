@@ -6,8 +6,9 @@
 #include <envire_core/items/Item.hpp>
 #include <smurf/Robot.hpp>
 
-const std::string path = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(ASGUARD4)%>");
-//const std::string robotPath = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(SPACECLIMBER)%>");
+//const std::string path = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(ASGUARD4)%>");
+const std::string path = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(SPACECLIMBER)%>");
+/*
 BOOST_AUTO_TEST_CASE(it_should_not_crash_when_created)
 {
     envire::smurf::Robot robot;
@@ -102,9 +103,25 @@ BOOST_AUTO_TEST_CASE(load_collidables)
     std::cout << "Path to robot model " << path << std::endl;
     envire::smurf::Robot robot(path);
     robot.loadFromSmurf(transformGraph);
-    robot.loadCollidables(transformGraph);
+    int nextGroupId = 0;
+    robot.loadCollidables(transformGraph, nextGroupId);
     viz.write(transformGraph, "loadCollidablesTest.dot");
 }
+*/
+
+BOOST_AUTO_TEST_CASE(load_physics)
+{
+    envire::core::TransformGraph transformGraph;
+    envire::core::GraphViz viz;
+    std::cout << "Path to robot model " << path << std::endl;
+    envire::smurf::Robot robot(path);
+    robot.loadFromSmurf(transformGraph);
+    int nextGroupId = 0;
+    robot.loadPhysics(transformGraph, nextGroupId);
+    viz.write(transformGraph, "loadPhysicsTest.dot");
+}
+
+/*
 BOOST_AUTO_TEST_CASE(load_visuals)
 {
     envire::core::TransformGraph transformGraph;
@@ -159,3 +176,4 @@ BOOST_AUTO_TEST_CASE(load_sensors)
     robot.loadSensors(transformGraph);
     viz.write(transformGraph, "loadSensorsTest.dot");
 }
+*/

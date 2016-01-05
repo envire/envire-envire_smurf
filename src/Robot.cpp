@@ -180,7 +180,7 @@ void envire::smurf::Robot::loadCollisions(envire::core::TransformGraph& graph)
             {
                 //if yes, just add the collision to the existing frame
                 graph.addItemToFrame(frame->getName(), collision_itemPtr);
-                LOG_DEBUG_S << "[envire::smurf::loadCollidables] Added an urdf::collision to the frame " << frame->getName();
+                LOG_DEBUG_S << "[envire::smurf::loadCollisions] Added an urdf::collision to the frame " << frame->getName();
             }
             else
             {
@@ -190,17 +190,128 @@ void envire::smurf::Robot::loadCollisions(envire::core::TransformGraph& graph)
                 const envire::core::FrameId collisionFrame(frame->getName() + "_collision_" + boost::lexical_cast<envire::core::FrameId>(collision.name));
                 graph.addTransform(frame->getName(), collisionFrame, tf);
                 graph.addItemToFrame(collisionFrame, collision_itemPtr);
-                LOG_DEBUG_S << "[envire::smurf::loadCollidables] Added an urdf::collision to the frame " << collisionFrame;
+                LOG_DEBUG_S << "[envire::smurf::loadCollisions] Added an urdf::collision to the frame " << collisionFrame;
             }
         }
     }
 }
 
-void envire::smurf::Robot::loadCollidables(envire::core::TransformGraph& graph)
+void envire::smurf::Robot::loadCollidables(envire::core::TransformGraph& graph, int& nextGroupId)
 {
     robot.loadCollidables();
+    // For each frame in the robot
+    // For each collidable in the frame
+    // create an item containing the collidable
+    using collidablesVector = std::vector<::smurf::Collidable>;
+    using collidableItem = envire::core::Item<::smurf::Collidable>;
+    using collidableItemPtr = collidableItem::Ptr;
+    envire::core::FrameId frame_id;
+    std::vector<::smurf::Frame *> frames = robot.getFrames();
+    for(::smurf::Frame* frame : frames)
+    {
+        const collidablesVector& collidables  = frame->getCollidables();
+        for(::smurf::Collidable collidable : collidables)
+        {
+            collidable.setGroupId(nextGroupId);
+            urdf::Collision collision = collidable.getCollision();
+            const base::Vector3d translation(collision.origin.position.x, collision.origin.position.y, collision.origin.position.z); 
+            const base::Quaterniond rotation(collision.origin.rotation.w, collision.origin.rotation.x, collision.origin.rotation.y, collision.origin.rotation.z); 
+            collidableItemPtr collidable_itemPtr(new collidableItem(collidable));
+            //check if the offset is an identity transform
+            if(translation == base::Vector3d::Zero() && (rotation.coeffs() == base::Quaterniond::Identity().coeffs() || rotation.coeffs() == -base::Quaterniond::Identity().coeffs()))
+            {
+                //if yes, just add the collision to the existing frame
+                graph.addItemToFrame(frame->getName(), collidable_itemPtr);
+                LOG_DEBUG_S << "[envire::smurf::loadCollidables] Added a smurf::Collidable to the frame " << frame->getName();
+            }
+            else
+            {
+                //otherwise, create a new transformation in the graph to encode the offset
+                base::TransformWithCovariance tfCv(translation, rotation);
+                envire::core::Transform tf(base::Time::now(), tfCv);
+                const envire::core::FrameId collisionFrame(frame->getName() + "_collidable_" + boost::lexical_cast<envire::core::FrameId>(collision.name));
+                graph.addTransform(frame->getName(), collisionFrame, tf);
+                graph.addItemToFrame(collisionFrame, collidable_itemPtr);
+                LOG_DEBUG_S << "[envire::smurf::loadCollidables] Added an smurf::Collidable to the frame " << collisionFrame;
+            }
+        }    
+        nextGroupId ++;
+    }
 }
 
+void envire::smurf::Robot::loadPhysics(envire::core::TransformGraph& graph, int& nextGroupId)
+{
+    // Add Physic objects of which the simulator generated simple objects
+    using linkItemPtr = envire::core::Item<::smurf::Frame>::Ptr;
+    robot.loadCollidables();
+    using collidablesVector = std::vector<::smurf::Collidable>;
+    using collidableItem = envire::core::Item<::smurf::Collidable>;
+    using collidableItemPtr = collidableItem::Ptr;
+    robot.loadInertials();
+    using inertialItem = envire::core::Item<::smurf::Inertial>;
+    using inertialItemPtr = inertialItem::Ptr;
+    //envire::core::FrameId frame_id;
+    std::vector<::smurf::Frame *> frames = robot.getFrames();
+    for(::smurf::Frame* frame : frames)
+    {
+        frame->setGroupId(nextGroupId);
+        linkItemPtr link_itemPtr (new  envire::core::Item<::smurf::Frame>(*frame));
+        graph.addItemToFrame(frame -> getName(), link_itemPtr); // This is the frame that generates the node to which joints can bind
+        LOG_DEBUG_S << "Added an smurf::frame to the frame" << frame->getName();
+        const collidablesVector& collidables  = frame->getCollidables();
+        for(::smurf::Collidable collidable : collidables)
+        {
+            collidable.setGroupId(nextGroupId);
+            urdf::Collision collision = collidable.getCollision();
+            const base::Vector3d translation(collision.origin.position.x, collision.origin.position.y, collision.origin.position.z); 
+            const base::Quaterniond rotation(collision.origin.rotation.w, collision.origin.rotation.x, collision.origin.rotation.y, collision.origin.rotation.z); 
+            collidableItemPtr collidable_itemPtr(new collidableItem(collidable));
+            //check if the offset is an identity transform
+            if(translation == base::Vector3d::Zero() && (rotation.coeffs() == base::Quaterniond::Identity().coeffs() || rotation.coeffs() == -base::Quaterniond::Identity().coeffs()))
+            {
+                //if yes, just add the collision to the existing frame
+                graph.addItemToFrame(frame->getName(), collidable_itemPtr);
+                LOG_DEBUG_S << "[envire::smurf::loadPhysics] Added a smurf::Collidable to the frame " << frame->getName();
+            }
+            else
+            {
+                //otherwise, create a new transformation in the graph to encode the offset
+                base::TransformWithCovariance tfCv(translation, rotation);
+                envire::core::Transform tf(base::Time::now(), tfCv);
+                const envire::core::FrameId collisionFrame(frame->getName()  + "_" + boost::lexical_cast<envire::core::FrameId>(collision.name) + "_collidable");
+                graph.addTransform(frame->getName(), collisionFrame, tf);
+                graph.addItemToFrame(collisionFrame, collidable_itemPtr);
+                LOG_DEBUG_S << "[envire::smurf::loadPhysics] Added a smurf::Collidable to the frame " << collisionFrame;
+            }
+        }    
+        ::smurf::Inertial inertialSMURF = frame -> getInertial();
+        urdf::Inertial inertial = inertialSMURF.getUrdfInertial();
+        inertialSMURF.setGroupId(nextGroupId);
+        inertialSMURF.setName(frame->getName() + "_inertial");
+        const base::Vector3d translation(inertial.origin.position.x, inertial.origin.position.y, inertial.origin.position.z); 
+        const base::Quaterniond rotation(inertial.origin.rotation.w, inertial.origin.rotation.x, inertial.origin.rotation.y, inertial.origin.rotation.z); 
+        inertialItemPtr inertial_itemPtr(new inertialItem(inertialSMURF));
+        //check if the offset is an identity transform
+        if(translation == base::Vector3d::Zero() && (rotation.coeffs() == base::Quaterniond::Identity().coeffs() || rotation.coeffs() == -base::Quaterniond::Identity().coeffs()))
+        {
+            //if yes, just add the inertial to the existing frame
+            graph.addItemToFrame(frame->getName(), inertial_itemPtr);
+            LOG_DEBUG_S << "[envire::smurf::loadPhysics] Added a smurf::Inertial to the frame " << frame->getName();
+        }
+        else
+        {
+            //otherwise, create a new transformation in the graph to encode the offset
+            base::TransformWithCovariance tfCv(translation, rotation);
+            envire::core::Transform tf(base::Time::now(), tfCv);
+            const envire::core::FrameId inertialFrame(frame->getName() + "_inertial");
+            graph.addTransform(frame->getName(), inertialFrame, tf);
+            graph.addItemToFrame(inertialFrame, inertial_itemPtr);
+            LOG_DEBUG_S << "[envire::smurf::loadPhysics] Added a smurf::Inertial to the frame " << inertialFrame;
+        }
+        nextGroupId ++;
+    }
+}
+/*
 void envire::smurf::Robot::loadPhysics(envire::core::TransformGraph& graph)
 {
     // Add Physic objects of which the simulator generated simple objects
@@ -214,6 +325,7 @@ void envire::smurf::Robot::loadPhysics(envire::core::TransformGraph& graph)
         LOG_DEBUG_S << "Added an smurf::frame to the frame" << frame->getName();
     }
 }
+*/
 void envire::smurf::Robot::loadVisuals(envire::core::TransformGraph &graph)
 {
     using VisualsItemPtr = envire::core::Item<envire::smurf::Visual>::Ptr;

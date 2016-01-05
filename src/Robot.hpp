@@ -98,7 +98,7 @@ namespace envire
             /**
              * This method includes in the frames the physical objects that the simulator will react to
              */
-            void loadPhysics(envire::core::TransformGraph &graph);
+            void loadPhysics(envire::core::TransformGraph& graph, int& nextGroupId);
             /**
              * 
              */
@@ -110,7 +110,7 @@ namespace envire
             /**
              * 
              */
-            void loadCollidables(envire::core::TransformGraph& graph);
+            void loadCollidables(envire::core::TransformGraph& graph, int& nextGroupId);
             
             //void loadRotationalJoints(envire::core::TransformGraph &graph);
             //void loadTransationalJoints(envire::core::TransformGraph &graph);
