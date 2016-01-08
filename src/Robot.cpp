@@ -11,14 +11,14 @@
 void envire::smurf::Robot::loadFrames(envire::core::TransformGraph &graph)
 {
     // Load the frame of each frame in the smurf model
-    LOG_DEBUG_S << "[envire_smurf::Robot] LoadFrames start";
+    if (debug) { LOG_DEBUG_S << "[envire_smurf::Robot] LoadFrames start";}
     envire::core::FrameId frame_id;
     std::vector<::smurf::Frame *> frames= robot.getFrames();
     for(::smurf::Frame* frame : frames)
     {
         frame_id = frame->getName();
         graph.addFrame(frame_id);
-        LOG_DEBUG_S << "[envire_smurf::Robot] Frame Added: " << frame_id;
+        if (debug) { LOG_DEBUG_S << "[envire_smurf::Robot] Frame Added: " << frame_id;}
     }
     // Load the frame of each dynamic transformation in the smurf model
     std::vector<::smurf::DynamicTransformation *> dynamicTfs= robot.getDynamicTransforms();
@@ -26,7 +26,7 @@ void envire::smurf::Robot::loadFrames(envire::core::TransformGraph &graph)
     {
         frame_id = dynamicTf -> getName();
         graph.addFrame(frame_id);
-        LOG_DEBUG_S << "[envire_smurf::Robot] Frame Added for a dynamic transformation: " << frame_id;
+        if (debug) { LOG_DEBUG_S << "[envire_smurf::Robot] Frame Added for a dynamic transformation: " << frame_id;}
     }
 }
 
@@ -36,15 +36,14 @@ void envire::smurf::Robot::loadDynamicJoints(envire::core::TransformGraph &graph
     std::vector<::smurf::Joint *> joints= robot.getJoints();
     if (joints.empty())
     {
-        LOG_DEBUG_S << "[Envire Smurf] There is no joint in the model";
+        if (debug) { LOG_DEBUG_S << "[Envire Smurf] There is no joint in the model";}
     }
     for(::smurf::Joint* joint : joints) 
     {
-        //::smurf::Frame jointFrame = joint->getName();
         envire::core::FrameId frame_id= joint -> getName();
         jointsPtr joint_itemPtr (new envire::core::Item<::smurf::Joint>(*joint));
         graph.addItemToFrame(frame_id, joint_itemPtr);
-        LOG_DEBUG_S << "[Envire Smurf] There is a joint in the frame " << joint -> getName() << " from " << joint->getSourceFrame().getName() << " to " << joint->getTargetFrame().getName();
+        if (debug) { LOG_DEBUG_S << "[Envire Smurf] There is a joint in the frame " << joint -> getName() << " from " << joint->getSourceFrame().getName() << " to " << joint->getTargetFrame().getName();}
     } 
 }
 
@@ -69,12 +68,12 @@ void envire::smurf::Robot::loadDynamicTfs(envire::core::TransformGraph &graph)
         envire::core::Transform parent2Joint;
         if (begin == end)
         {
-            LOG_DEBUG_S << "[Envire Smurf] No joint given for the dynamic transformation between " << dynamicId << " and " << targetId;
+            if (debug) { LOG_DEBUG_S << "[Envire Smurf] No joint given for the dynamic transformation between " << dynamicId << " and " << targetId;}
             parent2Joint = envire::core::Transform(base::Time::now(), base::TransformWithCovariance::Identity());
         }
         else
         {
-            LOG_DEBUG_S << "[Envire Smurf] Found joint for the dynamic transformation between " << dynamicId << " and " << targetId;
+            if (debug) { LOG_DEBUG_S << "[Envire Smurf] Found joint for the dynamic transformation between " << dynamicId << " and " << targetId;}
             ::smurf::Joint joint = (*begin)->getData();
             Eigen::Affine3d parentToJoint = joint.getParentToJointOrigin();
             // If it is named parent to joint it should go from the parent to the joint origin and not after the joint
@@ -116,12 +115,12 @@ void envire::smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph)
 
 void envire::smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, envire::core::vertex_descriptor linkTo)
 {
-    LOG_DEBUG("[envire_smurf::Robot]loadFromSmurf with a given frame to link to");
+    if (debug) {LOG_DEBUG("[envire_smurf::Robot]loadFromSmurf with a given frame to link to");}
     loadFromSmurf(graph);
     // Create the transform between the linkTo and the robot Root
     //envire::core::FrameId robotRoot = robot.getRootFrame()->getName(); // FIXME This method fails
     envire::core::FrameId robotRoot = "root";
-    LOG_DEBUG_S << "[envire_smurf::Robot]Transform to linkTo added: " << graph.getFrameId(linkTo) << " and " << robotRoot;
+    if (debug) {LOG_DEBUG_S << "[envire_smurf::Robot]Transform to linkTo added: " << graph.getFrameId(linkTo) << " and " << robotRoot;}
     iniPose.time = base::Time::now();
     graph.addTransform(graph.getFrameId(linkTo), robotRoot, iniPose);
 }
@@ -138,7 +137,7 @@ void envire::smurf::Robot::loadStaticJoints(envire::core::TransformGraph &graph)
         envire::core::FrameId targetId = target.getName();
         staticTransPtr joint_itemPtr (new  envire::core::Item< ::smurf::StaticTransformation > (*tf));
         graph.addItemToFrame(sourceId, joint_itemPtr);
-        LOG_DEBUG_S << "[Envire Smurf] Added a new Item< ::smurf::StaticTransformation >";
+        if (debug) { LOG_DEBUG_S << "[Envire Smurf] Added a new Item< ::smurf::StaticTransformation >"; }
     }
 }
 
@@ -152,7 +151,7 @@ void envire::smurf::Robot::loadSensors(envire::core::TransformGraph &graph)
         std::string frameName = sensor->getAttachmentPoint()->getName();
         sensorItemPtr sensor_itemPtr (new  envire::core::Item< ::smurf::Sensor>(*sensor) );
         graph.addItemToFrame(frameName, sensor_itemPtr);
-        LOG_DEBUG_S << "[Envire SMURF] Attached sensor " << sensor->getName() << " to frame " << frameName;
+        if (debug) { LOG_DEBUG_S << "[Envire SMURF] Attached sensor " << sensor->getName() << " to frame " << frameName;}
     }
 }
 
@@ -180,7 +179,7 @@ void envire::smurf::Robot::loadCollisions(envire::core::TransformGraph& graph)
             {
                 //if yes, just add the collision to the existing frame
                 graph.addItemToFrame(frame->getName(), collision_itemPtr);
-                LOG_DEBUG_S << "[envire::smurf::loadCollisions] Added an urdf::collision to the frame " << frame->getName();
+                if (debug){ LOG_DEBUG_S << "[envire::smurf::loadCollisions] Added an urdf::collision to the frame " << frame->getName();}
             }
             else
             {
@@ -190,7 +189,7 @@ void envire::smurf::Robot::loadCollisions(envire::core::TransformGraph& graph)
                 const envire::core::FrameId collisionFrame(frame->getName() + "_collision_" + boost::lexical_cast<envire::core::FrameId>(collision.name));
                 graph.addTransform(frame->getName(), collisionFrame, tf);
                 graph.addItemToFrame(collisionFrame, collision_itemPtr);
-                LOG_DEBUG_S << "[envire::smurf::loadCollisions] Added an urdf::collision to the frame " << collisionFrame;
+                if (debug) {LOG_DEBUG_S << "[envire::smurf::loadCollisions] Added an urdf::collision to the frame " << collisionFrame;}
             }
         }
     }
@@ -222,7 +221,7 @@ void envire::smurf::Robot::loadCollidables(envire::core::TransformGraph& graph, 
             {
                 //if yes, just add the collision to the existing frame
                 graph.addItemToFrame(frame->getName(), collidable_itemPtr);
-                LOG_DEBUG_S << "[envire::smurf::loadCollidables] Added a smurf::Collidable to the frame " << frame->getName();
+                if (debug) {LOG_DEBUG_S << "[envire::smurf::loadCollidables] Added a smurf::Collidable to the frame " << frame->getName();}
             }
             else
             {
@@ -232,13 +231,18 @@ void envire::smurf::Robot::loadCollidables(envire::core::TransformGraph& graph, 
                 const envire::core::FrameId collisionFrame(frame->getName() + "_collidable_" + boost::lexical_cast<envire::core::FrameId>(collision.name));
                 graph.addTransform(frame->getName(), collisionFrame, tf);
                 graph.addItemToFrame(collisionFrame, collidable_itemPtr);
-                LOG_DEBUG_S << "[envire::smurf::loadCollidables] Added an smurf::Collidable to the frame " << collisionFrame;
+                if (debug) {LOG_DEBUG_S << "[envire::smurf::loadCollidables] Added an smurf::Collidable to the frame " << collisionFrame;}
             }
         }    
         nextGroupId ++;
     }
 }
 
+/*
+ * TODO
+ * Refactor this method and others which are very similar
+ * 
+ */
 void envire::smurf::Robot::loadPhysics(envire::core::TransformGraph& graph, int& nextGroupId)
 {
     // Add Physic objects of which the simulator generated simple objects
@@ -257,7 +261,7 @@ void envire::smurf::Robot::loadPhysics(envire::core::TransformGraph& graph, int&
         frame->setGroupId(nextGroupId);
         linkItemPtr link_itemPtr (new  envire::core::Item<::smurf::Frame>(*frame));
         graph.addItemToFrame(frame -> getName(), link_itemPtr); // This is the frame that generates the node to which joints can bind
-        LOG_DEBUG_S << "Added an smurf::frame to the frame" << frame->getName();
+        if (debug){ LOG_DEBUG_S << "Added an smurf::frame to the frame" << frame->getName();}
         const collidablesVector& collidables  = frame->getCollidables();
         for(::smurf::Collidable collidable : collidables)
         {
@@ -271,7 +275,7 @@ void envire::smurf::Robot::loadPhysics(envire::core::TransformGraph& graph, int&
             {
                 //if yes, just add the collision to the existing frame
                 graph.addItemToFrame(frame->getName(), collidable_itemPtr);
-                LOG_DEBUG_S << "[envire::smurf::loadPhysics] Added a smurf::Collidable to the frame " << frame->getName();
+                if (debug) { LOG_DEBUG_S << "[envire::smurf::loadPhysics] Added a smurf::Collidable to the frame " << frame->getName();}
             }
             else
             {
@@ -281,7 +285,7 @@ void envire::smurf::Robot::loadPhysics(envire::core::TransformGraph& graph, int&
                 const envire::core::FrameId collisionFrame(frame->getName()  + "_" + boost::lexical_cast<envire::core::FrameId>(collision.name) + "_collidable");
                 graph.addTransform(frame->getName(), collisionFrame, tf);
                 graph.addItemToFrame(collisionFrame, collidable_itemPtr);
-                LOG_DEBUG_S << "[envire::smurf::loadPhysics] Added a smurf::Collidable to the frame " << collisionFrame;
+                if (debug) {LOG_DEBUG_S << "[envire::smurf::loadPhysics] Added a smurf::Collidable to the frame " << collisionFrame;}
             }
         }    
         ::smurf::Inertial inertialSMURF = frame -> getInertial();
@@ -296,7 +300,7 @@ void envire::smurf::Robot::loadPhysics(envire::core::TransformGraph& graph, int&
         {
             //if yes, just add the inertial to the existing frame
             graph.addItemToFrame(frame->getName(), inertial_itemPtr);
-            LOG_DEBUG_S << "[envire::smurf::loadPhysics] Added a smurf::Inertial to the frame " << frame->getName();
+            if (debug) {LOG_DEBUG_S << "[envire::smurf::loadPhysics] Added a smurf::Inertial to the frame " << frame->getName();}
         }
         else
         {
@@ -306,26 +310,12 @@ void envire::smurf::Robot::loadPhysics(envire::core::TransformGraph& graph, int&
             const envire::core::FrameId inertialFrame(frame->getName() + "_inertial");
             graph.addTransform(frame->getName(), inertialFrame, tf);
             graph.addItemToFrame(inertialFrame, inertial_itemPtr);
-            LOG_DEBUG_S << "[envire::smurf::loadPhysics] Added a smurf::Inertial to the frame " << inertialFrame;
+            if (debug) {LOG_DEBUG_S << "[envire::smurf::loadPhysics] Added a smurf::Inertial to the frame " << inertialFrame;}
         }
         nextGroupId ++;
     }
 }
-/*
-void envire::smurf::Robot::loadPhysics(envire::core::TransformGraph& graph)
-{
-    // Add Physic objects of which the simulator generated simple objects
-    using linkItemPtr = envire::core::Item<::smurf::Frame>::Ptr;
-    envire::core::FrameId frame_id;
-    std::vector<::smurf::Frame *> frames= robot.getFrames();
-    for(::smurf::Frame* frame : frames)
-    {
-        linkItemPtr link_itemPtr (new  envire::core::Item<::smurf::Frame>(*frame));
-        graph.addItemToFrame(frame -> getName(), link_itemPtr);
-        LOG_DEBUG_S << "Added an smurf::frame to the frame" << frame->getName();
-    }
-}
-*/
+
 void envire::smurf::Robot::loadVisuals(envire::core::TransformGraph &graph)
 {
     using VisualsItemPtr = envire::core::Item<envire::smurf::Visual>::Ptr;
@@ -339,10 +329,8 @@ void envire::smurf::Robot::loadVisuals(envire::core::TransformGraph &graph)
             const base::Vector3d translation(visual.origin.position.x, visual.origin.position.y, 
                                              visual.origin.position.z);
             const base::Quaterniond rotation(visual.origin.rotation.w, visual.origin.rotation.x,
-                                             visual.origin.rotation.y, visual.origin.rotation.z);
-            
-            VisualsItemPtr visual_itemPtr(new envire::core::Item<envire::smurf::Visual>(visual));
-            
+                                             visual.origin.rotation.y, visual.origin.rotation.z);            
+            VisualsItemPtr visual_itemPtr(new envire::core::Item<envire::smurf::Visual>(visual));            
             //check if the visual offset is an identity transform
             if(translation == base::Vector3d::Zero() && 
                (rotation.coeffs() == base::Quaterniond::Identity().coeffs() ||
@@ -361,7 +349,7 @@ void envire::smurf::Robot::loadVisuals(envire::core::TransformGraph &graph)
                 graph.addItemToFrame(visualFrame, visual_itemPtr);
             }
         }
-        LOG_DEBUG("[envire_smurf::Robot]Added smurf::Visuals to the frame");
+        if (debug) LOG_DEBUG("[envire_smurf::Robot]Added smurf::Visuals to the frame");
     }
 }
 

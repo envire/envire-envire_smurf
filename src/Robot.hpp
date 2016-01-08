@@ -142,6 +142,7 @@ namespace envire
             ::smurf::Robot robot;
         private:
             envire::core::Transform iniPose;
+            const bool debug = false;
         };
         class Environment
         {
