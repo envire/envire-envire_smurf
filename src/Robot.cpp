@@ -237,6 +237,11 @@ void envire::smurf::Robot::loadCollidables(envire::core::TransformGraph& graph, 
         nextGroupId ++;
     }
 }
+/*
+void envire::smurf::loadInertials(envire::core::TransformGraph& graph, int& nextGroupId)
+{
+}
+*/
 
 /*
  * TODO
@@ -287,30 +292,33 @@ void envire::smurf::Robot::loadPhysics(envire::core::TransformGraph& graph, int&
                 graph.addItemToFrame(collisionFrame, collidable_itemPtr);
                 if (debug) {LOG_DEBUG_S << "[envire::smurf::loadPhysics] Added a smurf::Collidable to the frame " << collisionFrame;}
             }
-        }    
-        ::smurf::Inertial inertialSMURF = frame -> getInertial();
-        urdf::Inertial inertial = inertialSMURF.getUrdfInertial();
-        inertialSMURF.setGroupId(nextGroupId);
-        inertialSMURF.setName(frame->getName() + "_inertial");
-        const base::Vector3d translation(inertial.origin.position.x, inertial.origin.position.y, inertial.origin.position.z); 
-        const base::Quaterniond rotation(inertial.origin.rotation.w, inertial.origin.rotation.x, inertial.origin.rotation.y, inertial.origin.rotation.z); 
-        inertialItemPtr inertial_itemPtr(new inertialItem(inertialSMURF));
-        //check if the offset is an identity transform
-        if(translation == base::Vector3d::Zero() && (rotation.coeffs() == base::Quaterniond::Identity().coeffs() || rotation.coeffs() == -base::Quaterniond::Identity().coeffs()))
-        {
-            //if yes, just add the inertial to the existing frame
-            graph.addItemToFrame(frame->getName(), inertial_itemPtr);
-            if (debug) {LOG_DEBUG_S << "[envire::smurf::loadPhysics] Added a smurf::Inertial to the frame " << frame->getName();}
         }
-        else
+        if (frame -> getHasInertial())
         {
-            //otherwise, create a new transformation in the graph to encode the offset
-            base::TransformWithCovariance tfCv(translation, rotation);
-            envire::core::Transform tf(base::Time::now(), tfCv);
-            const envire::core::FrameId inertialFrame(frame->getName() + "_inertial");
-            graph.addTransform(frame->getName(), inertialFrame, tf);
-            graph.addItemToFrame(inertialFrame, inertial_itemPtr);
-            if (debug) {LOG_DEBUG_S << "[envire::smurf::loadPhysics] Added a smurf::Inertial to the frame " << inertialFrame;}
+            ::smurf::Inertial inertialSMURF = frame -> getInertial();
+            urdf::Inertial inertial = inertialSMURF.getUrdfInertial();
+            inertialSMURF.setGroupId(nextGroupId);
+            inertialSMURF.setName(frame->getName() + "_inertial");
+            const base::Vector3d translation(inertial.origin.position.x, inertial.origin.position.y, inertial.origin.position.z); 
+            const base::Quaterniond rotation(inertial.origin.rotation.w, inertial.origin.rotation.x, inertial.origin.rotation.y, inertial.origin.rotation.z); 
+            inertialItemPtr inertial_itemPtr(new inertialItem(inertialSMURF));
+            //check if the offset is an identity transform
+            if(translation == base::Vector3d::Zero() && (rotation.coeffs() == base::Quaterniond::Identity().coeffs() || rotation.coeffs() == -base::Quaterniond::Identity().coeffs()))
+            {
+                //if yes, just add the inertial to the existing frame
+                graph.addItemToFrame(frame->getName(), inertial_itemPtr);
+                if (debug) {LOG_DEBUG_S << "[envire::smurf::loadPhysics] Added a smurf::Inertial to the frame " << frame->getName();}
+            }
+            else
+            {
+                //otherwise, create a new transformation in the graph to encode the offset
+                base::TransformWithCovariance tfCv(translation, rotation);
+                envire::core::Transform tf(base::Time::now(), tfCv);
+                const envire::core::FrameId inertialFrame(frame->getName() + "_inertial");
+                graph.addTransform(frame->getName(), inertialFrame, tf);
+                graph.addItemToFrame(inertialFrame, inertial_itemPtr);
+                if (debug) {LOG_DEBUG_S << "[envire::smurf::loadPhysics] Added a smurf::Inertial to the frame " << inertialFrame;}
+            }
         }
         nextGroupId ++;
     }
