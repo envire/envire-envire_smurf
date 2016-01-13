@@ -110,7 +110,7 @@ namespace envire
             /**
              * 
              */
-            void loadCollidables(envire::core::TransformGraph& graph, int& nextGroupId);
+            //void loadCollidables(envire::core::TransformGraph& graph, int& nextGroupId);
             
             //void loadRotationalJoints(envire::core::TransformGraph &graph);
             //void loadTransationalJoints(envire::core::TransformGraph &graph);
@@ -141,8 +141,10 @@ namespace envire
              */
             ::smurf::Robot robot;
         private:
+          
             envire::core::Transform iniPose;
-            const bool debug = false;
+            const bool debug = true;
+            void addJoint(envire::core::TransformGraph& graph, const ::smurf::Frame& source, const ::smurf::Frame& target, const ::smurf::StaticTransformation& smurfStaticTf);
         };
         class Environment
         {
