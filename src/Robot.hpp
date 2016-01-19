@@ -52,10 +52,34 @@ namespace envire
                 robot.loadFromSmurf(path);
             };
             /**
-             * Adds the frames in the robot as vertex in the graph the @member robot has to have loaded an SMURF document in advance.
-             * It adds a frame for each Frame in the smurf model and a frame also for each dynamic transformation.
+             * Creates the frames and transformations of the robot in the
+             * transformation graph from the information in the SMURF file.
+             * - SMURF::Frames and URDF::Links -> Each generate a Frame in the
+             *   Transformation Graph
+             * - SMURF::Joints -> Correspond to dynamic transformations. A new
+             *   frame, children of the Source of the transformation is created
+             *   and father of the target of the transformation (This frame
+             *   will later be the one storing the smurf::Joint). The
+             *   transformation from the father or source is given by the
+             *   parameter parentToJointOrigin of the joint. The transformation
+             *   from the joint frame to the target frame is set to the
+             *   identity.
+             * - SMURF::StaticTransformation -> Generate the Transformation
+             *   Graph correspondent transformation.  This method does not load
+             *   any of the objects to which the simulator reacts, but is
+             *   required before loading any of them.
              */
-            void loadFrames(envire::core::TransformGraph &graph);
+            void initRobotGraph( envire::core::TransformGraph& graph); 
+            /** 
+             * Adds the frames of the robot as vertex in the graph the @member
+             * robot has to have loaded an SMURF document in advance.  Loads a
+             * frame for each link in the smurf model. Additionally a frame is
+             * added for each dynamic transformation where the joint will later
+             * be stored.  This one is not adding the smurf::Frame object to
+             * the frame, neither creating frames for the inertial or
+             * collidable objects.
+             */
+            void initFrames(envire::core::TransformGraph &graph);
             /**
              * Loads the joints from the smurf in the correspondent frames, this is needed to get the dynamic transformations.
              */
@@ -70,18 +94,7 @@ namespace envire
              * Loads all the transformations on the graph. For the dynamic transformations an identity transformation is set for the children and the transformation to the parent is set to the father.
              */
             void loadTfs(envire::core::TransformGraph &graph);
-            /**
-             * Loads the robot entity in the transformation graph from the
-             * information in the SMURF file, it contains:
-             * - Static and Dynamic transformations. The dynamic transformations are located after a dynamic joint. As initial value they have the identity
-             * - Frames.
-             * It will not contain:
-             * - Links of the robot. 
-             * - Static joints for the simulation of the robot.
-             * - Sensors.
-             * The components that are required for simulation are loaded in simulationReady
-             */
-            void loadFromSmurf( envire::core::TransformGraph& graph);
+
             /**
              * Links the robot to the provided vertex with a dummy transformation
              * 
@@ -112,11 +125,6 @@ namespace envire
              */
             //void loadCollidables(envire::core::TransformGraph& graph, int& nextGroupId);
             
-            //void loadRotationalJoints(envire::core::TransformGraph &graph);
-            //void loadTransationalJoints(envire::core::TransformGraph &graph);
-            //void loadDynamicTransformations(envire::core::TransformGraph &graph);
-            //void loadDynamicJoints(envire::core::TransformGraph &graph);
-
             /**
              * Checks if the given frame contains any object of the given @itemType
              * 

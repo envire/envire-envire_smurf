@@ -8,9 +8,14 @@
 #include <envire_core/items/Transform.hpp>
 #include <envire_core/items/Item.hpp>
 
-void envire::smurf::Robot::loadFrames(envire::core::TransformGraph &graph)
+void envire::smurf::Robot::initRobotGraph(envire::core::TransformGraph &graph)
 {
-    // Load the frame of each frame in the smurf model
+    initFrames(graph);
+    loadTfs(graph);
+}
+
+void envire::smurf::Robot::initFrames(envire::core::TransformGraph &graph)
+{
     envire::core::FrameId frame_id;
     std::vector<::smurf::Frame *> frames= robot.getFrames();
     for(::smurf::Frame* frame : frames)
@@ -19,7 +24,6 @@ void envire::smurf::Robot::loadFrames(envire::core::TransformGraph &graph)
         graph.addFrame(frame_id);
         if (debug) { LOG_DEBUG_S << "[Robot::LoadFrames] Frame Added: " << frame_id;}
     }
-    // Load the frame of each dynamic transformation in the smurf model
     std::vector<::smurf::DynamicTransformation *> dynamicTfs= robot.getDynamicTransforms();
     for(::smurf::DynamicTransformation* dynamicTf : dynamicTfs)
     {
@@ -107,11 +111,7 @@ void envire::smurf::Robot::loadTfs(envire::core::TransformGraph &graph)
     loadStaticTfs(graph);
 }
 
-void envire::smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph)
-{
-    loadFrames(graph);
-    loadTfs(graph);
-}
+
 
 /*
  *  loadFromSmurf  -> loadFrames (loads a node for each frame and an extra one for each dynamic joint)
@@ -125,7 +125,8 @@ void envire::smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph)
 void envire::smurf::Robot::loadFromSmurf(envire::core::TransformGraph &graph, envire::core::vertex_descriptor linkTo)
 {
     if (debug) {LOG_DEBUG("[Robot::LoadFromSmurf] LoadFromSmurf with a given frame to link to");}
-    loadFromSmurf(graph);
+    //TODO Do with boolean to verify that it was not loaded before and that it is loaded at least once
+    initFrames(graph);
     // Create the transform between the linkTo and the robot Root
     //envire::core::FrameId robotRoot = robot.getRootFrame()->getName(); // FIXME This method fails
     envire::core::FrameId robotRoot = "root";
@@ -286,9 +287,8 @@ void envire::smurf::loadInertials(envire::core::TransformGraph& graph, int& next
  */
 void envire::smurf::Robot::loadPhysics(envire::core::TransformGraph& graph, int& nextGroupId)
 {
-    // Add Physic objects of which the simulator generated simple objects
-    using linkItemPtr = envire::core::Item<::smurf::Frame>::Ptr;
     robot.loadCollidables();
+    using linkItemPtr = envire::core::Item<::smurf::Frame>::Ptr;
     using collidablesVector = std::vector<::smurf::Collidable>;
     using collidableItem = envire::core::Item<::smurf::Collidable>;
     using collidableItemPtr = collidableItem::Ptr;
@@ -300,15 +300,10 @@ void envire::smurf::Robot::loadPhysics(envire::core::TransformGraph& graph, int&
     for(::smurf::Frame* frame : frames)
     {
         frame->setGroupId(nextGroupId);
-        
-        /*
-        using linkItemPtr = envire::core::Item<::smurf::Frame>::Ptr;
         linkItemPtr link_itemPtr (new  envire::core::Item<::smurf::Frame>(frame->getName()));
         envire::core::FrameId frameId = frame->getName();
         graph.addItemToFrame(frameId, link_itemPtr);  
         if (debug){ LOG_DEBUG_S << " [Robot::loadPhysics] Added an smurf::frame to the frame *** " << frame->getName() << " ***";}        
-        */
-        
         const collidablesVector& collidables  = frame->getCollidables();
         for(::smurf::Collidable collidable : collidables)
         {
@@ -321,7 +316,8 @@ void envire::smurf::Robot::loadPhysics(envire::core::TransformGraph& graph, int&
             if(translation == base::Vector3d::Zero() && (rotation.coeffs() == base::Quaterniond::Identity().coeffs() || rotation.coeffs() == -base::Quaterniond::Identity().coeffs()))
             {
                 //if yes, just add the collision to the existing frame
-                graph.addItemToFrame(frame->getName(), collidable_itemPtr);
+                graph.addItemToFrame(frame->getName(), collidable_itemPtr); 
+                /* TODO: What should be done with the inertials? Join them to the dummy node? What happens when you put a collidable in the same frame? The physics simulator will update it but it won't be joined to the frame...*/
                 if (debug) { LOG_DEBUG_S << "[Robot::loadPhysics] Added a smurf::Collidable to the frame ***" << frame->getName() +" ***";}
             }
             else
