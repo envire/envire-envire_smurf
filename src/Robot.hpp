@@ -72,7 +72,7 @@ namespace envire
              *   any of the objects to which the simulator reacts, but is
              *   required before loading any of them.
              */
-            void initRobotGraph( envire::core::TransformGraph& graph); 
+            void initGraph( envire::core::TransformGraph& graph); 
             /**
              * Links the robot to the provided vertex with a transformation that
              * corresponst to the iniPose
@@ -80,8 +80,15 @@ namespace envire
              * For this to occur the root frame of the robot must have
              * same name that the constant attribute rootName of this class.
              */
-            void initRobotGraph( envire::core::TransformGraph &graph, 
-                                 envire::core::vertex_descriptor linkTo);
+            void initGraph( envire::core::TransformGraph &graph, 
+                            envire::core::vertex_descriptor linkTo);
+            /** 
+             * Loads in each vertex that corresponds to a link of the robot a
+             * smurf::Frame object. This objects trigger in envire_physics the
+             * creation of simple nodes that can be used to link connected 
+             * structures through fixed joints.
+             */
+            void loadLinks(envire::core::TransformGraph &graph, int& nextGroupId);
             /**
              * Loads in the vertex from where a static connection to other
              * frames exist a Smurf::StaticTransformation.  To this objects the
@@ -90,38 +97,57 @@ namespace envire
              * targetFrame are specified in the smurf::StaticTransformation.
              */
             void loadFixedJoints(envire::core::TransformGraph &graph);
-
-
-            
-
-            
-            
-
+            /**
+             * Loads the smurf::collidables in the correspondent frames of the 
+             * graph. If a collidable position does not correspond to the 
+             * owner's link position then a new frame to allocate the 
+             * collidable will be created. The new frame will be child of the 
+             * link to which belongs according to the smurf/urdf model. 
+             * 
+             * Two nodes declared in the simulation with the same GroupId are
+             * equivalent to two nodes fix-joined, but it is less expensive for
+             * the simulator. Thus to keep the colidables moving along with the
+             * frame, we set the same groupId of the link to collidables.
+             * 
+             */
+            void loadCollidables(envire::core::TransformGraph& graph);
+            /**
+             * Loads the smurf::inertials in the correspondent frames of the 
+             * graph. If an inertial position does not correspond to the 
+             * owner's link position then a new frame to allocate the 
+             * inertial will be created. The new frame will be child of the 
+             * frame that represents the link to which the inertial belongs 
+             * according to the smurf/urdf model. 
+             * 
+             * Two nodes declared in the simulation with the same GroupId are 
+             * equivalent to two nodes fix-joined, but it is less expensive 
+             * for the simulator. Thus to keep the inertials moving along 
+             * with the frame, we set the same groupId of the link to the
+             * inertial.
+             */
+            void loadInertials(envire::core::TransformGraph& graph);
             /**
              * Loads the joints from the smurf in the correspondent frames,
              * this is needed to get the dynamic transformations.
+             * 
+             * Before calling to this method the graph must be initialized.
              */
             void loadDynamicJoints(envire::core::TransformGraph &graph);
+            /**
+             * TODO
+             * 
+             */
             void loadSensors(envire::core::TransformGraph &graph);
             /** 
              * This method includes in the frames the physical objects that
              * the simulator will react to
              */
-            void loadPhysics(envire::core::TransformGraph& graph, 
-                             int& nextGroupId);
+            //void loadPhysics(envire::core::TransformGraph& graph, 
+            //                 int& nextGroupId);
             /**
              * 
              */
             void loadVisuals(envire::core::TransformGraph &graph);
-            /**
-             * 
-             */
-            void loadCollisions(envire::core::TransformGraph& graph);
-            /**
-             * 
-             */
-            //void loadCollidables(envire::core::TransformGraph& graph, int& nextGroupId);
-            
             /** 
              * Checks if the given frame contains any object of the given
              * @itemType
@@ -188,15 +214,10 @@ namespace envire
              * don't need any dynamic transform object indeed
              */
             void initDynamicTfs(envire::core::TransformGraph &graph);
-
-            
             envire::core::Transform iniPose;
             bool initialized = false;
             const bool debug = true;
-            void addJoint(envire::core::TransformGraph& graph, 
-                          const ::smurf::Frame& source, 
-                          const ::smurf::Frame& target, 
-                          const ::smurf::StaticTransformation& smurfStaticTf);
+            bool linksLoaded = false;
         };
         class Environment
         {
@@ -206,7 +227,6 @@ namespace envire
             
             void loadFromSmurfs( envire::core::TransformGraph &graph, 
                                  const std::string &path);
-            
             /**
              * 
              * Populates the transformation graph with the dynamic
@@ -218,7 +238,6 @@ namespace envire
             void loadDynamicTransforms(
                 const envire::core::TransformGraph &graph, 
                 const std::string &path);
-            
             
         };
         
