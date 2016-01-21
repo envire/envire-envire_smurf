@@ -17,7 +17,7 @@ void envire::smurf::Robot::initRobotGraph(envire::core::TransformGraph &graph)
 
 void envire::smurf::Robot::initRobotGraph(envire::core::TransformGraph &graph, envire::core::vertex_descriptor linkTo)
 {
-    if (debug) {LOG_DEBUG("[Robot::LoadFromSmurf] LoadFromSmurf with a given frame to link to");}
+    if (debug) {LOG_DEBUG("[Robot::initRobotGraph] LoadFromSmurf with a given frame to link to");}
     if (not initialized)
     {
         initRobotGraph(graph);
@@ -25,9 +25,25 @@ void envire::smurf::Robot::initRobotGraph(envire::core::TransformGraph &graph, e
     // FIXME This method fails:
     //envire::core::FrameId robotRoot = robot.getRootFrame()->getName(); 
     envire::core::FrameId robotRoot = "root";
-    if (debug) {LOG_DEBUG_S << "[Robot::LoadFromSmurf] Transform to linkTo added: " << graph.getFrameId(linkTo) << " and " << robotRoot;}
+    if (debug) {LOG_DEBUG_S << "[Robot::initRobotGraph] Transform to linkTo added: " << graph.getFrameId(linkTo) << " and " << robotRoot;}
     iniPose.time = base::Time::now();
     graph.addTransform(graph.getFrameId(linkTo), robotRoot, iniPose);
+}
+
+void envire::smurf::Robot::loadFixedJoints(envire::core::TransformGraph &graph)
+{
+    // TODO: Visualize the joints on the simulator visualizer (envire_graphics)
+    using staticTransPtr = boost::shared_ptr<envire::core::Item<::smurf::StaticTransformation  > >;
+    std::vector<::smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
+    for(::smurf::StaticTransformation* tf : staticTfs) {
+        ::smurf::Frame source = tf -> getSourceFrame();
+        envire::core::FrameId sourceId = source.getName();
+        ::smurf::Frame target = tf -> getTargetFrame();
+        envire::core::FrameId targetId = target.getName();
+        staticTransPtr joint_itemPtr (new  envire::core::Item< ::smurf::StaticTransformation > (*tf));
+        graph.addItemToFrame(sourceId, joint_itemPtr);
+        if (debug) { LOG_DEBUG_S << "[Robot::LoadFixedJoints] Added a new Item< ::smurf::StaticTransformation > to frame *** " + sourceId + "***"; }
+    }
 }
 
 /* OLD, DOING MORE THAN JUST SETTING THE TRANSFORMATIONS
@@ -89,21 +105,6 @@ void envire::smurf::Robot::loadDynamicJoints(envire::core::TransformGraph &graph
 }
 
 
-void envire::smurf::Robot::loadStaticJoints(envire::core::TransformGraph &graph)
-{
-    // TODO: Visualize the joints on the simulator visualizer (envire_graphics)
-    using staticTransPtr = boost::shared_ptr<envire::core::Item<::smurf::StaticTransformation  > >;
-    std::vector<::smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
-    for(::smurf::StaticTransformation* tf : staticTfs) {
-        ::smurf::Frame source = tf -> getSourceFrame();
-        envire::core::FrameId sourceId = source.getName();
-        ::smurf::Frame target = tf -> getTargetFrame();
-        envire::core::FrameId targetId = target.getName();
-        staticTransPtr joint_itemPtr (new  envire::core::Item< ::smurf::StaticTransformation > (*tf));
-        graph.addItemToFrame(sourceId, joint_itemPtr);
-        if (debug) { LOG_DEBUG_S << "[Robot::LoadStaticJoints] Added a new Item< ::smurf::StaticTransformation > to frame *** " + sourceId + "***"; }
-    }
-}
 
 void envire::smurf::Robot::loadSensors(envire::core::TransformGraph &graph)
 {

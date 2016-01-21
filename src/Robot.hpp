@@ -82,24 +82,26 @@ namespace envire
              */
             void initRobotGraph( envire::core::TransformGraph &graph, 
                                  envire::core::vertex_descriptor linkTo);
+            /**
+             * Loads in the vertex from where a static connection to other
+             * frames exist a Smurf::StaticTransformation.  To this objects the
+             * envire_physics plugin reacts by creating the simulation of a 
+             * fixed joint between the connected links. The sourceFrame and the
+             * targetFrame are specified in the smurf::StaticTransformation.
+             */
+            void loadFixedJoints(envire::core::TransformGraph &graph);
+
+
+            
+
+            
+            
 
             /**
              * Loads the joints from the smurf in the correspondent frames,
              * this is needed to get the dynamic transformations.
              */
             void loadDynamicJoints(envire::core::TransformGraph &graph);
-
-
-            
-            
-            /**
-             * Load in the vertex from where a static connection to other
-             * frames exist a Smurf::StaticTransformation.  To this objects the
-             * simulation reacts by creating the simulation joint between the
-             * connected links. The sourceFrame and the targetFrame are
-             * included in the tf.
-             */
-            void loadStaticJoints(envire::core::TransformGraph &graph);
             void loadSensors(envire::core::TransformGraph &graph);
             /** 
              * This method includes in the frames the physical objects that
