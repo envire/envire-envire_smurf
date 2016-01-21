@@ -95,7 +95,7 @@ void envire::smurf::Robot::loadCollidables(envire::core::TransformGraph& graph)
                     //otherwise, create a new transformation in the graph to encode the offset
                     base::TransformWithCovariance tfCv(translation, rotation);
                     envire::core::Transform tf(base::Time::now(), tfCv);
-                    const envire::core::FrameId collisionFrame(frame->getName()  + "_collidable");
+                    const envire::core::FrameId collisionFrame(frame->getName()  + "_" + collidable.getName());
                     graph.addTransform(frame->getName(), collisionFrame, tf);
                     graph.addItemToFrame(collisionFrame, collidable_itemPtr);
                     if (debug) {LOG_DEBUG_S << "[Robot::loadCollidables] Added a smurf::Collidable to the frame *** " << collisionFrame << " ***";}
