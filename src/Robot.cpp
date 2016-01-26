@@ -285,8 +285,8 @@ bool envire::smurf::Robot::frameHas(envire::core::TransformGraph &graph,FRAME_IT
         case SENSOR :
         {
 //            std::cout << "item is sensor";
-            envire::core::TransformGraph::ItemIterator<envire::core::Item<::smurf::Sensor*>::Ptr> begin, end;
-            tie(begin, end) = graph.getItems<envire::core::Item<::smurf::Sensor*>::Ptr>(frameID);
+            envire::core::TransformGraph::ItemIterator<envire::core::Item<::smurf::Sensor*>> begin, end;
+            tie(begin, end) = graph.getItems<envire::core::Item<::smurf::Sensor*>>(frameID);
             if(begin!=end)
                 has_item=true;
             break;
@@ -296,8 +296,8 @@ bool envire::smurf::Robot::frameHas(envire::core::TransformGraph &graph,FRAME_IT
         case JOINT:
         {
 //            std::cout << "item is joint";
-            envire::core::TransformGraph::ItemIterator<envire::core::Item<::smurf::StaticTransformation*>::Ptr> begin, end;
-            tie(begin, end) = graph.getItems<envire::core::Item<::smurf::StaticTransformation*>::Ptr>(frameID);
+            envire::core::TransformGraph::ItemIterator<envire::core::Item<::smurf::StaticTransformation*>> begin, end;
+            tie(begin, end) = graph.getItems<envire::core::Item<::smurf::StaticTransformation*>>(frameID);
             if(begin!=end)
                 has_item=true;
             break;
@@ -306,8 +306,8 @@ bool envire::smurf::Robot::frameHas(envire::core::TransformGraph &graph,FRAME_IT
         case LINK:
         {
 //            std::cout << "item is link";
-            envire::core::TransformGraph::ItemIterator<envire::core::Item<::smurf::Frame *>::Ptr> begin, end;
-            tie(begin, end) = graph.getItems<envire::core::Item<::smurf::Frame *>::Ptr>(frameID);
+            envire::core::TransformGraph::ItemIterator<envire::core::Item<::smurf::Frame *>> begin, end;
+            tie(begin, end) = graph.getItems<envire::core::Item<::smurf::Frame *>>(frameID);
             if(begin!=end)
                 has_item=true;
             break;
