@@ -180,50 +180,6 @@ void envire::smurf::Robot::loadDynamicJoints(envire::core::TransformGraph &graph
     }
 }
 
-/* OLD, DOING MORE THAN JUST SETTING THE TRANSFORMATIONS
-void envire::smurf::Robot::initDynamicTfs(envire::core::TransformGraph &graph)
-{
-    // Joints need to be loaded to the graph
-    loadDynamicJoints(graph);
-    using dynamicTransPtr = boost::shared_ptr<envire::core::Item<::smurf::DynamicTransformation  > >;
-    std::vector<::smurf::DynamicTransformation *> dynamicTfs= robot.getDynamicTransforms();
-    for(::smurf::DynamicTransformation* dynamicTf : dynamicTfs)
-    {
-        // First part: identity transformation between dynamic joint and child (Target)
-        ::smurf::Frame target = dynamicTf-> getTargetFrame();
-        envire::core::FrameId targetId = target.getName();
-        envire::core::FrameId dynamicId = dynamicTf -> getName();
-        envire::core::Transform staticTf(base::Time::now(), base::TransformWithCovariance::Identity());
-        graph.addTransform(dynamicId, targetId, staticTf);
-        // Second part: getParentToJointOrigin transformation is set between parent and dynamic joint
-        using Iterator = envire::core::TransformGraph::ItemIterator<envire::core::Item<::smurf::Joint>::Ptr>;
-        Iterator begin, end;
-        boost::tie(begin, end) = graph.getItems<envire::core::Item<::smurf::Joint>::Ptr>(dynamicId);
-        envire::core::Transform parent2Joint;
-        if (begin == end)
-        {
-            if (debug) { LOG_DEBUG_S << "[Robot::LoadDynamicTfs] No joint given for the dynamic transformation between " << dynamicId << " and " << targetId;}
-            parent2Joint = envire::core::Transform(base::Time::now(), base::TransformWithCovariance::Identity());
-        }
-        else
-        {
-            if (debug) { LOG_DEBUG_S << "[Robot::LoadDynamicTfs] Found joint for the dynamic transformation between " << dynamicId << " and " << targetId;}
-            ::smurf::Joint joint = (*begin)->getData();
-            Eigen::Affine3d parentToJoint = joint.getParentToJointOrigin();
-            // If it is named parent to joint it should go from the parent to the joint origin and not after the joint
-            parent2Joint = envire::core::Transform(base::Time::now(), base::TransformWithCovariance(parentToJoint)); 
-        }
-        ::smurf::Frame source = dynamicTf-> getSourceFrame();
-        envire::core::FrameId sourceId = source.getName();
-        graph.addTransform(sourceId, dynamicId, parent2Joint);
-    }
-}
-*/
-
-
-
-
-
 void envire::smurf::Robot::loadSensors(envire::core::TransformGraph &graph)
 {
     // Add Sensors 

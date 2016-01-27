@@ -109,6 +109,12 @@ namespace envire
              * the simulator. Thus to keep the colidables moving along with the
              * frame, we set the same groupId of the link to collidables.
              * 
+             * If one link has more than one collision object then they will 
+             * be grouped in the simulation. In order to do so, the same group 
+             * id is assigned for all collidables in the same frame. If one 
+             * link has inertial data in the urdf model and collision data 
+             * they will alos receive the same groupId.
+             * 
              */
             void loadCollidables(envire::core::TransformGraph& graph);
             /**
@@ -134,7 +140,8 @@ namespace envire
              */
             void loadDynamicJoints(envire::core::TransformGraph &graph);
             /**
-             * TODO
+             * Loads the smurf::Sensor objects in the correspondent frame 
+             * of the graph.
              * 
              */
             void loadSensors(envire::core::TransformGraph &graph);
@@ -216,7 +223,7 @@ namespace envire
             void initDynamicTfs(envire::core::TransformGraph &graph);
             envire::core::Transform iniPose;
             bool initialized = false;
-            const bool debug = true;
+            const bool debug = false;
             bool linksLoaded = false;
         };
         class Environment
