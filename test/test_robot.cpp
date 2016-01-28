@@ -1,14 +1,12 @@
 #include <boost/test/unit_test.hpp>
 #include <envire_smurf/Robot.hpp>
-#include <orocos_cpp/YAMLConfiguration.hpp>
 #include <envire_core/graph/TransformGraph.hpp>
 #include <envire_core/graph/GraphViz.hpp>
 #include <envire_core/items/Item.hpp>
 #include <smurf/Robot.hpp>
 
-//const std::string path = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(ASGUARD4)%>");
-//const std::string path = orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/<%=ENV(SPACECLIMBER)%>");
-//const std::string path = "/home/dfki.uni-bremen.de/rdominguez/Entern/1505/models/robots/spaceclimber_just_two_pieces/smurf/spaceclimber.smurf";
+
+const string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
 
 BOOST_AUTO_TEST_CASE(it_should_not_crash_when_created)
 {
@@ -17,7 +15,7 @@ BOOST_AUTO_TEST_CASE(it_should_not_crash_when_created)
 
 BOOST_AUTO_TEST_CASE(initRobotGraph_noPos)
 {
-    const std::string path=orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/tools/smurf/test/sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf");
+    const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
     envire::smurf::Robot robot(path);
@@ -27,7 +25,7 @@ BOOST_AUTO_TEST_CASE(initRobotGraph_noPos)
 
 BOOST_AUTO_TEST_CASE(initRobotGraph_withPos)
 {
-    const std::string path=orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/tools/smurf/test/sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf");
+    const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
     std::cout << "Path to robot model " << path << std::endl;
@@ -43,7 +41,7 @@ BOOST_AUTO_TEST_CASE(initRobotGraph_withPos)
 
 BOOST_AUTO_TEST_CASE(initRobotGraph_withDynamicJoint)
 {   
-    const std::string path=orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/tools/smurf/test/sample_smurfs/two_boxes_joined/smurf/two_boxes_dynamic_joint.smurf");
+    const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes_dynamic_joint.smurf";
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
     std::cout << "Path to robot model " << path << std::endl;
@@ -72,7 +70,7 @@ envire::smurf::Robot getRobotWithInitGraph(const std::string path, envire::core:
 
 BOOST_AUTO_TEST_CASE(loadLinks)
 {
-    const std::string path=orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/tools/smurf/test/sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf");
+    const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
     envire::smurf::Robot robot = getRobotWithInitGraph(path, transformGraph);
@@ -83,7 +81,7 @@ BOOST_AUTO_TEST_CASE(loadLinks)
 
 BOOST_AUTO_TEST_CASE(loadLinks_withDynamicJoint)
 {
-    const std::string path=orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/tools/smurf/test/sample_smurfs/two_boxes_joined/smurf/two_boxes_dynamic_joint.smurf");
+    const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes_dynamic_joint.smurf";
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
     envire::smurf::Robot robot = getRobotWithInitGraph(path, transformGraph);
@@ -94,7 +92,7 @@ BOOST_AUTO_TEST_CASE(loadLinks_withDynamicJoint)
 
 BOOST_AUTO_TEST_CASE(loadFixedJoints)
 {
-    const std::string path=orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/tools/smurf/test/sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf");
+    const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
     envire::smurf::Robot robot = getRobotWithInitGraph(path, transformGraph);
@@ -104,7 +102,7 @@ BOOST_AUTO_TEST_CASE(loadFixedJoints)
 
 BOOST_AUTO_TEST_CASE(load_collidables)
 {
-    const std::string path=orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/tools/smurf/test/sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf");
+    const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
     envire::smurf::Robot robot = getRobotWithInitGraph(path, transformGraph);
@@ -118,7 +116,7 @@ BOOST_AUTO_TEST_CASE(load_collidables)
 
 BOOST_AUTO_TEST_CASE(load_inertials)
 {
-    const std::string path=orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/tools/smurf/test/sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf");
+    const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
     envire::smurf::Robot robot = getRobotWithInitGraph(path, transformGraph);
@@ -132,8 +130,8 @@ BOOST_AUTO_TEST_CASE(load_inertials)
 
 BOOST_AUTO_TEST_CASE(load_inertials_and_collidables)
 {
+    const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
     // TODO The current solution loads inertials and colllions each one in a separate frame even if they have the same position. Maybe they should be merged?
-    const std::string path=orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/tools/smurf/test/sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf");
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
     envire::smurf::Robot robot = getRobotWithInitGraph(path, transformGraph);
@@ -147,7 +145,7 @@ BOOST_AUTO_TEST_CASE(load_inertials_and_collidables)
 
 BOOST_AUTO_TEST_CASE(load_dynamic_joints)
 {
-    const std::string path=orocos_cpp::YAMLConfigParser::applyStringVariableInsertions("<%=ENV(AUTOPROJ_CURRENT_ROOT) %>/tools/smurf/test/sample_smurfs/two_boxes_joined/smurf/two_boxes_dynamic_joint.smurf");
+    const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
     envire::core::TransformGraph transformGraph;
     envire::core::GraphViz viz;
     envire::smurf::Robot robot = getRobotWithInitGraph(path, transformGraph);
