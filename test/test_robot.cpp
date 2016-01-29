@@ -6,7 +6,7 @@
 #include <smurf/Robot.hpp>
 
 
-const string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
+const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
 
 BOOST_AUTO_TEST_CASE(it_should_not_crash_when_created)
 {
