@@ -1,13 +1,19 @@
 #ifndef _ENVIRE_SMURF_ROBOT_HPP_
 #define _ENVIRE_SMURF_ROBOT_HPP_
-#include <envire_core/graph/EnvireGraph.hpp>
 #include <smurf/Robot.hpp>
+#include <envire_core/items/Transform.hpp>
+#include <envire_core/graph/GraphTypes.hpp>
 
 
 // TODO Glossary
 
 namespace envire
 { 
+  namespace core 
+  {
+      class EnvireGraph;
+  }
+  
     namespace smurf
     {
 

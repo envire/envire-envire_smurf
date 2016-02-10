@@ -5,8 +5,8 @@
 #include <mars/interfaces/NodeData.h>
 #include <mars/utils/Vector.h>
 #include <configmaps/ConfigData.h>
-#include <envire_core/items/Transform.hpp>
 #include <envire_core/items/Item.hpp>
+#include <envire_core/graph/EnvireGraph.hpp>
 
 void envire::smurf::Robot::initGraph(envire::core::EnvireGraph &graph)
 {
