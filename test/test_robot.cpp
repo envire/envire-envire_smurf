@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <envire_smurf/Robot.hpp>
-#include <envire_core/graph/TransformGraph.hpp>
+#include <envire_core/graph/EnvireGraph.hpp>
 #include <envire_core/graph/GraphViz.hpp>
 #include <envire_core/items/Item.hpp>
 #include <smurf/Robot.hpp>
@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(it_should_not_crash_when_created)
 BOOST_AUTO_TEST_CASE(initRobotGraph_noPos)
 {
     const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
-    envire::core::TransformGraph transformGraph;
+    envire::core::EnvireGraph transformGraph;
     envire::core::GraphViz viz;
     envire::smurf::Robot robot(path);
     robot.initGraph(transformGraph);
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(initRobotGraph_noPos)
 BOOST_AUTO_TEST_CASE(initRobotGraph_withPos)
 {
     const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
-    envire::core::TransformGraph transformGraph;
+    envire::core::EnvireGraph transformGraph;
     envire::core::GraphViz viz;
     std::cout << "Path to robot model " << path << std::endl;
     envire::core::Transform iniPose;
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(initRobotGraph_withPos)
 BOOST_AUTO_TEST_CASE(initRobotGraph_withDynamicJoint)
 {   
     const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes_dynamic_joint.smurf";
-    envire::core::TransformGraph transformGraph;
+    envire::core::EnvireGraph transformGraph;
     envire::core::GraphViz viz;
     std::cout << "Path to robot model " << path << std::endl;
     envire::core::Transform iniPose;
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(initRobotGraph_withDynamicJoint)
     viz.write(transformGraph, "initRobotGraph_withDynamicJoint_test.dot");
 }
 
-envire::smurf::Robot getRobotWithInitGraph(const std::string path, envire::core::TransformGraph& transformGraph)
+envire::smurf::Robot getRobotWithInitGraph(const std::string path, envire::core::EnvireGraph& transformGraph)
 {
 
     envire::core::Transform iniPose;
@@ -71,7 +71,7 @@ envire::smurf::Robot getRobotWithInitGraph(const std::string path, envire::core:
 BOOST_AUTO_TEST_CASE(loadLinks)
 {
     const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
-    envire::core::TransformGraph transformGraph;
+    envire::core::EnvireGraph transformGraph;
     envire::core::GraphViz viz;
     envire::smurf::Robot robot = getRobotWithInitGraph(path, transformGraph);
     int nextGroupId = 0;
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(loadLinks)
 BOOST_AUTO_TEST_CASE(loadLinks_withDynamicJoint)
 {
     const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes_dynamic_joint.smurf";
-    envire::core::TransformGraph transformGraph;
+    envire::core::EnvireGraph transformGraph;
     envire::core::GraphViz viz;
     envire::smurf::Robot robot = getRobotWithInitGraph(path, transformGraph);
     int nextGroupId = 0;
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(loadLinks_withDynamicJoint)
 BOOST_AUTO_TEST_CASE(loadFixedJoints)
 {
     const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
-    envire::core::TransformGraph transformGraph;
+    envire::core::EnvireGraph transformGraph;
     envire::core::GraphViz viz;
     envire::smurf::Robot robot = getRobotWithInitGraph(path, transformGraph);
     robot.loadFixedJoints(transformGraph);
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(loadFixedJoints)
 BOOST_AUTO_TEST_CASE(load_collidables)
 {
     const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
-    envire::core::TransformGraph transformGraph;
+    envire::core::EnvireGraph transformGraph;
     envire::core::GraphViz viz;
     envire::smurf::Robot robot = getRobotWithInitGraph(path, transformGraph);
     // An error  message should appear because the links where not loaded
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE(load_collidables)
 BOOST_AUTO_TEST_CASE(load_inertials)
 {
     const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
-    envire::core::TransformGraph transformGraph;
+    envire::core::EnvireGraph transformGraph;
     envire::core::GraphViz viz;
     envire::smurf::Robot robot = getRobotWithInitGraph(path, transformGraph);
     // An error  message should appear because the links where not loaded
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE(load_inertials_and_collidables)
 {
     const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
     // TODO The current solution loads inertials and colllions each one in a separate frame even if they have the same position. Maybe they should be merged?
-    envire::core::TransformGraph transformGraph;
+    envire::core::EnvireGraph transformGraph;
     envire::core::GraphViz viz;
     envire::smurf::Robot robot = getRobotWithInitGraph(path, transformGraph);
     // An error  message should appear because the links where not loaded
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(load_inertials_and_collidables)
 BOOST_AUTO_TEST_CASE(load_dynamic_joints)
 {
     const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
-    envire::core::TransformGraph transformGraph;
+    envire::core::EnvireGraph transformGraph;
     envire::core::GraphViz viz;
     envire::smurf::Robot robot = getRobotWithInitGraph(path, transformGraph);
     robot.loadDynamicJoints(transformGraph);

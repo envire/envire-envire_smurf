@@ -5,17 +5,17 @@
 #include <mars/interfaces/NodeData.h>
 #include <mars/utils/Vector.h>
 #include <configmaps/ConfigData.h>
-#include <envire_core/items/Transform.hpp>
 #include <envire_core/items/Item.hpp>
+#include <envire_core/graph/EnvireGraph.hpp>
 
-void envire::smurf::Robot::initGraph(envire::core::TransformGraph &graph)
+void envire::smurf::Robot::initGraph(envire::core::EnvireGraph &graph)
 {
     initFrames(graph);
     initTfs(graph);
     initialized = true;
 }
 
-void envire::smurf::Robot::initGraph(envire::core::TransformGraph &graph, envire::core::vertex_descriptor linkTo)
+void envire::smurf::Robot::initGraph(envire::core::EnvireGraph &graph, envire::core::GraphTraits::vertex_descriptor linkTo)
 {
     if (debug) {LOG_DEBUG("[Robot::initRobotGraph] LoadFromSmurf with a given frame to link to");}
     if (not initialized)
@@ -30,7 +30,7 @@ void envire::smurf::Robot::initGraph(envire::core::TransformGraph &graph, envire
     graph.addTransform(graph.getFrameId(linkTo), robotRoot, iniPose);
 }
 
-void envire::smurf::Robot::loadLinks(envire::core::TransformGraph& graph, int& nextGroupId)
+void envire::smurf::Robot::loadLinks(envire::core::EnvireGraph& graph, int& nextGroupId)
 {
     using linkItemPtr = envire::core::Item<::smurf::Frame>::Ptr;
     std::vector<::smurf::Frame *> frames = robot.getFrames();
@@ -46,7 +46,7 @@ void envire::smurf::Robot::loadLinks(envire::core::TransformGraph& graph, int& n
     linksLoaded = true;
 }
 
-void envire::smurf::Robot::loadFixedJoints(envire::core::TransformGraph &graph)
+void envire::smurf::Robot::loadFixedJoints(envire::core::EnvireGraph &graph)
 {
     // TODO: Visualize the joints on the simulator visualizer (envire_graphics)
     using staticTransPtr = boost::shared_ptr<envire::core::Item<::smurf::StaticTransformation  > >;
@@ -62,7 +62,7 @@ void envire::smurf::Robot::loadFixedJoints(envire::core::TransformGraph &graph)
     }
 }
 
-void envire::smurf::Robot::loadCollidables(envire::core::TransformGraph& graph)
+void envire::smurf::Robot::loadCollidables(envire::core::EnvireGraph& graph)
 {
     // Without the linksLoaded the id of the frame is not set
     if (linksLoaded)
@@ -109,7 +109,7 @@ void envire::smurf::Robot::loadCollidables(envire::core::TransformGraph& graph)
     }
 }
 
-void envire::smurf::Robot::loadInertials(envire::core::TransformGraph& graph)
+void envire::smurf::Robot::loadInertials(envire::core::EnvireGraph& graph)
 {
     // Without the linksLoaded the id of the frame is not set
     if (linksLoaded)
@@ -155,7 +155,7 @@ void envire::smurf::Robot::loadInertials(envire::core::TransformGraph& graph)
     }
 }
 
-void envire::smurf::Robot::loadDynamicJoints(envire::core::TransformGraph &graph)
+void envire::smurf::Robot::loadDynamicJoints(envire::core::EnvireGraph &graph)
 {
     if (initialized)
     {
@@ -180,7 +180,7 @@ void envire::smurf::Robot::loadDynamicJoints(envire::core::TransformGraph &graph
     }
 }
 
-void envire::smurf::Robot::loadSensors(envire::core::TransformGraph &graph)
+void envire::smurf::Robot::loadSensors(envire::core::EnvireGraph &graph)
 {
     // Add Sensors 
     using sensorItemPtr = boost::shared_ptr<envire::core::Item< ::smurf::Sensor > >;
@@ -194,7 +194,7 @@ void envire::smurf::Robot::loadSensors(envire::core::TransformGraph &graph)
     }
 }
 
-void envire::smurf::Robot::loadVisuals(envire::core::TransformGraph &graph)
+void envire::smurf::Robot::loadVisuals(envire::core::EnvireGraph &graph)
 {
     using VisualsItemPtr = envire::core::Item<envire::smurf::Visual>::Ptr;
     std::vector<::smurf::Frame *> frames= robot.getFrames();
@@ -231,7 +231,7 @@ void envire::smurf::Robot::loadVisuals(envire::core::TransformGraph &graph)
     }
 }
 
-bool envire::smurf::Robot::frameHas(envire::core::TransformGraph &graph,FRAME_ITEM_TYPE itemType, envire::core::FrameId frameID)
+bool envire::smurf::Robot::frameHas(envire::core::EnvireGraph &graph,FRAME_ITEM_TYPE itemType, envire::core::FrameId frameID)
 {
     //envire::core::Frame frame=graph.getFrame(frameID);
     using namespace boost;
@@ -241,7 +241,7 @@ bool envire::smurf::Robot::frameHas(envire::core::TransformGraph &graph,FRAME_IT
         case SENSOR :
         {
 //            std::cout << "item is sensor";
-            envire::core::TransformGraph::ItemIterator<envire::core::Item<::smurf::Sensor*>> begin, end;
+            envire::core::EnvireGraph::ItemIterator<envire::core::Item<::smurf::Sensor*>> begin, end;
             tie(begin, end) = graph.getItems<envire::core::Item<::smurf::Sensor*>>(frameID);
             if(begin!=end)
                 has_item=true;
@@ -252,7 +252,7 @@ bool envire::smurf::Robot::frameHas(envire::core::TransformGraph &graph,FRAME_IT
         case JOINT:
         {
 //            std::cout << "item is joint";
-            envire::core::TransformGraph::ItemIterator<envire::core::Item<::smurf::StaticTransformation*>> begin, end;
+            envire::core::EnvireGraph::ItemIterator<envire::core::Item<::smurf::StaticTransformation*>> begin, end;
             tie(begin, end) = graph.getItems<envire::core::Item<::smurf::StaticTransformation*>>(frameID);
             if(begin!=end)
                 has_item=true;
@@ -262,7 +262,7 @@ bool envire::smurf::Robot::frameHas(envire::core::TransformGraph &graph,FRAME_IT
         case LINK:
         {
 //            std::cout << "item is link";
-            envire::core::TransformGraph::ItemIterator<envire::core::Item<::smurf::Frame *>> begin, end;
+            envire::core::EnvireGraph::ItemIterator<envire::core::Item<::smurf::Frame *>> begin, end;
             tie(begin, end) = graph.getItems<envire::core::Item<::smurf::Frame *>>(frameID);
             if(begin!=end)
                 has_item=true;
@@ -275,7 +275,7 @@ bool envire::smurf::Robot::frameHas(envire::core::TransformGraph &graph,FRAME_IT
     return has_item;
 }
 
-std::vector<envire::core::FrameId>  envire::smurf::Robot::getTransformFrames(envire::core::FrameId &sourceFrame,envire::core::FrameId &targetFrame, envire::core::TransformGraph &graph)
+std::vector<envire::core::FrameId>  envire::smurf::Robot::getTransformFrames(envire::core::FrameId &sourceFrame,envire::core::FrameId &targetFrame, envire::core::EnvireGraph &graph)
 {
     return graph.getPath(sourceFrame, targetFrame);
 }
@@ -289,7 +289,7 @@ envire::smurf::Visual::Visual(const urdf::Visual& urdfVisual)
 }
 
 // Private
-void envire::smurf::Robot::initFrames(envire::core::TransformGraph &graph)
+void envire::smurf::Robot::initFrames(envire::core::EnvireGraph &graph)
 {
     envire::core::FrameId frame_id;
     std::vector<::smurf::Frame *> frames= robot.getFrames();
@@ -308,14 +308,14 @@ void envire::smurf::Robot::initFrames(envire::core::TransformGraph &graph)
     }
 }
 
-void envire::smurf::Robot::initTfs(envire::core::TransformGraph &graph)
+void envire::smurf::Robot::initTfs(envire::core::EnvireGraph &graph)
 {
     initStaticTfs(graph);
     initDynamicTfs(graph);
 }
 
 
-void envire::smurf::Robot::initStaticTfs(envire::core::TransformGraph &graph)
+void envire::smurf::Robot::initStaticTfs(envire::core::EnvireGraph &graph)
 {
     using staticTransPtr = boost::shared_ptr<envire::core::Item<::smurf::StaticTransformation*  > >;
     std::vector<::smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
@@ -330,7 +330,7 @@ void envire::smurf::Robot::initStaticTfs(envire::core::TransformGraph &graph)
     }
 }
 
-void envire::smurf::Robot::initDynamicTfs(envire::core::TransformGraph &graph)
+void envire::smurf::Robot::initDynamicTfs(envire::core::EnvireGraph &graph)
 {
     std::vector<::smurf::Joint *> joints = robot.getJoints();
     for(::smurf::Joint* joint : joints)
