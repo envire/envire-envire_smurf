@@ -146,6 +146,12 @@ namespace envire
              */
             void loadDynamicJoints(envire::core::EnvireGraph &graph);
             /**
+             * Loads the smurf::Motor objects in the correspondent frame 
+             * of the graph.
+             * 
+             */
+            void loadMotors(envire::core::EnvireGraph &graph);
+            /**
              * Loads the smurf::Sensor objects in the correspondent frame 
              * of the graph.
              * 

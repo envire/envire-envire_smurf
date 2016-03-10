@@ -152,3 +152,14 @@ BOOST_AUTO_TEST_CASE(load_dynamic_joints)
     robot.loadDynamicJoints(transformGraph);
     viz.write(transformGraph, "loadDynamicJointsTest.dot");
 }
+
+BOOST_AUTO_TEST_CASE(load_motors)
+{
+    const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes_with_motor.smurf";
+    envire::core::EnvireGraph transformGraph;
+    envire::core::GraphViz viz;
+    envire::smurf::Robot robot = getRobotWithInitGraph(path, transformGraph);
+    robot.loadDynamicJoints(transformGraph);
+    robot.loadMotors(transformGraph);
+    viz.write(transformGraph, "loadMotorsTest.dot");
+}

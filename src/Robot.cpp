@@ -180,6 +180,19 @@ void envire::smurf::Robot::loadDynamicJoints(envire::core::EnvireGraph &graph)
     }
 }
 
+void envire::smurf::Robot::loadMotors(envire::core::EnvireGraph &graph)
+{
+    using motorItemPtr = boost::shared_ptr<envire::core::Item< ::smurf::Motor > >;
+    std::vector<::smurf::Motor*> motors= robot.getMotors();
+    for(::smurf::Motor* motor : motors)
+    {
+        std::string frameName = motor -> getName(); // IMPORTANT: We assume that there is a frame with the same name of the motor!
+        motorItemPtr motor_itemPtr (new  envire::core::Item< ::smurf::Motor>(*motor) );
+        graph.addItemToFrame(frameName, motor_itemPtr);
+        if (debug) { LOG_DEBUG_S << "[Robot::LoadMotors] Attached motor " << motor->getName() << " to frame " << frameName;}
+    }
+}
+
 void envire::smurf::Robot::loadSensors(envire::core::EnvireGraph &graph)
 {
     // Add Sensors 

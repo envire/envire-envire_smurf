@@ -1,0 +1,11 @@
+motors:
+- d: 0
+  i: 0
+  joint: root2box
+  maxEffort: 30.0
+  maxSpeed: 6.283185
+  maxValue: 6.283185
+  minValue: 0
+  name: root2box
+  p: 20.0
+  type: DC
