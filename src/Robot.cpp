@@ -167,7 +167,8 @@ void envire::smurf::Robot::loadDynamicJoints(envire::core::EnvireGraph &graph)
         }
         for(::smurf::Joint* joint : joints) 
         {
-            envire::core::FrameId frame_id = joint -> getName();
+            //envire::core::FrameId frame_id = joint -> getName();
+            envire::core::FrameId frame_id = joint -> getTargetFrame().getName();
             jointsPtr joint_itemPtr (new envire::core::Item<::smurf::Joint>(*joint));
             graph.addItemToFrame(frame_id, joint_itemPtr);
             if (debug) { LOG_DEBUG_S << "[Robot::loadDynamicJoints] There is a joint in the frame " << joint -> getName() << " from " << joint->getSourceFrame().getName() << " to " << joint->getTargetFrame().getName();}

@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(load_inertials_and_collidables)
 
 BOOST_AUTO_TEST_CASE(load_dynamic_joints)
 {
-    const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
+    const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes_dynamic_joint.smurf";
     envire::core::EnvireGraph transformGraph;
     envire::core::GraphViz viz;
     envire::smurf::Robot robot = getRobotWithInitGraph(path, transformGraph);
