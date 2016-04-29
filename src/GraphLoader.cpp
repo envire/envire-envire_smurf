@@ -12,6 +12,8 @@
 //TODO We assume that there is a frame with the name of the attachment point of the sensor. This will fail in multiple cases (e.g. attachment name does not correspond to any frame, multiple robots with same frame names...) 
 //TODO We decided to remove the frame in between for the dynamic transformations, therefore they shall be almost equal to the static ones
 //TODO The current implementation loads inertials and colllions each one in a separate frame even if they have the same position. Maybe they should be improved
+//TODO Delete the Robot stuff
+//TODO Implement a method that loads all at once
 
 // NOTE The dynamic joints are currently loaded in the target frame    
 // This does not affect the behavior as long as the simulated motors and joints are linked properly by the plugin. For that they have to be stored in the same frame.
@@ -22,17 +24,17 @@
 namespace envire { namespace smurf {
 
 
-    void GraphLoader::loadStructure()
+    void GraphLoader::loadStructure(const ::smurf::Robot& robot)
     {
-        initFrames();
-        initTfs();
+        initFrames(robot);
+        initTfs(robot);
         initialized = true;
     }
 
-    void GraphLoader::loadStructure(envire::core::GraphTraits::vertex_descriptor linkTo)
+    void GraphLoader::loadStructure(envire::core::GraphTraits::vertex_descriptor linkTo, const ::smurf::Robot& robot)
     {
         if (debug) {LOG_DEBUG("[GraphLoader::loadStructure] LoadFromSmurf with a given frame to link to");}
-        if (not initialized) { loadStructure(); }
+        if (not initialized) { loadStructure(robot); }
         // FIXME This method fails:
         //envire::core::FrameId robotRoot = robot.getRootFrame()->getName(); 
         envire::core::FrameId robotRoot = "root";
@@ -41,7 +43,7 @@ namespace envire { namespace smurf {
         graph->addTransform(graph->getFrameId(linkTo), robotRoot, iniPose);
     }
 
-    void GraphLoader::loadFrames(int& nextGroupId)
+    void GraphLoader::loadFrames(int& nextGroupId, const ::smurf::Robot& robot)
     {
         // NOTE The Frames in smurf correspond to the links in Urdf. The urdf link object is not loaded
         using FrameItemPtr = envire::core::Item<::smurf::Frame>::Ptr;
@@ -58,7 +60,7 @@ namespace envire { namespace smurf {
         framesLoaded = true;
     }
     
-    void GraphLoader::loadFixedJoints()
+    void GraphLoader::loadFixedJoints(const ::smurf::Robot& robot)
     {
         using StaticTransPtr = boost::shared_ptr<envire::core::Item<::smurf::StaticTransformation  > >;
         std::vector<::smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
@@ -73,7 +75,7 @@ namespace envire { namespace smurf {
         }
     }
     
-    void GraphLoader::loadDynamicJoints()
+    void GraphLoader::loadDynamicJoints(const ::smurf::Robot& robot)
     {
         if (initialized)
         {
@@ -99,7 +101,7 @@ namespace envire { namespace smurf {
         }
     }
 
-    void GraphLoader::loadCollidables()
+    void GraphLoader::loadCollidables(const ::smurf::Robot& robot)
     {
         // NOTE Without the Frames Loaded the GroupId of the frames are not set. By sharing same GroupId, the simulated objects are linked (move together)
         if (framesLoaded)
@@ -142,7 +144,7 @@ namespace envire { namespace smurf {
             LOG_ERROR_S << "[GraphLoader::loadCollidables] Robot frames are not loaded: loadFrames must be executed before loadCollidables";
         }
     }
-    void GraphLoader::loadInertials()
+    void GraphLoader::loadInertials(const ::smurf::Robot& robot)
     {
         // NOTE Without the Frames Loaded the GroupId of the frames are not set. By sharing same GroupId, the simulated objects are linked (move together)
         if (framesLoaded)
@@ -185,7 +187,7 @@ namespace envire { namespace smurf {
         }
     }
     
-    void GraphLoader::loadVisuals()
+    void GraphLoader::loadVisuals(const ::smurf::Robot& robot)
     {
         using VisualsItemPtr = envire::core::Item<envire::smurf::Visual>::Ptr;
         std::vector<::smurf::Frame *> frames= robot.getFrames();
@@ -219,7 +221,7 @@ namespace envire { namespace smurf {
         }
     }
     
-    void GraphLoader::loadMotors()
+    void GraphLoader::loadMotors(smurf::Robot robot)
     {
         using MotorItemPtr = boost::shared_ptr<envire::core::Item< ::smurf::Motor > >;
         std::vector<::smurf::Motor*> motors= robot.getMotors();
@@ -233,7 +235,7 @@ namespace envire { namespace smurf {
         }
     }
 
-    void GraphLoader::loadSensors()
+    void GraphLoader::loadSensors(smurf::Robot robot)
     {
         using SensorItemPtr = boost::shared_ptr<envire::core::Item< ::smurf::Sensor > >;
         std::vector<::smurf::Sensor*> sensors = robot.getSensors();
@@ -247,7 +249,23 @@ namespace envire { namespace smurf {
         }
     }
     
-    void GraphLoader::initFrames()
+    void GraphLoader::loadRobot(int& nextGroupId, const envire::core::GraphTraits::vertex_descriptor& linkTo, const envire::core::Transform& pose, const ::smurf::Robot& robot)
+    {
+        // NOTE The only smurf object supported by now are robots, but we should implement it to be compatible with smurfs in general. Will other smurf objects provide joints and so on? maybe yes
+        iniPose = pose;
+        loadStructure(linkTo, robot);
+        loadFrames(nextGroupId, robot);
+        loadFixedJoints(robot);
+        loadDynamicJoints(robot);
+        loadCollidables(robot);
+        loadVisuals(robot);
+        loadInertials(robot);
+        loadMotors(robot);
+        loadSensors(robot);
+        return nextGroupId;
+    }
+        
+    void GraphLoader::initFrames(const ::smurf::Robot& robot)
     {
         envire::core::FrameId frame_id;
         std::vector<::smurf::Frame *> frames= robot.getFrames();
@@ -266,13 +284,13 @@ namespace envire { namespace smurf {
         }
     }
     
-    void GraphLoader::initTfs()
+    void GraphLoader::initTfs(const ::smurf::Robot& robot)
     {
-        initStaticTfs();
-        initDynamicTfs();
+        initStaticTfs(robot);
+        initDynamicTfs(robot);
     }
     
-    void GraphLoader::initStaticTfs()
+    void GraphLoader::initStaticTfs(const ::smurf::Robot& robot)
     {
         using staticTransPtr = boost::shared_ptr<envire::core::Item<::smurf::StaticTransformation*  > >;
         std::vector<::smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
@@ -287,7 +305,7 @@ namespace envire { namespace smurf {
         }
     }
     
-    void GraphLoader::initDynamicTfs()
+    void GraphLoader::initDynamicTfs(const ::smurf::Robot& robot)
     {
         std::vector<::smurf::Joint *> joints = robot.getJoints();
         for(::smurf::Joint* joint : joints)

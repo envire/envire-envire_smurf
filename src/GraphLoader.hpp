@@ -4,8 +4,6 @@
 #include <envire_core/items/Transform.hpp>
 #include <envire_core/graph/GraphTypes.hpp>
 
-//TODO Move the Visual struct to another file.
-
 namespace envire
 { 
     namespace core 
@@ -68,7 +66,7 @@ namespace envire
              *   any of the objects to which the simulator reacts, but is
              *   required before loading any of them.
              */
-            void loadStructure();
+            void loadStructure(const smurf::Robot & robot);
             /**
              * Links the robot to the provided vertex with a transformation that
              * corresponst to the iniPose
@@ -76,14 +74,14 @@ namespace envire
              * For this to occur the root frame of the robot must have
              * same name that the constant attribute rootName of this class.
              */
-            void loadStructure(envire::core::GraphTraits::vertex_descriptor linkTo);
+            void loadStructure(envire::core::GraphTraits::vertex_descriptor linkTo, const ::smurf::Robot& robot);
             /** 
              * Loads in each vertex that corresponds to a link of the robot a
              * smurf::Frame object. This objects trigger in envire_physics the
              * creation of simple nodes that can be used to link connected 
              * structures through fixed joints.
              */
-            void loadFrames(int& nextGroupId);
+            void loadFrames(int& nextGroupId, const ::smurf::Robot& robot);
             /**
              * Loads in the vertex from where a static connection to other
              * frames exist a Smurf::StaticTransformation.  To this objects the
@@ -91,14 +89,14 @@ namespace envire
              * fixed joint between the connected links. The sourceFrame and the
              * targetFrame are specified in the smurf::StaticTransformation.
              */
-            void loadFixedJoints();
+            void loadFixedJoints(const ::smurf::Robot& robot);
             /**
              * Loads the joints from the smurf in the correspondent frames,
              * this is needed to get the dynamic transformations.
              * 
              * Before calling to this method the graph must be initialized.
              */
-            void loadDynamicJoints();
+            void loadDynamicJoints(const ::smurf::Robot& robot);
             /**
              * Loads the smurf::collidables in the correspondent frames of the 
              * graph. If a collidable position does not correspond to the 
@@ -118,12 +116,7 @@ namespace envire
              * they will alos receive the same groupId.
              * 
              */
-            void loadCollidables();
-            /** 
-             * This method includes in the frames the physical objects that
-             * the simulator will react to
-             */
-            void loadVisuals();
+            void loadCollidables(const ::smurf::Robot& robot);
             /**
              * Loads the smurf::inertials in the correspondent frames of the 
              * graph. If an inertial position does not correspond to the 
@@ -138,26 +131,29 @@ namespace envire
              * with the frame, we set the same groupId of the link to the
              * inertial.
              */
-            void loadInertials();
+            void loadInertials(const ::smurf::Robot& robot);
+            /** 
+             * This method includes in the frames the visual objects that
+             * the simulator will display to
+             */
+            void loadVisuals(const ::smurf::Robot& robot);
             /**
              * Loads the smurf::Motor objects in the correspondent frame 
              * of the graph.
              * 
              */
-            void loadMotors();
+            void loadMotors(const ::smurf::Robot& robot);
             /**
              * Loads the smurf::Sensor objects in the correspondent frame 
              * of the graph.
              * 
              */
-            void loadSensors();
+            void loadSensors(const ::smurf::Robot& robot);
             /**
-             * Returns the smurf robot which is being loaded in the graph
+             * Loads the complete ::smurf::Robot received by parameter.
+             * This method modifies the value of the parameter @nextGroupId
              */
-            ::smurf::Robot getRobot()
-            {
-                return robot;
-            }
+            void loadRobot(int& nextGroupId, const envire::core::GraphTraits::vertex_descriptor& linkTo, const envire::core::Transform& pose, const ::smurf::Robot& robot);
         private:
             /** 
              * Adds the frames of the robot as vertex in the graph the @member
@@ -168,19 +164,19 @@ namespace envire
              * the frame, neither creating frames for the inertial or
              * collidable objects.
              */
-            void initFrames();
+            void initFrames(const ::smurf::Robot& robot);
             /** 
              * Loads all the transformations on the graph. For the dynamic
              * transformations an identity transformation is set for the
              * children and the transformation to the parent is set to the
              * father.
              */
-            void initTfs();
+            void initTfs(const ::smurf::Robot& robot);
             /**
              * This method set the transformations that correspond to static 
              * transformations of the robot in the graph.
              */
-            void initStaticTfs();
+            void initStaticTfs(const ::smurf::Robot& robot);
             /**
              * Sets the dynamic transformations from the smurf in the
              * correspondent edges. Some transformations are read from the
@@ -190,7 +186,7 @@ namespace envire
              * all the information for the dynamic transfrom. I think that we 
              * don't need any dynamic transform object indeed
              */
-            void initDynamicTfs();
+            void initDynamicTfs(const ::smurf::Robot& robot);
             // Attributes
             std::shared_ptr<envire::core::EnvireGraph> graph;
             envire::core::Transform iniPose;
