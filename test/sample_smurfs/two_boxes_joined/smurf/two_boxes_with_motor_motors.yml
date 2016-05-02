@@ -6,6 +6,6 @@ motors:
   maxSpeed: 6.283185
   maxValue: 6.283185
   minValue: 0
-  name: box
+  name: root
   p: 20.0
   type: DC

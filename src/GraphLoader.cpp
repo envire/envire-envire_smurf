@@ -85,9 +85,8 @@ namespace envire { namespace smurf {
             }
             for(::smurf::Joint* joint : joints) 
             {
-                //TODO We want to store the dynamic joints in the source frame not in the target
                 if (debug) { LOG_DEBUG_S << "[GraphLoader::loadDynamicJoints] There is a joint with name " << joint -> getName() << " from " << joint->getSourceFrame().getName() << " to " << joint->getTargetFrame().getName();}
-                envire::core::FrameId frame_id = joint -> getTargetFrame().getName();
+                envire::core::FrameId frame_id = joint -> getSourceFrame().getName();
                 JointsPtr joint_itemPtr (new envire::core::Item<::smurf::Joint>(*joint));
                 graph->addItemToFrame(frame_id, joint_itemPtr);
                 if (debug) { LOG_DEBUG_S << "[GraphLoader::loadDynamicJoints] Added a smurf::Joint to the frame *" << frame_id << "*";}
