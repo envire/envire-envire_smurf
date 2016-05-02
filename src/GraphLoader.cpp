@@ -10,7 +10,6 @@
 //TODO Put at least an error message or warning: We assume that there is a frame with the same name of the motor! This will fail in multiple cases (e.g. motor name is set to joint name, multiple robots with same frame names...). 
 //TODO We assume that there is a frame with the name of the attachment point of the sensor. This will fail in multiple cases (e.g. attachment name does not correspond to any frame, multiple robots with same frame names...) 
 //TODO We decided to remove the frame in between for the dynamic transformations, therefore they shall be almost equal to the static ones
-//TODO Delete the Robot stuff
 //TODO The current implementation loads inertials, visuals and colllions each one in a separate frame even if they have the same position. Maybe they should be improved
 //TODO Implement a prefix to be able to load multiple robots of the same model or with same naming for the frames
 
