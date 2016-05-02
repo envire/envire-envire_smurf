@@ -4,14 +4,10 @@
 #include <envire_core/items/Item.hpp>
 #include <base/Logging.hpp>
 
-//TODO Fix the getRoot method of the smurf::robot
-//TODO Template the second part of loadCollidables, loadInertials and loadVisuals and put in an auxiliar method because they do the same
-//TODO We want to store the dynamic joints in the source frame not in the target. Or is there some reason to put it in the target?
-//TODO Put at least an error message or warning: We assume that there is a frame with the same name of the motor! This will fail in multiple cases (e.g. motor name is set to joint name, multiple robots with same frame names...). 
-//TODO We assume that there is a frame with the name of the attachment point of the sensor. This will fail in multiple cases (e.g. attachment name does not correspond to any frame, multiple robots with same frame names...) 
-//TODO We decided to remove the frame in between for the dynamic transformations, therefore they shall be almost equal to the static ones
-//TODO The current implementation loads inertials, visuals and colllions each one in a separate frame even if they have the same position. Maybe they should be improved
-//TODO Implement a prefix to be able to load multiple robots of the same model or with same naming for the frames
+//NOTE We store the dynamic joints in the source frame. The name in the smurf for the motor has to be the source of the corresponden dynamic joint, otherwise it won't be found by envire_motors. How is the naming done in Phobos? I guess that the target is the name and therefore it will not work. Motors should have source and target in their description.
+//TODO 1. Introduce a prefix to be able to load multiple robots of the same model or with same naming for the frames
+//TODO 2. The current implementation loads inertials, visuals and colllions each one in a separate frame even if they have the same position. This should be improved
+//TODO 3. Template the second part of loadCollidables, loadInertials and loadVisuals and put in an auxiliar method because they do the same
 
 // NOTE The dynamic joints are currently loaded in the target frame    
 // This does not affect the behavior as long as the simulated motors and joints are linked properly by the plugin. For that they have to be stored in the same frame.
@@ -222,11 +218,17 @@ namespace envire { namespace smurf {
         std::vector<::smurf::Motor*> motors= robot.getMotors();
         for(::smurf::Motor* motor : motors)
         {
-            // TODO We assume that there is a frame with the same name of the motor! This will fail in multiple cases (e.g. motor name is set to joint name, multiple robots with same frame names...) 
             std::string frameName = motor -> getName();
             MotorItemPtr motor_itemPtr (new  envire::core::Item< ::smurf::Motor>(*motor) );
-            graph->addItemToFrame(frameName, motor_itemPtr);
-            if (debug) { LOG_DEBUG_S << "[GraphLoader::LoadMotors] Attached motor " << motor->getName() << " to frame *" << frameName<<"*";}
+            if (graph->containsFrame(frameName))
+            {
+                graph->addItemToFrame(frameName, motor_itemPtr);
+                if (debug) { LOG_DEBUG_S << "[GraphLoader::LoadMotors] Attached motor " << motor->getName() << " to frame *" << frameName<<"*";}
+            }
+            else
+            {
+                LOG_WARN_S << "[GraphLoader::LoadMotors] The specified frame for the motor "<< motor->getName() << " does not exist. A frame (urdf link) with the same name of the motor is missing.";
+            }
         }
     }
 
@@ -236,11 +238,17 @@ namespace envire { namespace smurf {
         std::vector<::smurf::Sensor*> sensors = robot.getSensors();
         for(::smurf::Sensor* sensor : sensors)
         {
-            // TODO We assume that there is a frame with the name of the attachment point of the sensor. This will fail in multiple cases (e.g. attachment name does not correspond to any frame, multiple robots with same frame names...) 
             std::string frameName = sensor->getAttachmentPoint()->getName();
             SensorItemPtr sensor_itemPtr (new  envire::core::Item< ::smurf::Sensor>(*sensor) );
-            graph->addItemToFrame(frameName, sensor_itemPtr);
-            if (debug) { LOG_DEBUG_S << "[GraphLoader::LoadSensors] Attached sensor " << sensor->getName() << " to frame *" << frameName << "*";}
+            if (graph->containsFrame(frameName))
+            {
+                graph->addItemToFrame(frameName, sensor_itemPtr);
+                if (debug) { LOG_DEBUG_S << "[GraphLoader::LoadSensors] Attached sensor " << sensor->getName() << " to frame *" << frameName << "*";}
+            }
+            else
+            {
+                LOG_WARN_S << "[GraphLoader::LoadSensors] The specified frame for the sensor "<< sensor->getName() << " does not exist. A frame (urdf link) with the same name of the sensor attachemnt's point is missing (link field).";
+            }
         }
     }
     
