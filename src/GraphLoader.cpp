@@ -269,13 +269,6 @@ namespace envire { namespace smurf {
             graph->addFrame(frame_id);
             if (debug) { LOG_DEBUG_S << "[GraphLoader::initFrames] Frame Added: " << frame_id;}
         }
-        std::vector<::smurf::DynamicTransformation *> dynamicTfs= robot.getDynamicTransforms();
-        for(::smurf::DynamicTransformation* dynamicTf : dynamicTfs)
-        {
-            frame_id = dynamicTf -> getName();
-            graph->addFrame(frame_id);
-            if (debug) { LOG_DEBUG_S << "[GraphLoader::initFrames] Frame Added for a dynamic transformation: " << frame_id;}
-        }
     }
     
     void GraphLoader::initTfs(const ::smurf::Robot& robot)
@@ -304,20 +297,15 @@ namespace envire { namespace smurf {
         std::vector<::smurf::Joint *> joints = robot.getJoints();
         for(::smurf::Joint* joint : joints)
         {
-            // TODO We decided to remove the frame in between for the dynamic transformations, therefore they shall be almost equal to the static ones
             ::smurf::Frame target = joint -> getTargetFrame();
-            envire::core::FrameId jointId = joint -> getName();
-            // NOTE First part: ParentToJointOrigin transformation is set between parent and joint frame
+            // NOTE ParentToJointOrigin transformation is set between parent and child frame
             Eigen::Affine3d parentToJoint = joint->getParentToJointOrigin();
             envire::core::Transform parent2Joint = envire::core::Transform(base::Time::now(), base::TransformWithCovariance(parentToJoint)); 
             ::smurf::Frame source = joint-> getSourceFrame();
             envire::core::FrameId sourceId = source.getName();
-            graph->addTransform(sourceId, jointId, parent2Joint);
-            // NOTE Second part: Identity transformation between joint and target frame
             envire::core::FrameId targetId = target.getName();
-            envire::core::Transform staticTf(base::Time::now(), base::TransformWithCovariance::Identity());
-            graph->addTransform(jointId, targetId, staticTf);
-            if (debug) { LOG_DEBUG_S << "[GraphLoader::initDynamicTfs] Transformations between " << sourceId << "and" << jointId << " and " << targetId <<" set.";}
+            graph->addTransform(sourceId, targetId, parent2Joint);
+            if (debug) { LOG_DEBUG_S << "[GraphLoader::initDynamicTfs] Transformation between " << sourceId << " and " << targetId <<" set.";}
         }
     }
             
