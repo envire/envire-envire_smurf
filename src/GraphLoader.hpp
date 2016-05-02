@@ -26,24 +26,6 @@ namespace envire
              * 
              */
             GraphLoader(const std::shared_ptr<envire::core::EnvireGraph>& targetGraph, envire::core::Transform pose): graph(targetGraph), iniPose(pose){};
-            /**
-             *
-             * @param path the path to the smurf to be loaded
-             */
-            GraphLoader(const std::shared_ptr<envire::core::EnvireGraph>& targetGraph, const std::string& path): graph(targetGraph)
-            {
-                robot.loadFromSmurf(path);
-            };
-            /**
-             *
-             * @targetGraph The graph on which the smurf will be loaded
-             * @pose The initial pose to set the robot's root
-             * @param path the path to the smurf to be loaded
-             */
-            GraphLoader(const std::shared_ptr<envire::core::EnvireGraph>& targetGraph, envire::core::Transform pose, const std::string& path): graph(targetGraph), iniPose(pose)
-            {
-                robot.loadFromSmurf(path);
-            };
             // Getters and Setters
             std::shared_ptr<envire::core::EnvireGraph> getGraph(){return this->graph;};
             // Other public methods
@@ -66,7 +48,7 @@ namespace envire
              *   any of the objects to which the simulator reacts, but is
              *   required before loading any of them.
              */
-            void loadStructure(const smurf::Robot & robot);
+            void loadStructure(const ::smurf::Robot & robot);
             /**
              * Links the robot to the provided vertex with a transformation that
              * corresponst to the iniPose

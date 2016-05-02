@@ -1,0 +1,8 @@
+#sensors definition SMURF file for "TwoBoxes", 20150407_15:47
+
+sensors:
+- id:
+  - main_body
+  link: box
+  name: COM
+  type: NodeCOM

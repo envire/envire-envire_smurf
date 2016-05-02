@@ -4,16 +4,15 @@
 #include <envire_core/items/Item.hpp>
 #include <base/Logging.hpp>
 
-//TODO Instead of having the robot as attribute, receive it as parameter (the groupId will have to be kept in the graph, or we modify the robot)
 //TODO Fix the getRoot method of the smurf::robot
 //TODO Template the second part of loadCollidables, loadInertials and loadVisuals and put in an auxiliar method because they do the same
 //TODO We want to store the dynamic joints in the source frame not in the target. Or is there some reason to put it in the target?
 //TODO Put at least an error message or warning: We assume that there is a frame with the same name of the motor! This will fail in multiple cases (e.g. motor name is set to joint name, multiple robots with same frame names...). 
 //TODO We assume that there is a frame with the name of the attachment point of the sensor. This will fail in multiple cases (e.g. attachment name does not correspond to any frame, multiple robots with same frame names...) 
 //TODO We decided to remove the frame in between for the dynamic transformations, therefore they shall be almost equal to the static ones
-//TODO The current implementation loads inertials and colllions each one in a separate frame even if they have the same position. Maybe they should be improved
 //TODO Delete the Robot stuff
-//TODO Implement a method that loads all at once
+//TODO The current implementation loads inertials, visuals and colllions each one in a separate frame even if they have the same position. Maybe they should be improved
+//TODO Implement a prefix to be able to load multiple robots of the same model or with same naming for the frames
 
 // NOTE The dynamic joints are currently loaded in the target frame    
 // This does not affect the behavior as long as the simulated motors and joints are linked properly by the plugin. For that they have to be stored in the same frame.
@@ -221,7 +220,7 @@ namespace envire { namespace smurf {
         }
     }
     
-    void GraphLoader::loadMotors(smurf::Robot robot)
+    void GraphLoader::loadMotors(const ::smurf::Robot& robot)
     {
         using MotorItemPtr = boost::shared_ptr<envire::core::Item< ::smurf::Motor > >;
         std::vector<::smurf::Motor*> motors= robot.getMotors();
@@ -235,7 +234,7 @@ namespace envire { namespace smurf {
         }
     }
 
-    void GraphLoader::loadSensors(smurf::Robot robot)
+    void GraphLoader::loadSensors(const ::smurf::Robot& robot)
     {
         using SensorItemPtr = boost::shared_ptr<envire::core::Item< ::smurf::Sensor > >;
         std::vector<::smurf::Sensor*> sensors = robot.getSensors();
@@ -262,7 +261,6 @@ namespace envire { namespace smurf {
         loadInertials(robot);
         loadMotors(robot);
         loadSensors(robot);
-        return nextGroupId;
     }
         
     void GraphLoader::initFrames(const ::smurf::Robot& robot)
