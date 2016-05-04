@@ -145,7 +145,6 @@ BOOST_AUTO_TEST_CASE(loadInertialsAndCollidables)
     robot->loadFromSmurf(path);
     envire::core::GraphViz viz;
     envire::smurf::GraphLoader graphLoader = getLoaderWithStructuredGraph(*robot);
-    std::cout << "An error  message should appear because the Frames where not loaded " << path << std::endl;
     int nextGroupId = 0;
     graphLoader.loadFrames(nextGroupId, *robot);
     graphLoader.loadCollidables(*robot);
@@ -153,6 +152,18 @@ BOOST_AUTO_TEST_CASE(loadInertialsAndCollidables)
     viz.write(*(graphLoader.getGraph()), "loadInertialsAndCollidables_Test.dot");
 }
 
+BOOST_AUTO_TEST_CASE(loadVisuals)
+{
+    const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes.smurf";
+    smurf::Robot* robot = new(smurf::Robot);
+    robot->loadFromSmurf(path);
+    envire::core::GraphViz viz;
+    envire::smurf::GraphLoader graphLoader = getLoaderWithStructuredGraph(*robot);
+    int nextGroupId = 0;
+    graphLoader.loadFrames(nextGroupId, *robot);
+    graphLoader.loadVisuals(*robot);
+    viz.write(*(graphLoader.getGraph()), "loadVisuals_Test.dot");
+}
 
 BOOST_AUTO_TEST_CASE(loadDynamicJoints)
 {

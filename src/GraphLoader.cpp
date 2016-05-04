@@ -30,9 +30,9 @@ namespace envire { namespace smurf {
         if (debug) {LOG_DEBUG("[GraphLoader::loadStructure] LoadFromSmurf with a given frame to link to");}
         if (not initialized) { loadStructure(robot); }
         const envire::core::FrameId robotRoot = robot.getRootFrame()->getName(); 
-        if (debug) {LOG_DEBUG_S << "[GraphLoader::loadStructure] Transform to linkTo added: " << graph->getFrameId(linkTo) << " and " << robotRoot;}
         iniPose.time = base::Time::now();
         graph->addTransform(graph->getFrameId(linkTo), robotRoot, iniPose);
+        if (debug) {LOG_DEBUG_S << "[GraphLoader::loadStructure] Transform to linkTo added: " << graph->getFrameId(linkTo) << " and " << robotRoot;}
     }
 
     void GraphLoader::loadFrames(int& nextGroupId, const ::smurf::Robot& robot)
