@@ -255,6 +255,8 @@ namespace envire { namespace smurf {
     void GraphLoader::loadRobot(int& nextGroupId, const envire::core::GraphTraits::vertex_descriptor& linkTo, const envire::core::Transform& pose, const ::smurf::Robot& robot)
     {
         // NOTE The only smurf object supported by now are robots, but we should implement it to be compatible with smurfs in general. Will other smurf objects provide joints and so on? maybe yes
+        // TODO The order in which the elements are loaded in the graph can be problematic, somehow the commented out order produces a strange behavior in which the fixed joints pull together the objects joined
+        /*
         iniPose = pose;
         loadStructure(linkTo, robot);
         loadFrames(nextGroupId, robot);
@@ -263,6 +265,17 @@ namespace envire { namespace smurf {
         loadCollidables(robot);
         loadVisuals(robot);
         loadInertials(robot);
+        loadMotors(robot);
+        loadSensors(robot);
+        */
+        iniPose = pose;
+        loadStructure(linkTo, robot);
+        loadFrames(nextGroupId, robot);
+        loadCollidables(robot);
+        loadInertials(robot);
+        loadFixedJoints(robot);
+        loadDynamicJoints(robot);
+        loadVisuals(robot);
         loadMotors(robot);
         loadSensors(robot);
     }
