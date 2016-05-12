@@ -216,18 +216,30 @@ namespace envire { namespace smurf {
     {
         using MotorItemPtr = boost::shared_ptr<envire::core::Item< ::smurf::Motor > >;
         std::vector<::smurf::Motor*> motors= robot.getMotors();
+        std::vector<::smurf::Joint*> joints = robot.getJoints();
         for(::smurf::Motor* motor : motors)
         {
-            std::string frameName = motor -> getName();
-            MotorItemPtr motor_itemPtr (new  envire::core::Item< ::smurf::Motor>(*motor) );
+            configmaps::ConfigMap motorMap = motor -> getMotorMap();
+            std::string jointName = static_cast<std::string>(motorMap["joint"]);
+            std::string frameName = "";
+            signed int i = 0;
+            while ((frameName == "") && (i<joints.size()))
+            {
+                if (joints[i]->getName() == jointName)
+                {
+                    frameName = joints[i]->getSourceFrame().getName();
+                }
+                i+=1;
+            }
             if (graph->containsFrame(frameName))
             {
+                MotorItemPtr motor_itemPtr (new  envire::core::Item< ::smurf::Motor>(*motor) );
                 graph->addItemToFrame(frameName, motor_itemPtr);
                 if (debug) { LOG_DEBUG_S << "[GraphLoader::LoadMotors] Attached motor " << motor->getName() << " to frame *" << frameName<<"*";}
             }
             else
             {
-                LOG_WARN_S << "[GraphLoader::LoadMotors] The specified frame for the motor "<< motor->getName() << " does not exist. A frame (urdf link) with the same name of the motor is missing.";
+                LOG_WARN_S << "[GraphLoader::LoadMotors] The motor "<< motor->getName() << " does not have a joint with the same target/child name.";
             }
         }
     }

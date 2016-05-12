@@ -123,6 +123,10 @@ namespace envire
              * Loads the smurf::Motor objects in the correspondent frame 
              * of the graph.
              * 
+             *  The joint field of the motor is used to find the source of the
+             *  joint. The source of the joint is the frame in which the motor
+             *  should be stored. The joint is the joint to which the motor
+             *  should be attached by the simulator.
              */
             void loadMotors(const ::smurf::Robot& robot);
             /**
