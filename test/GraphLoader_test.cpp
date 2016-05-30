@@ -216,3 +216,14 @@ BOOST_AUTO_TEST_CASE(loadRobot)
     envire::core::GraphViz viz;
     viz.write(*(graphLoader.getGraph()), "loadRobot_Test.dot");
 }
+
+BOOST_AUTO_TEST_CASE(loadJoints)
+{
+    const std::string path="./sample_smurfs/two_boxes_joined/smurf/two_boxes_dynamic_joint.smurf";
+    smurf::Robot* robot = new(smurf::Robot);
+    robot->loadFromSmurf(path);
+    envire::core::GraphViz viz;
+    envire::smurf::GraphLoader graphLoader = getLoaderWithStructuredGraph(*robot);
+    graphLoader.loadJoints(*robot);
+    viz.write(*(graphLoader.getGraph()), "loadJoints_Test.dot");
+}

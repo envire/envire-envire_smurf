@@ -9,6 +9,7 @@
   <depend package="base/cmake" />
   <depend package="envire/envire_core" />
   <depend package="tools/smurf" />
-  <depens package="simulation/mars/interfaces" />
-  <depens package="simulation/configmaps" />
+  <depend package="simulation/mars/interfaces" />
+  <depend package="simulation/configmaps" />
+  <depend package="envire/envire_urdf" />
 </package>

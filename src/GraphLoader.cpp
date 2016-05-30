@@ -29,7 +29,7 @@ namespace envire { namespace smurf {
     {
         if (debug) {LOG_DEBUG("[GraphLoader::loadStructure] LoadFromSmurf with a given frame to link to");}
         if (not initialized) { loadStructure(robot); }
-        const envire::core::FrameId robotRoot = robot.getRootFrame()->getName(); 
+        const envire::core::FrameId robotRoot = robot.getRootFrame()->getName();
         iniPose.time = base::Time::now();
         graph->addTransform(graph->getFrameId(linkTo), robotRoot, iniPose);
         if (debug) {LOG_DEBUG_S << "[GraphLoader::loadStructure] Transform to linkTo added: " << graph->getFrameId(linkTo) << " and " << robotRoot;}
@@ -341,5 +341,12 @@ namespace envire { namespace smurf {
             if (debug) { LOG_DEBUG_S << "[GraphLoader::initDynamicTfs] Transformation between " << sourceId << " and " << targetId <<" set.";}
         }
     }
+    
+    void GraphLoader::loadJoints(const ::smurf::Robot& robot)
+    {
+        loadFixedJoints(robot);
+        loadDynamicJoints(robot);
+    }
+
             
 } } // envire::smurf

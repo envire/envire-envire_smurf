@@ -3,6 +3,7 @@
 #include <smurf/Robot.hpp>
 #include <envire_core/items/Transform.hpp>
 #include <envire_core/graph/GraphTypes.hpp>
+#include <envire_urdf/EnvireLoader.hpp>
 
 namespace envire
 { 
@@ -14,20 +15,21 @@ namespace envire
     namespace smurf
     {
             
-        class GraphLoader
+        class GraphLoader : public envire::core::EnvireLoader< ::smurf::Robot >
         {
             
         public: 
             // Constructors
             // NOTE A method to load with respect to a given frame could also be nice
-            GraphLoader(const std::shared_ptr<envire::core::EnvireGraph>& targetGraph): graph(targetGraph){};
+            GraphLoader(const std::shared_ptr<envire::core::EnvireGraph>& targetGraph)
+                : EnvireLoader< ::smurf::Robot >(targetGraph) {};
             /**
              * Sets iniPose to the provided @param pose
              * 
              */
-            GraphLoader(const std::shared_ptr<envire::core::EnvireGraph>& targetGraph, envire::core::Transform pose): graph(targetGraph), iniPose(pose){};
-            // Getters and Setters
-            std::shared_ptr<envire::core::EnvireGraph> getGraph(){return this->graph;};
+            GraphLoader(const std::shared_ptr<envire::core::EnvireGraph>& targetGraph, envire::core::Transform pose)
+                : EnvireLoader< ::smurf::Robot >(targetGraph, pose){};
+            // Getters and Setterss
             // Other public methods
             /**
              * Creates the frames and transformations of the robot in the
@@ -48,7 +50,7 @@ namespace envire
              *   any of the objects to which the simulator reacts, but is
              *   required before loading any of them.
              */
-            void loadStructure(const ::smurf::Robot & robot);
+            virtual void loadStructure(const ::smurf::Robot & robot);
             /**
              * Links the robot to the provided vertex with a transformation that
              * corresponst to the iniPose
@@ -56,14 +58,16 @@ namespace envire
              * For this to occur the root frame of the robot must have
              * same name that the constant attribute rootName of this class.
              */
-            void loadStructure(envire::core::GraphTraits::vertex_descriptor linkTo, const ::smurf::Robot& robot);
+            virtual void loadStructure(envire::core::GraphTraits::vertex_descriptor linkTo, const ::smurf::Robot& robot);
             /** 
              * Loads in each vertex that corresponds to a link of the robot a
              * smurf::Frame object. This objects trigger in envire_physics the
              * creation of simple nodes that can be used to link connected 
              * structures through fixed joints.
              */
-            void loadFrames(int& nextGroupId, const ::smurf::Robot& robot);
+            virtual void loadFrames(int& nextGroupId, const ::smurf::Robot& robot);
+            
+            virtual void loadJoints(const ::smurf::Robot& robot);
             /**
              * Loads in the vertex from where a static connection to other
              * frames exist a Smurf::StaticTransformation.  To this objects the
@@ -174,11 +178,6 @@ namespace envire
              */
             void initDynamicTfs(const ::smurf::Robot& robot);
             // Attributes
-            std::shared_ptr<envire::core::EnvireGraph> graph;
-            envire::core::Transform iniPose;
-            bool initialized = false;
-            const bool debug = false;
-            bool framesLoaded = false;
             ::smurf::Robot robot;
         }; // Class
     } // Smurf
