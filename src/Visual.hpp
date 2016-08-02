@@ -1,5 +1,6 @@
 #ifndef VISUAL_H
 #define VISUAL_H
+#include "urdf_model/types.h"
 #include "urdf_model/link.h"
 
 namespace envire
@@ -13,9 +14,9 @@ namespace envire
         struct Visual
         {
             Visual(const urdf::Visual& urdfVisual);
-            boost::shared_ptr<urdf::Geometry> geometry;
+            urdf::GeometrySharedPtr geometry;
             std::string material_name;
-            boost::shared_ptr<urdf::Material> material;
+            urdf::MaterialSharedPtr material;
             std::string name;
         };
     }
