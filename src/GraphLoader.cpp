@@ -3,6 +3,7 @@
 #include <envire_core/graph/EnvireGraph.hpp>
 #include <envire_core/items/Item.hpp>
 #include <base/Logging.hpp>
+#include <boost/lexical_cast.hpp>
 
 //NOTE We store the dynamic joints in the source frame. The name in the smurf for the motor has to be the source of the corresponden dynamic joint, otherwise it won't be found by envire_motors. How is the naming done in Phobos? I guess that the target is the name and therefore it will not work. Motors should have source and target in their description.
 //TODO 1. Introduce a prefix to be able to load multiple robots of the same model or with same naming for the frames
