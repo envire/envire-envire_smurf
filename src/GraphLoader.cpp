@@ -2,7 +2,7 @@
 #include "Visual.hpp"
 #include <envire_core/graph/EnvireGraph.hpp>
 #include <envire_core/items/Item.hpp>
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 #include <boost/lexical_cast.hpp>
 
 //NOTE We store the dynamic joints in the source frame. The name in the smurf for the motor has to be the source of the corresponden dynamic joint, otherwise it won't be found by envire_motors. How is the naming done in Phobos? I guess that the target is the name and therefore it will not work. Motors should have source and target in their description.
@@ -223,7 +223,7 @@ namespace envire { namespace smurf {
             configmaps::ConfigMap motorMap = motor -> getMotorMap();
             std::string jointName = static_cast<std::string>(motorMap["joint"]);
             std::string frameName = "";
-            signed int i = 0;
+            size_t i = 0;
             while ((frameName == "") && (i<joints.size()))
             {
                 if (joints[i]->getName() == jointName)
