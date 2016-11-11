@@ -6,3 +6,5 @@ rock_library(envire_smurf
 rock_executable(envire_smurf_bin Main.cpp
     DEPS envire_smurf)
 
+
+install_plugin_info(envire_smurf)

@@ -1,5 +1,4 @@
-#ifndef envire_smurf_EnvireSmurfVisualization_H
-#define envire_smurf_EnvireSmurfVisualization_H
+#pragma once
 
 #include <boost/noncopyable.hpp>
 #include <vizkit3d/Vizkit3DPlugin.hpp>
@@ -23,11 +22,11 @@ namespace vizkit3d
     protected:
         virtual osg::ref_ptr<osg::Node> createMainNode();
         virtual void updateMainNode(osg::Node* node);
-        virtual void updateDataIntern(envire::smurf::Visual const& plan);
+        virtual void updateDataIntern(envire::smurf::Visual const& visual);
         
     private:
         struct Data;
         Data* p;
     };
 }
-#endif
+

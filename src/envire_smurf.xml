@@ -1,0 +1,9 @@
+
+<library path="envire_smurf">
+ <class class_name="envire::core::Item<envire::smurf::Visual>" base_class_name="envire::core::ItemBase">
+    <description>envire smurf visual item</description>
+    <associations>
+      <class class_name="envire::smurf::Visual"></class>
+    </associations>
+ </class>
+</library>

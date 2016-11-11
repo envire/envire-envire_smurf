@@ -1,4 +1,10 @@
 #include "Visual.hpp"
+#include <envire_core/plugin/Plugin.hpp>
+
+ENVIRE_REGISTER_ITEM(envire::smurf::Visual)
+
+envire::smurf::Visual::Visual()
+{}
 
 envire::smurf::Visual::Visual(const urdf::Visual& urdfVisual)
 {
@@ -7,4 +13,18 @@ envire::smurf::Visual::Visual(const urdf::Visual& urdfVisual)
     material_name = urdfVisual.material_name;
     name = urdfVisual.name;
 }
+
+bool  envire::smurf::Visual::operator==(const envire::smurf::Visual& other) const
+{
+    return other.geometry == geometry &&
+           other.material == material &&
+           other.material_name == material_name &&
+           other.name == name;
+}
+
+bool envire::smurf::Visual::operator!=(const envire::smurf::Visual& other) const
+{
+    return !operator==(other);
+}
+
 
