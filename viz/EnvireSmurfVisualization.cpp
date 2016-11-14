@@ -2,6 +2,7 @@
 #include "EnvireSmurfVisualization.hpp"
 #include "SmurfItemVisual.hpp"
 #include <memory>
+#include <osgViz/Object.h>
 
 using namespace vizkit3d;
 
@@ -28,7 +29,7 @@ osg::ref_ptr<osg::Node> EnvireSmurfVisualization::createMainNode()
 {
     // Geode is a common node used for vizkit3d plugins. It allows to display
     // "arbitrary" geometries
-    return new osg::Geode();
+    return new osgviz::Object();
 }
 
 void EnvireSmurfVisualization::updateMainNode ( osg::Node* node )
@@ -37,17 +38,25 @@ void EnvireSmurfVisualization::updateMainNode ( osg::Node* node )
     if(p->currentVisual != p->data)
     {
         p->currentVisual = p->data;
-        osg::Group* group = static_cast<osg::Group*>(node);
-        group->removeChildren(0, group->getNumChildren());
-        group->addChild(new SmurfItemVisual(p->data));
+        osgviz::Object* obj = dynamic_cast<osgviz::Object*>(node);
+        if(obj)
+        {
+            obj->removeChildren(0, obj->getNumChildren());
+            obj->addChild(new SmurfItemVisual(p->data));
+        }
     }
 }
 
 void EnvireSmurfVisualization::updateDataIntern(envire::smurf::Visual const& value)
 {
+//     std::cout << "UPDATE CALLLED" << std::endl;
     if(p->data && value != (*p->data.get()))
     {
         p->data.reset(new envire::smurf::Visual(value));
+    }
+    else if(!p->data)
+    {
+         p->data.reset(new envire::smurf::Visual(value));
     }
         
 }
