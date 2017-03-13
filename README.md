@@ -6,9 +6,6 @@ The model of the robot that is stored either as URDF or as SMURF (extension of U
 
 The tool also allows to load other objects (not only robots) defined in the SMURF file.
 
-License
--------
-GPL-v2 or later
 
 Installation
 ------------
