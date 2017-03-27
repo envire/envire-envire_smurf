@@ -12,8 +12,12 @@ envire::smurf::Visual::Visual(const urdf::Visual& urdfVisual)
     material = urdfVisual.material;
     material_name = urdfVisual.material_name;
     name = urdfVisual.name;
+    origin = urdfVisual.origin;
+
 }
 
+// FIX. the comparison operator
+// add origin comparison
 bool  envire::smurf::Visual::operator==(const envire::smurf::Visual& other) const
 {
     return other.geometry == geometry &&

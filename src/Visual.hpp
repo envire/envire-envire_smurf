@@ -20,9 +20,18 @@ namespace envire
             std::string material_name;
             urdf::MaterialSharedPtr material;
             std::string name;
+
+            int groupId;
+
+            urdf::Pose origin;
             
             bool operator==(const Visual& other) const;
             bool operator!=(const Visual& other) const;
+
+            std::string getName() const 
+            {
+                return name;
+            }
             
         /**Grants access to boost serialization */
         friend class boost::serialization::access;
