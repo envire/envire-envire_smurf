@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(loadStructure_noPos)
     std::shared_ptr<envire::core::EnvireGraph> transformGraph(new envire::core::EnvireGraph) ;
     envire::smurf::GraphLoader graphLoader(transformGraph);
     graphLoader.loadStructure(*robot);
-    envire::core::GraphDrawing::writeSVG(*transformGraph, "loadStructure_noPos_Test.svg");
+    envire::core::GraphDrawing::write(*transformGraph, "loadStructure_noPos_Test.dot");
 }
 
 BOOST_AUTO_TEST_CASE(loadStructure_withPos)
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(loadStructure_withPos)
     envire::core::FrameId center = "center";
     transformGraph->addFrame(center);
     graphLoader.loadStructure(transformGraph->getVertex(center), (*robot));
-    envire::core::GraphDrawing::writeSVG(*transformGraph, "loadStructure_withPos_Test.svg");
+    envire::core::GraphDrawing::write(*transformGraph, "loadStructure_withPos_Test.dot");
 }
 
 BOOST_AUTO_TEST_CASE(loadStructre_withDynamicJoint)
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(loadStructre_withDynamicJoint)
     transformGraph->addFrame(center);
     graphLoader.loadStructure(transformGraph->getVertex(center), (*robot));
     
-    envire::core::GraphDrawing::writeSVG(*transformGraph, "loadStructure_withDynamicJoint_test.svg");
+    envire::core::GraphDrawing::write(*transformGraph, "loadStructure_withDynamicJoint_test.dot");
 }
 
 envire::smurf::GraphLoader getLoaderWithStructuredGraph(const smurf::Robot & robot)
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(loadFrames)
     std::cout << "Initial Group ID: " << nextGroupId << std::endl;
     graphLoader.loadFrames(nextGroupId, *robot);
     std::cout << "Final Group ID: "<< nextGroupId << std::endl;
-    envire::core::GraphDrawing::writeSVG(*(graphLoader.getGraph()), "loadFrames_Test.svg");
+    envire::core::GraphDrawing::write(*(graphLoader.getGraph()), "loadFrames_Test.dot");
 }
 
 BOOST_AUTO_TEST_CASE(loadFrames_withDynamicJoint)
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(loadFrames_withDynamicJoint)
     envire::smurf::GraphLoader graphLoader = getLoaderWithStructuredGraph(*robot);
     int nextGroupId = 0;
     graphLoader.loadFrames(nextGroupId, *robot);
-    envire::core::GraphDrawing::writeSVG(*(graphLoader.getGraph()), "loadFrames_withDynamicJoint_Test.svg");
+    envire::core::GraphDrawing::write(*(graphLoader.getGraph()), "loadFrames_withDynamicJoint_Test.dot");
 }
 
 BOOST_AUTO_TEST_CASE(loadFixedJoints)
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE(loadFixedJoints)
     envire::smurf::GraphLoader graphLoader = getLoaderWithStructuredGraph(*robot);
     graphLoader.loadFixedJoints(*robot);
     //NOTE Fixed joints are loaded in the source frame
-    envire::core::GraphDrawing::writeSVG(*(graphLoader.getGraph()), "loadFixedJoints_Test.svg");
+    envire::core::GraphDrawing::write(*(graphLoader.getGraph()), "loadFixedJoints_Test.dot");
 }
 
 BOOST_AUTO_TEST_CASE(loadCollidables)
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(loadCollidables)
     int nextGroupId = 0;
     graphLoader.loadFrames(nextGroupId, *robot);
     graphLoader.loadCollidables(*robot);
-    envire::core::GraphDrawing::writeSVG(*(graphLoader.getGraph()), "loadCollidables_Test.svg");
+    envire::core::GraphDrawing::write(*(graphLoader.getGraph()), "loadCollidables_Test.dot");
 }
 
 BOOST_AUTO_TEST_CASE(loadInertials)
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE(loadInertials)
     int nextGroupId = 0;
     graphLoader.loadFrames(nextGroupId, *robot);
     graphLoader.loadInertials(*robot);
-    envire::core::GraphDrawing::writeSVG(*(graphLoader.getGraph()), "loadInertials_Test.svg");
+    envire::core::GraphDrawing::write(*(graphLoader.getGraph()), "loadInertials_Test.dot");
 }
 
 BOOST_AUTO_TEST_CASE(loadInertialsAndCollidables)
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE(loadInertialsAndCollidables)
     graphLoader.loadFrames(nextGroupId, *robot);
     graphLoader.loadCollidables(*robot);
     graphLoader.loadInertials(*robot);
-    envire::core::GraphDrawing::writeSVG(*(graphLoader.getGraph()), "loadInertialsAndCollidables_Test.svg");
+    envire::core::GraphDrawing::write(*(graphLoader.getGraph()), "loadInertialsAndCollidables_Test.dot");
 }
 
 BOOST_AUTO_TEST_CASE(loadVisuals)
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE(loadVisuals)
     int nextGroupId = 0;
     graphLoader.loadFrames(nextGroupId, *robot);
     graphLoader.loadVisuals(*robot);
-    envire::core::GraphDrawing::writeSVG(*(graphLoader.getGraph()), "loadVisuals_Test.svg");
+    envire::core::GraphDrawing::write(*(graphLoader.getGraph()), "loadVisuals_Test.dot");
 }
 
 BOOST_AUTO_TEST_CASE(loadDynamicJoints)
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(loadDynamicJoints)
     robot->loadFromSmurf(path);
     envire::smurf::GraphLoader graphLoader = getLoaderWithStructuredGraph(*robot);
     graphLoader.loadDynamicJoints(*robot);
-    envire::core::GraphDrawing::writeSVG(*(graphLoader.getGraph()), "loadDynamicJoints_Test.svg");
+    envire::core::GraphDrawing::write(*(graphLoader.getGraph()), "loadDynamicJoints_Test.dot");
 }
 
 BOOST_AUTO_TEST_CASE(loadMotors)
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE(loadMotors)
     envire::smurf::GraphLoader graphLoader = getLoaderWithStructuredGraph(*robot);
     graphLoader.loadDynamicJoints(*robot);
     graphLoader.loadMotors(*robot);
-    envire::core::GraphDrawing::writeSVG(*(graphLoader.getGraph()), "loadMotors_Test.svg");
+    envire::core::GraphDrawing::write(*(graphLoader.getGraph()), "loadMotors_Test.dot");
 }
 
 BOOST_AUTO_TEST_CASE(loadSensors)
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE(loadSensors)
     robot->loadFromSmurf(path);
     envire::smurf::GraphLoader graphLoader = getLoaderWithStructuredGraph(*robot);
     graphLoader.loadSensors(*robot);
-    envire::core::GraphDrawing::writeSVG(*(graphLoader.getGraph()), "loadSensors_Test.svg");
+    envire::core::GraphDrawing::write(*(graphLoader.getGraph()), "loadSensors_Test.dot");
 }
 
 BOOST_AUTO_TEST_CASE(loadRobot)
@@ -227,5 +227,5 @@ BOOST_AUTO_TEST_CASE(loadRobot)
     targetGraph->addFrame(center);
     int nextGroupId = 0;
     graphLoader.loadRobot(nextGroupId, targetGraph->getVertex(center), iniPose, *robot);
-    envire::core::GraphDrawing::writeSVG(*(graphLoader.getGraph()), "loadRobot_Test.svg");
+    envire::core::GraphDrawing::write(*(graphLoader.getGraph()), "loadRobot_Test.dot");
 }
