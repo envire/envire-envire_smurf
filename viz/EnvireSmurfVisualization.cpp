@@ -14,7 +14,6 @@ struct EnvireSmurfVisualization::Data {
     std::shared_ptr<envire::smurf::Visual> currentVisual;
 };
 
- 
 EnvireSmurfVisualization::EnvireSmurfVisualization()
     : p(new Data)
 {
@@ -61,6 +60,4 @@ void EnvireSmurfVisualization::updateDataIntern(envire::smurf::Visual const& val
         
 }
 
-//Macro that makes this plugin loadable in ruby, this is optional.
-VizkitQtPlugin(EnvireSmurfVisualization)
-
+//VizkitQtPlugin(EnvireSmurfVisualization)

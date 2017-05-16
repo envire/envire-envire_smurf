@@ -1,7 +1,17 @@
 rock_vizkit_plugin(envire_smurf-viz
-    EnvireSmurfVisualization.cpp
+    PluginLoader.cpp
     DEPS envire_smurf
     DEPS_PKGCONFIG osgViz 
-    MOC EnvireSmurfVisualization.hpp
-    HEADERS EnvireSmurfVisualization.hpp)
+    MOC 
+        EnvireSmurfVisualization.cpp
+        EnvireSmurfCollidableVisualization.cpp
+    HEADERS 
+        EnvireSmurfVisualization.hpp
+        EnvireSmurfCollidableVisualization.hpp)
 
+#rock_vizkit_plugin(envire_smurf-collidable-viz
+#    EnvireSmurfCollidableVisualization.cpp
+#    DEPS envire_smurf
+#    DEPS_PKGCONFIG osgViz 
+#    MOC EnvireSmurfCollidableVisualization.cpp
+#    HEADERS EnvireSmurfCollidableVisualization.hpp)
