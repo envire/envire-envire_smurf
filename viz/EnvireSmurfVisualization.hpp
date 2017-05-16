@@ -4,7 +4,6 @@
 #include <vizkit3d/Vizkit3DPlugin.hpp>
 #include <osg/Geode>
 #include <envire_smurf/Visual.hpp>
-#include <envire_smurf/Collidable.hpp>
 
 namespace vizkit3d
 {

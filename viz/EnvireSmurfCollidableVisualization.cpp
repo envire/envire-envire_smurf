@@ -1,6 +1,5 @@
 #include <iostream>
 #include "EnvireSmurfCollidableVisualization.hpp"
-#include "SmurfItemVisual.hpp"
 #include "SmurfItemCollidable.hpp"
 #include <memory>
 #include <osgViz/Object.h>
