@@ -1,10 +1,11 @@
 #pragma once
 #include <osgViz/Object.h>
-#include <envire_smurf/Collidable.hpp>
+#include <smurf/Collidable.hpp>
 #include <osg/Shape>
 #include <osg/ShapeDrawable>
 #include <osg/Geode>
 #include <osgDB/ReadFile> 
+#include <urdf_model/model.h>
 
 namespace vizkit3d
 {
@@ -12,9 +13,10 @@ namespace vizkit3d
 class SmurfItemCollidable : public osgviz::Object
 {
 public:
-    SmurfItemCollidable(const std::shared_ptr<envire::smurf::Collidable> collidable)
+    SmurfItemCollidable(const std::shared_ptr<smurf::Collidable> collidable)
     {
-        switch(collidable->geometry->type)
+        urdf::Collision collision = collidable->getCollision();
+        switch(collision.geometry->type)
         {
             case urdf::Geometry::BOX:
                 std::cout << "BOX"<< std::endl;
@@ -39,9 +41,10 @@ public:
         }
     }
     
-    void addMesh(const std::shared_ptr<envire::smurf::Collidable> collidable)
+    void addMesh(const std::shared_ptr<smurf::Collidable> collidable)
     {
-        boost::shared_ptr<urdf::Mesh> mesh = boost::dynamic_pointer_cast<urdf::Mesh>(collidable->geometry);
+        urdf::Collision collision = collidable->getCollision();
+        boost::shared_ptr<urdf::Mesh> mesh = boost::dynamic_pointer_cast<urdf::Mesh>(collision.geometry);
         assert(mesh.get() != nullptr);
         std::cout << "MESH: " << mesh->filename << std::endl;
         osg::Node* meshNode = osgDB::readNodeFile(mesh->filename); 
@@ -52,9 +55,10 @@ public:
 
 
     
-    void addBox(const std::shared_ptr<envire::smurf::Collidable> collidable)
+    void addBox(const std::shared_ptr<smurf::Collidable> collidable)
     {
-        boost::shared_ptr<urdf::Box> urdfBox = boost::dynamic_pointer_cast<urdf::Box>(collidable->geometry);
+        urdf::Collision collision = collidable->getCollision();
+        boost::shared_ptr<urdf::Box> urdfBox = boost::dynamic_pointer_cast<urdf::Box>(collision.geometry);
         assert(urdfBox.get() != nullptr);
         osg::Box* box = new osg::Box(osg::Vec3(0,0,0), urdfBox->dim.x, urdfBox->dim.y, urdfBox->dim.z);
         osg::ShapeDrawable* boxDrawable = new osg::ShapeDrawable(box);

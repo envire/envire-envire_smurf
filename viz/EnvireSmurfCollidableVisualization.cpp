@@ -10,8 +10,8 @@ struct EnvireSmurfCollidableVisualization::Data {
     // Copy of the value given to updateDataIntern.
     //
     // Making a copy is required because of how OSG works
-    std::shared_ptr<envire::smurf::Collidable> data;
-    std::shared_ptr<envire::smurf::Collidable> currentCollidable;
+    std::shared_ptr<smurf::Collidable> data;
+    std::shared_ptr<smurf::Collidable> currentCollidable;
 };
 
 EnvireSmurfCollidableVisualization::EnvireSmurfCollidableVisualization()
@@ -46,16 +46,16 @@ void EnvireSmurfCollidableVisualization::updateMainNode ( osg::Node* node )
     }
 }
 
-void EnvireSmurfCollidableVisualization::updateDataIntern(envire::smurf::Collidable const& value)
+void EnvireSmurfCollidableVisualization::updateDataIntern(smurf::Collidable const& value)
 {
 //     std::cout << "UPDATE CALLLED" << std::endl;
     if(p->data && value != (*p->data.get()))
     {
-        p->data.reset(new envire::smurf::Collidable(value));
+        p->data.reset(new smurf::Collidable(value));
     }
     else if(!p->data)
     {
-         p->data.reset(new envire::smurf::Collidable(value));
+         p->data.reset(new smurf::Collidable(value));
     }
         
 }
