@@ -7,9 +7,9 @@
     </associations>
  </class>
  <class class_name="envire::core::Item<smurf::Collidable>" base_class_name="envire::core::ItemBase">
-    <description>envire smurf visual item</description>
+    <description> smurf Collidable item</description>
     <associations>
-      <class class_name="envire::core::Item<smurf::Collidable>"></class>
+      <class class_name="smurf::Collidable"></class>
     </associations>
  </class>
 </library>

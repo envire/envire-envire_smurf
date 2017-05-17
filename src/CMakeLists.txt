@@ -1,6 +1,6 @@
 rock_library(envire_smurf
     SOURCES GraphLoader.cpp Visual.cpp 
-    HEADERS GraphLoader.hpp Visual.hpp 
+    HEADERS GraphLoader.hpp Visual.hpp Collidable.cpp
     DEPS_PKGCONFIG envire_core smurf base-lib)
 
 rock_executable(envire_smurf_bin Main.cpp

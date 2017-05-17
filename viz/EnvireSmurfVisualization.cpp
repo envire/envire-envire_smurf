@@ -60,4 +60,3 @@ void EnvireSmurfVisualization::updateDataIntern(envire::smurf::Visual const& val
         
 }
 
-//VizkitQtPlugin(EnvireSmurfVisualization)
