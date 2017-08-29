@@ -60,7 +60,6 @@ osg::ref_ptr<osg::Node> EnvireSmurfVisualization::createMainNode()
 
 void EnvireSmurfVisualization::updateMainNode ( osg::Node* node )
 {
-    osg::Geode* geode = static_cast<osg::Geode*>(node);
     if(p->currentVisual != p->data)
     {
         p->currentVisual = p->data;
