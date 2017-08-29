@@ -81,7 +81,7 @@ namespace envire { namespace smurf {
     
     void GraphLoader::loadFixedJoints(const ::smurf::Robot& robot)
     {
-        using StaticTransPtr = boost::shared_ptr<envire::core::Item<::smurf::StaticTransformation  > >;
+        using StaticTransPtr = envire::core::Item<::smurf::StaticTransformation  >::Ptr;
         std::vector<::smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
         for(::smurf::StaticTransformation* tf : staticTfs) {
             ::smurf::Frame source = tf -> getSourceFrame();
@@ -243,7 +243,7 @@ namespace envire { namespace smurf {
     
     void GraphLoader::loadMotors(const ::smurf::Robot& robot)
     {
-        using MotorItemPtr = boost::shared_ptr<envire::core::Item< ::smurf::Motor > >;
+        using MotorItemPtr = envire::core::Item< ::smurf::Motor >::Ptr;
         std::vector<::smurf::Motor*> motors= robot.getMotors();
         std::vector<::smurf::Joint*> joints = robot.getJoints();
         for(::smurf::Motor* motor : motors)
@@ -275,7 +275,7 @@ namespace envire { namespace smurf {
 
     void GraphLoader::loadSensors(const ::smurf::Robot& robot)
     {
-        using SensorItemPtr = boost::shared_ptr<envire::core::Item< ::smurf::Sensor > >;
+        using SensorItemPtr = envire::core::Item< ::smurf::Sensor >::Ptr;
         std::vector<::smurf::Sensor*> sensors = robot.getSensors();
         for(::smurf::Sensor* sensor : sensors)
         {
@@ -341,7 +341,7 @@ namespace envire { namespace smurf {
     
     void GraphLoader::initStaticTfs(const ::smurf::Robot& robot)
     {
-        using staticTransPtr = boost::shared_ptr<envire::core::Item<::smurf::StaticTransformation*  > >;
+        using staticTransPtr = envire::core::Item<::smurf::StaticTransformation*  >::Ptr;
         std::vector<::smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
         for(::smurf::StaticTransformation* tf : staticTfs) {
             ::smurf::Frame source = tf -> getSourceFrame();

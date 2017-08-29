@@ -26,8 +26,8 @@
 
 #ifndef VISUAL_H
 #define VISUAL_H
-#include "urdf_model/types.h"
-#include "urdf_model/link.h"
+#include <urdf_model/types.h>
+#include <urdf_model/link.h>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/export.hpp>
 namespace envire

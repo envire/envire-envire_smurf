@@ -67,7 +67,7 @@ public:
     
     void addMesh(const std::shared_ptr<envire::smurf::Visual> visual)
     {
-        boost::shared_ptr<urdf::Mesh> mesh = boost::dynamic_pointer_cast<urdf::Mesh>(visual->geometry);
+        urdf::MeshSharedPtr mesh = urdf::dynamic_pointer_cast<urdf::Mesh>(visual->geometry);
         assert(mesh.get() != nullptr);
         std::cout << "MESH: " << mesh->filename << std::endl;
         osg::Node* meshNode = osgDB::readNodeFile(mesh->filename); 
@@ -80,7 +80,7 @@ public:
     
     void addBox(const std::shared_ptr<envire::smurf::Visual> visual)
     {
-        boost::shared_ptr<urdf::Box> urdfBox = boost::dynamic_pointer_cast<urdf::Box>(visual->geometry);
+        urdf::BoxSharedPtr urdfBox = urdf::dynamic_pointer_cast<urdf::Box>(visual->geometry);
         assert(urdfBox.get() != nullptr);
         osg::Box* box = new osg::Box(osg::Vec3(0,0,0), urdfBox->dim.x, urdfBox->dim.y, urdfBox->dim.z);
         osg::ShapeDrawable* boxDrawable = new osg::ShapeDrawable(box);
