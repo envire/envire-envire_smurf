@@ -25,7 +25,6 @@
 //
 
 #include "GraphLoader.hpp"
-#include "Visual.hpp"
 #include <envire_core/graph/EnvireGraph.hpp>
 #include <envire_core/items/Item.hpp>
 #include <base-logging/Logging.hpp>
@@ -207,7 +206,7 @@ namespace envire { namespace smurf {
     
     void GraphLoader::loadVisuals(const ::smurf::Robot& robot)
     {
-        using VisualsItemPtr = envire::core::Item<envire::smurf::Visual>::Ptr;
+        using VisualsItemPtr = envire::core::Item<::smurf::Visual>::Ptr;
         std::vector<::smurf::Frame *> frames= robot.getFrames();
         for(::smurf::Frame* frame : frames)
         {
@@ -219,7 +218,7 @@ namespace envire { namespace smurf {
             {
                 const base::Vector3d translation(visual.origin.position.x, visual.origin.position.y,                                              visual.origin.position.z);
                 const base::Quaterniond rotation(visual.origin.rotation.w, visual.origin.rotation.x,                                                visual.origin.rotation.y, visual.origin.rotation.z);            
-                VisualsItemPtr visual_itemPtr(new envire::core::Item<envire::smurf::Visual>(envire::smurf::Visual(visual)));
+                VisualsItemPtr visual_itemPtr(new envire::core::Item<::smurf::Visual>(::smurf::Visual(visual)));
                 visual_itemPtr->getData().groupId = groupId;
                 //NOTE Checks if the offset is an identity transform. If yes, just add the collision to the existing frame otherwise, create a new transformation in the graph to encode the offset.
                 if(translation == base::Vector3d::Zero() && 
