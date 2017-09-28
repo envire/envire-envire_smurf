@@ -19,7 +19,7 @@ rock_library(envire_smurf_visual_vis
     HEADERS Visual.hpp
     DEPS_PKGCONFIG envire_smurf smurf)
 
-install_plugin_info(envire_smurf)
+
 install_plugin_info(envire_smurf_collidable_vis)
 install_plugin_info(envire_smurf_visual_vis)
 
