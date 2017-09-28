@@ -24,11 +24,11 @@
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<library path="envire_smurf">
- <class class_name="envire::core::Item<envire::smurf::Visual>" base_class_name="envire::core::ItemBase">
-    <description>envire smurf visual item</description>
+<library path="envire_smurf_collidable_vis">
+ <class class_name="envire::core::Item<smurf::Collidable>" base_class_name="envire::core::ItemBase">
+    <description>envire smurf Collidable item</description>
     <associations>
-      <class class_name="envire::smurf::Visual"></class>
+      <class class_name="smurf::Collidable"></class>
     </associations>
  </class>
 </library>
