@@ -24,10 +24,11 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "Visual.hpp"
+#include <smurf/Visual.hpp>
+#include <smurf/Collidable.hpp>
 #include <envire_core/plugin/Plugin.hpp>
 
 ENVIRE_REGISTER_ITEM( smurf::Visual )
-
+ENVIRE_REGISTER_ITEM( smurf::Collidable )
 
 

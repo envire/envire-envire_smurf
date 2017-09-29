@@ -24,7 +24,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#pragma once
+#include <smurf/Collidable.hpp>
+#include <envire_core/plugin/Plugin.hpp>
 
-#include <smurf/Visual.hpp>
+ENVIRE_REGISTER_ITEM( smurf::Collidable )
 
