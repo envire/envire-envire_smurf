@@ -24,8 +24,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef VISUAL_H
-#define VISUAL_H
+#pragma once
 #include <urdf_model/types.h>
 #include <urdf_model/link.h>
 #include <boost/serialization/access.hpp>
@@ -73,4 +72,3 @@ namespace envire
     }
 }
 
-#endif // VISUAL_H
