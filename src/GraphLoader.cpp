@@ -210,15 +210,15 @@ namespace envire { namespace smurf {
         std::vector<::smurf::Frame *> frames= robot.getFrames();
         for(::smurf::Frame* frame : frames)
         {
-            const std::vector<urdf::Visual>& visuals = frame->getVisuals();
+            const std::vector<::smurf::Visual>& visuals = frame->getVisuals();
             //NOTE used to create unique frame names for the visuals
             int visualNo = 0;
             int groupId = frame->getGroupId();
-            for(const urdf::Visual& visual : visuals)
+            for(const ::smurf::Visual& visual : visuals)
             {
-                const base::Vector3d translation(visual.origin.position.x, visual.origin.position.y,                                              visual.origin.position.z);
-                const base::Quaterniond rotation(visual.origin.rotation.w, visual.origin.rotation.x,                                                visual.origin.rotation.y, visual.origin.rotation.z);            
-                VisualsItemPtr visual_itemPtr(new envire::core::Item<::smurf::Visual>(::smurf::Visual(visual)));
+                const base::Vector3d translation(visual.origin.position.x, visual.origin.position.y, visual.origin.position.z);
+                const base::Quaterniond rotation(visual.origin.rotation.w, visual.origin.rotation.x, visual.origin.rotation.y, visual.origin.rotation.z);            
+                VisualsItemPtr visual_itemPtr(new envire::core::Item<::smurf::Visual>(visual));
                 visual_itemPtr->getData().groupId = groupId;
                 //NOTE Checks if the offset is an identity transform. If yes, just add the collision to the existing frame otherwise, create a new transformation in the graph to encode the offset.
                 if(translation == base::Vector3d::Zero() && 
