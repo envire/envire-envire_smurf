@@ -34,6 +34,9 @@
   <depend package="base/cmake" />
   <depend package="envire/envire_core" />
   <depend package="tools/smurf" />
+  <depens package="tools/plugin_manager" />
   <depens package="simulation/mars/interfaces" />
   <depens package="simulation/configmaps" />
+    
+
 </package>
