@@ -344,12 +344,14 @@ namespace envire { namespace smurf {
         std::vector<::smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
         for(::smurf::StaticTransformation* tf : staticTfs) {
             ::smurf::Frame source = tf -> getSourceFrame();
-            envire::core::FrameId sourceId = source.getName();
             ::smurf::Frame target = tf -> getTargetFrame();
-            envire::core::FrameId targetId = target.getName();
             Eigen::Affine3d tf_smurf = tf -> getTransformation();
             envire::core::Transform envire_tf(base::Time::now(), base::TransformWithCovariance(tf_smurf));
-            graph->addTransform(sourceId, targetId, envire_tf);
+
+            //URDF/SMURF follow an iverted convention to express transformations than envire/rock
+            envire::core::FrameId envire_sourceId = target.getName();
+            envire::core::FrameId envire_targetId = source.getName();
+            graph->addTransform(envire_sourceId, envire_targetId, envire_tf);
         }
     }
     
@@ -363,10 +365,12 @@ namespace envire { namespace smurf {
             Eigen::Affine3d parentToJoint = joint->getParentToJointOrigin();
             envire::core::Transform parent2Joint = envire::core::Transform(base::Time::now(), base::TransformWithCovariance(parentToJoint)); 
             ::smurf::Frame source = joint-> getSourceFrame();
-            envire::core::FrameId sourceId = source.getName();
-            envire::core::FrameId targetId = target.getName();
-            graph->addTransform(sourceId, targetId, parent2Joint);
-            if (debug) { LOG_DEBUG_S << "[GraphLoader::initDynamicTfs] Transformation between " << sourceId << " and " << targetId <<" set.";}
+
+            //URDF/SMURF follow an iverted convention to express transformations than envire/rock
+            envire::core::FrameId envire_sourceId = target.getName();
+            envire::core::FrameId envire_targetId = source.getName();
+            graph->addTransform(envire_sourceId, envire_targetId, parent2Joint);
+            if (debug) { LOG_DEBUG_S << "[GraphLoader::initDynamicTfs] Transformation between " << envire_sourceId << " and " << envire_targetId <<" set.";}
         }
     }
             
