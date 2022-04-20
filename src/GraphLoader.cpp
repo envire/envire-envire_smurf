@@ -83,13 +83,13 @@ namespace envire { namespace smurf {
         using StaticTransPtr = envire::core::Item<::smurf::StaticTransformation  >::Ptr;
         std::vector<::smurf::StaticTransformation *> staticTfs= robot.getStaticTransforms();
         for(::smurf::StaticTransformation* tf : staticTfs) {
-            ::smurf::Frame source = tf -> getSourceFrame();
+            ::smurf::Frame source = tf->getSourceFrame();
             envire::core::FrameId sourceId = source.getName();
-            ::smurf::Frame target = tf -> getTargetFrame();
+            ::smurf::Frame target = tf->getTargetFrame();
             envire::core::FrameId targetId = target.getName();
             StaticTransPtr joint_itemPtr (new  envire::core::Item< ::smurf::StaticTransformation > (*tf));
             graph->addItemToFrame(sourceId, joint_itemPtr);
-            if (debug) { LOG_DEBUG_S << "[GraphLoader::loadFixedJoints] Added a new Item< ::smurf::StaticTransformation > to frame *" + sourceId + "*"; }
+            if (debug) { LOG_DEBUG_S << "[GraphLoader::loadFixedJoints] Added a new Item< ::smurf::StaticTransformation > with name *" + tf->getName() +  "* to frame *" + sourceId + "*"; }
         }
     }
     
@@ -105,11 +105,10 @@ namespace envire { namespace smurf {
             }
             for(::smurf::Joint* joint : joints) 
             {
-                if (debug) { LOG_DEBUG_S << "[GraphLoader::loadDynamicJoints] There is a joint with name " << joint -> getName() << " from " << joint->getSourceFrame().getName() << " to " << joint->getTargetFrame().getName();}
                 envire::core::FrameId frame_id = joint -> getSourceFrame().getName();
                 JointsPtr joint_itemPtr (new envire::core::Item<::smurf::Joint>(*joint));
                 graph->addItemToFrame(frame_id, joint_itemPtr);
-                if (debug) { LOG_DEBUG_S << "[GraphLoader::loadDynamicJoints] Added a smurf::Joint to the frame *" << frame_id << "*";}
+                if (debug) { LOG_DEBUG_S << "[GraphLoader::loadDynamicJoints] Added a smurf::Joint with name *" << joint -> getName() << "* to frame *" << frame_id << "*";}
             }
         }
         else
@@ -267,7 +266,7 @@ namespace envire { namespace smurf {
             }
             else
             {
-                LOG_WARN_S << "[GraphLoader::LoadMotors] The motor "<< motor->getName() << " does not have a joint with the same target/child name.";
+                LOG_ERROR_S << "[GraphLoader::LoadMotors] The motor "<< motor->getName() << " does not have a joint with the same target/child name. Therefore, the motor is not added into the graph.";
             }
         }
     }
@@ -287,7 +286,7 @@ namespace envire { namespace smurf {
             }
             else
             {
-                LOG_WARN_S << "[GraphLoader::LoadSensors] The specified frame for the sensor "<< sensor->getName() << " does not exist. A frame (urdf link) with the same name of the sensor attachemnt's point is missing (link field).";
+                LOG_ERROR_S << "[GraphLoader::LoadSensors] The specified frame for the sensor "<< sensor->getName() << " does not exist. A frame (urdf link) with the same name of the sensor attachemnt's point is missing (link field). Therefore, the sensor is not added into the graph.";
             }
         }
     }
