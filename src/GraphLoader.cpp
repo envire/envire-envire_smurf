@@ -138,20 +138,20 @@ namespace envire { namespace smurf {
                     const base::Quaterniond rotation(collision.origin.rotation.w, collision.origin.rotation.x, collision.origin.rotation.y, collision.origin.rotation.z); 
                     CollidableItemPtr collidable_itemPtr(new CollidableItem(collidable));
                     //NOTE Checks if the offset is an identity transform. If yes, just add the collision to the existing frame otherwise, create a new transformation in the graph to encode the offset.
-                    if(translation == base::Vector3d::Zero() && (rotation.coeffs() == base::Quaterniond::Identity().coeffs() || rotation.coeffs() == -base::Quaterniond::Identity().coeffs()))
-                    {
-                        graph->addItemToFrame(frame->getName(), collidable_itemPtr); 
-                        if (debug) { LOG_DEBUG_S << "[GraphLoader::loadCollidables] Added a smurf::Collidable to the frame *" << frame->getName() +"*";}
-                    }
-                    else
-                    {
+                    //if(translation == base::Vector3d::Zero() && (rotation.coeffs() == base::Quaterniond::Identity().coeffs() || rotation.coeffs() == -base::Quaterniond::Identity().coeffs()))
+                    //{
+                    //    graph->addItemToFrame(frame->getName(), collidable_itemPtr); 
+                    //    if (debug) { LOG_DEBUG_S << "[GraphLoader::loadCollidables] Added a smurf::Collidable to the frame *" << frame->getName() +"*";}
+                    //}
+                    //else
+                    //{
                         base::TransformWithCovariance tfCv(translation, rotation);
                         envire::core::Transform tf(base::Time::now(), tfCv);
                         const envire::core::FrameId collisionFrame(frame->getName()  + "_" + collidable.getName());
                         graph->addTransform(frame->getName(), collisionFrame, tf);
                         graph->addItemToFrame(collisionFrame, collidable_itemPtr);
                         if (debug) {LOG_DEBUG_S << "[GraphLoader::loadCollidables] Added a smurf::Collidable to the frame *" << collisionFrame << "*";}
-                    }
+                    //}
                 }
             }
         }
@@ -180,20 +180,20 @@ namespace envire { namespace smurf {
                     const base::Quaterniond rotation(inertial.origin.rotation.w, inertial.origin.rotation.x, inertial.origin.rotation.y, inertial.origin.rotation.z); 
                     InertialItemPtr inertial_itemPtr(new InertialItem(inertialSMURF));
                     //NOTE Checks if the offset is an identity transform. If yes, just add the collision to the existing frame otherwise, create a new transformation in the graph to encode the offset.
-                    if(translation == base::Vector3d::Zero() && (rotation.coeffs() == base::Quaterniond::Identity().coeffs() || rotation.coeffs() == -base::Quaterniond::Identity().coeffs()))
-                    {
-                        graph->addItemToFrame(frame->getName(), inertial_itemPtr);
-                        if (debug) {LOG_DEBUG_S << "[GraphLoader::loadInertials] Added a smurf::Inertial to the frame *" << frame->getName() << "*";}
-                    }
-                    else
-                    {
+                    //if(translation == base::Vector3d::Zero() && (rotation.coeffs() == base::Quaterniond::Identity().coeffs() || rotation.coeffs() == -base::Quaterniond::Identity().coeffs()))
+                    //{
+                    //    graph->addItemToFrame(frame->getName(), inertial_itemPtr);
+                    //    if (debug) {LOG_DEBUG_S << "[GraphLoader::loadInertials] Added a smurf::Inertial to the frame *" << frame->getName() << "*";}
+                    //}
+                    //else
+                    //{
                         base::TransformWithCovariance tfCv(translation, rotation);
                         envire::core::Transform tf(base::Time::now(), tfCv);
                         const envire::core::FrameId inertialFrame(frame->getName() + "_inertial");
                         graph->addTransform(frame->getName(), inertialFrame, tf);
                         graph->addItemToFrame(inertialFrame, inertial_itemPtr);
                         if (debug) {LOG_DEBUG_S << "[GraphLoader::loadInertials] Added a smurf::Inertial to the frame *" << inertialFrame << "*";}
-                    }
+                    //}
                 }
             }
         }
@@ -220,20 +220,20 @@ namespace envire { namespace smurf {
                 VisualsItemPtr visual_itemPtr(new envire::core::Item<::smurf::Visual>(visual));
                 visual_itemPtr->getData().groupId = groupId;
                 //NOTE Checks if the offset is an identity transform. If yes, just add the collision to the existing frame otherwise, create a new transformation in the graph to encode the offset.
-                if(translation == base::Vector3d::Zero() && 
-                    (rotation.coeffs() == base::Quaterniond::Identity().coeffs() ||
-                    rotation.coeffs() == -base::Quaterniond::Identity().coeffs()))
-                {
-                    graph->addItemToFrame(frame->getName(), visual_itemPtr);
-                }
-                else
-                {
+                //if(translation == base::Vector3d::Zero() && 
+                //    (rotation.coeffs() == base::Quaterniond::Identity().coeffs() ||
+                //    rotation.coeffs() == -base::Quaterniond::Identity().coeffs()))
+                //{
+                //    graph->addItemToFrame(frame->getName(), visual_itemPtr);
+                //}
+                //else
+                //{
                     envire::core::Transform tf(translation, rotation);
                     const envire::core::FrameId visualFrame(frame->getName() + "_visual_" + boost::lexical_cast<envire::core::FrameId>(visualNo) );
                     ++visualNo;
                     graph->addTransform(frame->getName(), visualFrame, tf);
                     graph->addItemToFrame(visualFrame, visual_itemPtr);
-                }
+                //}
             }
             if (debug) LOG_DEBUG("[GraphLoader::loadVisuals] Added smurf::Visuals" );
         }
