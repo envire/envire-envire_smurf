@@ -129,6 +129,7 @@ namespace envire { namespace smurf {
             for(::smurf::Frame* frame : frames)
             {
                 int groupId = frame->getGroupId(); 
+                int collisionNo = 0;
                 const CollidablesVector& collidables  = frame->getCollidables();
                 for(::smurf::Collidable collidable : collidables)
                 {
@@ -145,12 +146,19 @@ namespace envire { namespace smurf {
                     //}
                     //else
                     //{
-                        base::TransformWithCovariance tfCv(translation, rotation);
-                        envire::core::Transform tf(base::Time::now(), tfCv);
-                        const envire::core::FrameId collisionFrame(frame->getName()  + "_" + collidable.getName());
-                        graph->addTransform(frame->getName(), collisionFrame, tf);
-                        graph->addItemToFrame(collisionFrame, collidable_itemPtr);
-                        if (debug) {LOG_DEBUG_S << "[GraphLoader::loadCollidables] Added a smurf::Collidable to the frame *" << collisionFrame << "*";}
+                    base::TransformWithCovariance tfCv(translation, rotation);
+                    envire::core::Transform tf(base::Time::now(), tfCv);
+                    envire::core::FrameId collisionFrame;
+                    if (collidable.getName().empty())
+                    {
+                        collisionFrame = envire::core::FrameId(frame->getName() + "_collision_" + boost::lexical_cast<envire::core::FrameId>(collisionNo) );
+                        ++collisionNo;
+                    } else
+                        collisionFrame = envire::core::FrameId(frame->getName()  + "_" + collidable.getName());
+                    
+                    graph->addTransform(frame->getName(), collisionFrame, tf);
+                    graph->addItemToFrame(collisionFrame, collidable_itemPtr);
+                    if (debug) {LOG_DEBUG_S << "[GraphLoader::loadCollidables] Added a smurf::Collidable to the frame *" << collisionFrame << "*";}
                     //}
                 }
             }
@@ -187,12 +195,12 @@ namespace envire { namespace smurf {
                     //}
                     //else
                     //{
-                        base::TransformWithCovariance tfCv(translation, rotation);
-                        envire::core::Transform tf(base::Time::now(), tfCv);
-                        const envire::core::FrameId inertialFrame(frame->getName() + "_inertial");
-                        graph->addTransform(frame->getName(), inertialFrame, tf);
-                        graph->addItemToFrame(inertialFrame, inertial_itemPtr);
-                        if (debug) {LOG_DEBUG_S << "[GraphLoader::loadInertials] Added a smurf::Inertial to the frame *" << inertialFrame << "*";}
+                    base::TransformWithCovariance tfCv(translation, rotation);
+                    envire::core::Transform tf(base::Time::now(), tfCv);
+                    const envire::core::FrameId inertialFrame(frame->getName() + "_inertial");
+                    graph->addTransform(frame->getName(), inertialFrame, tf);
+                    graph->addItemToFrame(inertialFrame, inertial_itemPtr);
+                    if (debug) {LOG_DEBUG_S << "[GraphLoader::loadInertials] Added a smurf::Inertial to the frame *" << inertialFrame << "*";}
                     //}
                 }
             }
@@ -208,8 +216,9 @@ namespace envire { namespace smurf {
         using VisualsItemPtr = envire::core::Item<::smurf::Visual>::Ptr;
         std::vector<::smurf::Frame *> frames= robot.getFrames();
         for(::smurf::Frame* frame : frames)
-        {
+        {         
             const std::vector<::smurf::Visual>& visuals = frame->getVisuals();
+            
             //NOTE used to create unique frame names for the visuals
             int visualNo = 0;
             int groupId = frame->getGroupId();
@@ -228,11 +237,18 @@ namespace envire { namespace smurf {
                 //}
                 //else
                 //{
-                    envire::core::Transform tf(translation, rotation);
-                    const envire::core::FrameId visualFrame(frame->getName() + "_visual_" + boost::lexical_cast<envire::core::FrameId>(visualNo) );
+                base::TransformWithCovariance tfCv(translation, rotation);
+                envire::core::Transform tf(base::Time::now(), tfCv);
+                envire::core::FrameId visualFrame;
+                if (visual.name.empty())
+                {
+                    visualFrame = envire::core::FrameId(frame->getName() + "_visual_" + boost::lexical_cast<envire::core::FrameId>(visualNo) );
                     ++visualNo;
-                    graph->addTransform(frame->getName(), visualFrame, tf);
-                    graph->addItemToFrame(visualFrame, visual_itemPtr);
+                } else
+                    visualFrame = envire::core::FrameId(frame->getName()  + "_" + visual.name);
+                
+                graph->addTransform(frame->getName(), visualFrame, tf);
+                graph->addItemToFrame(visualFrame, visual_itemPtr);
                 //}
             }
             if (debug) LOG_DEBUG("[GraphLoader::loadVisuals] Added smurf::Visuals" );
