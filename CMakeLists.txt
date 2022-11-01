@@ -1,7 +1,7 @@
 # CMakeLists.txt has to be located in the project folder and cmake has to be
 # executed from 'project/build' with 'cmake ../'.
 project(envire_smurf)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.3)
 set(ROCK_USE_CXX11 TRUE)
 find_package(Rock)
 
