@@ -5,9 +5,7 @@ cmake_minimum_required(VERSION 2.6)
 set(ROCK_USE_CXX11 TRUE)
 find_package(Rock)
 
-find_package(Poco COMPONENTS Foundation)
-
-find_package(Boost COMPONENTS thread system filesystem)
+#find_package(Poco COMPONENTS Foundation)
 
 find_package(PluginManager)
 
