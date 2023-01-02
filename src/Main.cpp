@@ -83,12 +83,12 @@ int main(int argc, char** argv)
 
     // load smurf representation
     smurf::Robot* robot = new(smurf::Robot);
-    robot->loadFromSmurf(smurf_file);        
+    robot->loadFromSmurf(smurf_file);
 
     // create graph with init frame CENTER
     std::shared_ptr<envire::core::EnvireGraph> graph(new envire::core::EnvireGraph());
     std::string center_frame = "CENTER";
-    graph->addFrame(center_frame);    
+    graph->addFrame(center_frame);
     vertex_descriptor center = graph->getVertex(center_frame);
 
     envire::core::Transform iniPose;

@@ -24,14 +24,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include <smurf/Frame.hpp>
-#include <smurf/Visual.hpp>
-#include <smurf/Collidable.hpp>
+#include <smurf/Inertial.hpp>
 #include <envire_core/plugin/Plugin.hpp>
 
-ENVIRE_REGISTER_ITEM( smurf::Frame )
-ENVIRE_REGISTER_ITEM( smurf::Visual )
-ENVIRE_REGISTER_ITEM( smurf::Collidable )
-
-
+ENVIRE_REGISTER_ITEM( smurf::Inertial )
 
