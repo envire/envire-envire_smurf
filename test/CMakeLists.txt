@@ -1,4 +1,4 @@
-find_package(Boost)
+find_package( Boost COMPONENTS program_options thread system filesystem REQUIRED )
 find_package(Poco COMPONENTS Foundation)
 find_package(Pcre)
 find_package(ZLIB)
