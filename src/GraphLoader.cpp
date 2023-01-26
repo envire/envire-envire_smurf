@@ -35,7 +35,7 @@
 //TODO 2. The current implementation loads inertials, visuals and colllions each one in a separate frame even if they have the same position. This should be improved
 //TODO 3. Template the second part of loadCollidables, loadInertials and loadVisuals and put in an auxiliar method because they do the same
 
-// NOTE The dynamic joints are currently loaded in the target frame    
+// NOTE The dynamic joints are currently loaded in the target frame
 // This does not affect the behavior as long as the simulated motors and joints are linked properly by the plugin. For that they have to be stored in the same frame.
 // What are the conventions Joint-Motor-Frame in the SMURF?
 // In the smurf the target corresponds normaly to the name of the joint (but there is no enforcement AFAIK)
@@ -55,7 +55,7 @@ namespace envire { namespace smurf {
     {
         if (debug) {LOG_DEBUG("[GraphLoader::loadStructure] LoadFromSmurf with a given frame to link to");}
         if (not initialized) { loadStructure(robot); }
-        const envire::core::FrameId robotRoot = robot.getRootFrame()->getName(); 
+        const envire::core::FrameId robotRoot = robot.getRootFrame()->getName();
         iniPose.time = base::Time::now();
         graph->addTransform(graph->getFrameId(linkTo), robotRoot, iniPose);
         if (debug) {LOG_DEBUG_S << "[GraphLoader::loadStructure] Transform to linkTo added: " << graph->getFrameId(linkTo) << " and " << robotRoot;}
@@ -72,12 +72,12 @@ namespace envire { namespace smurf {
             nextGroupId ++;
             FrameItemPtr frameItemPtr (new envire::core::Item<::smurf::Frame>(*frame));
             envire::core::FrameId frameId = frame->getName();
-            graph->addItemToFrame(frameId, frameItemPtr);  
-            if (debug){ LOG_DEBUG_S << " [GraphLoader::loadFrames] Added an smurf::Frame to the frame *" << frame->getName() << "*";}        
+            graph->addItemToFrame(frameId, frameItemPtr);
+            if (debug){ LOG_DEBUG_S << " [GraphLoader::loadFrames] Added an smurf::Frame to the frame *" << frame->getName() << "*";}
         }
         framesLoaded = true;
     }
-    
+
     void GraphLoader::loadFixedJoints(const ::smurf::Robot& robot)
     {
         using StaticTransPtr = envire::core::Item<::smurf::StaticTransformation  >::Ptr;
@@ -92,7 +92,7 @@ namespace envire { namespace smurf {
             if (debug) { LOG_DEBUG_S << "[GraphLoader::loadFixedJoints] Added a new Item< ::smurf::StaticTransformation > with name *" + tf->getName() +  "* to frame *" + sourceId + "*"; }
         }
     }
-    
+
     void GraphLoader::loadDynamicJoints(const ::smurf::Robot& robot)
     {
         if (initialized)
@@ -103,7 +103,7 @@ namespace envire { namespace smurf {
             {
                 if (debug) { LOG_DEBUG_S << "[GraphLoader::loadDynamicJoints] There is no joint in the model";}
             }
-            for(::smurf::Joint* joint : joints) 
+            for(::smurf::Joint* joint : joints)
             {
                 envire::core::FrameId frame_id = joint -> getSourceFrame().getName();
                 JointsPtr joint_itemPtr (new envire::core::Item<::smurf::Joint>(*joint));
@@ -128,34 +128,31 @@ namespace envire { namespace smurf {
             std::vector<::smurf::Frame *> frames = robot.getFrames();
             for(::smurf::Frame* frame : frames)
             {
-                int groupId = frame->getGroupId(); 
+                int groupId = frame->getGroupId();
                 int collisionNo = 0;
                 const CollidablesVector& collidables  = frame->getCollidables();
                 for(::smurf::Collidable collidable : collidables)
                 {
-                    collidable.setGroupId(groupId);
-                    urdf::Collision collision = collidable.getCollision();
-                    const base::Vector3d translation(collision.origin.position.x, collision.origin.position.y, collision.origin.position.z); 
-                    const base::Quaterniond rotation(collision.origin.rotation.w, collision.origin.rotation.x, collision.origin.rotation.y, collision.origin.rotation.z); 
+                    collidable.groupId = groupId;
                     CollidableItemPtr collidable_itemPtr(new CollidableItem(collidable));
                     //NOTE Checks if the offset is an identity transform. If yes, just add the collision to the existing frame otherwise, create a new transformation in the graph to encode the offset.
                     //if(translation == base::Vector3d::Zero() && (rotation.coeffs() == base::Quaterniond::Identity().coeffs() || rotation.coeffs() == -base::Quaterniond::Identity().coeffs()))
                     //{
-                    //    graph->addItemToFrame(frame->getName(), collidable_itemPtr); 
+                    //    graph->addItemToFrame(frame->getName(), collidable_itemPtr);
                     //    if (debug) { LOG_DEBUG_S << "[GraphLoader::loadCollidables] Added a smurf::Collidable to the frame *" << frame->getName() +"*";}
                     //}
                     //else
                     //{
-                    base::TransformWithCovariance tfCv(translation, rotation);
+                    base::TransformWithCovariance tfCv(collidable.origin.position, collidable.origin.orientation);
                     envire::core::Transform tf(base::Time::now(), tfCv);
                     envire::core::FrameId collisionFrame;
-                    if (collidable.getName().empty())
+                    if (collidable.name.empty())
                     {
                         collisionFrame = envire::core::FrameId(frame->getName() + "_collision_" + boost::lexical_cast<envire::core::FrameId>(collisionNo) );
                         ++collisionNo;
                     } else
-                        collisionFrame = envire::core::FrameId(frame->getName()  + "_" + collidable.getName());
-                    
+                        collisionFrame = envire::core::FrameId(frame->getName()  + "_" + collidable.name);
+
                     graph->addTransform(frame->getName(), collisionFrame, tf);
                     graph->addItemToFrame(collisionFrame, collidable_itemPtr);
                     if (debug) {LOG_DEBUG_S << "[GraphLoader::loadCollidables] Added a smurf::Collidable to the frame *" << collisionFrame << "*";}
@@ -184,8 +181,8 @@ namespace envire { namespace smurf {
                     ::smurf::Inertial inertialSMURF = frame -> getInertial();
                     urdf::Inertial inertial = inertialSMURF.getUrdfInertial();
                     inertialSMURF.setGroupId(groupId);
-                    const base::Vector3d translation(inertial.origin.position.x, inertial.origin.position.y, inertial.origin.position.z); 
-                    const base::Quaterniond rotation(inertial.origin.rotation.w, inertial.origin.rotation.x, inertial.origin.rotation.y, inertial.origin.rotation.z); 
+                    const base::Vector3d translation(inertial.origin.position.x, inertial.origin.position.y, inertial.origin.position.z);
+                    const base::Quaterniond rotation(inertial.origin.rotation.w, inertial.origin.rotation.x, inertial.origin.rotation.y, inertial.origin.rotation.z);
                     InertialItemPtr inertial_itemPtr(new InertialItem(inertialSMURF));
                     //NOTE Checks if the offset is an identity transform. If yes, just add the collision to the existing frame otherwise, create a new transformation in the graph to encode the offset.
                     //if(translation == base::Vector3d::Zero() && (rotation.coeffs() == base::Quaterniond::Identity().coeffs() || rotation.coeffs() == -base::Quaterniond::Identity().coeffs()))
@@ -210,26 +207,24 @@ namespace envire { namespace smurf {
             LOG_ERROR_S << "[GraphLoader::LoadInertials] Robot frames are not loaded: loadFrames has to be executed before loadInertiasls";
         }
     }
-    
+
     void GraphLoader::loadVisuals(const ::smurf::Robot& robot)
     {
         using VisualsItemPtr = envire::core::Item<::smurf::Visual>::Ptr;
         std::vector<::smurf::Frame *> frames= robot.getFrames();
         for(::smurf::Frame* frame : frames)
-        {         
+        {
             const std::vector<::smurf::Visual>& visuals = frame->getVisuals();
-            
+
             //NOTE used to create unique frame names for the visuals
             int visualNo = 0;
             int groupId = frame->getGroupId();
             for(const ::smurf::Visual& visual : visuals)
             {
-                const base::Vector3d translation(visual.origin.position.x, visual.origin.position.y, visual.origin.position.z);
-                const base::Quaterniond rotation(visual.origin.rotation.w, visual.origin.rotation.x, visual.origin.rotation.y, visual.origin.rotation.z);            
                 VisualsItemPtr visual_itemPtr(new envire::core::Item<::smurf::Visual>(visual));
                 visual_itemPtr->getData().groupId = groupId;
                 //NOTE Checks if the offset is an identity transform. If yes, just add the collision to the existing frame otherwise, create a new transformation in the graph to encode the offset.
-                //if(translation == base::Vector3d::Zero() && 
+                //if(translation == base::Vector3d::Zero() &&
                 //    (rotation.coeffs() == base::Quaterniond::Identity().coeffs() ||
                 //    rotation.coeffs() == -base::Quaterniond::Identity().coeffs()))
                 //{
@@ -237,7 +232,7 @@ namespace envire { namespace smurf {
                 //}
                 //else
                 //{
-                base::TransformWithCovariance tfCv(translation, rotation);
+                base::TransformWithCovariance tfCv(visual.origin.position, visual.origin.orientation);
                 envire::core::Transform tf(base::Time::now(), tfCv);
                 envire::core::FrameId visualFrame;
                 if (visual.name.empty())
@@ -246,7 +241,7 @@ namespace envire { namespace smurf {
                     ++visualNo;
                 } else
                     visualFrame = envire::core::FrameId(frame->getName()  + "_" + visual.name);
-                
+
                 graph->addTransform(frame->getName(), visualFrame, tf);
                 graph->addItemToFrame(visualFrame, visual_itemPtr);
                 //}
@@ -254,7 +249,7 @@ namespace envire { namespace smurf {
             if (debug) LOG_DEBUG("[GraphLoader::loadVisuals] Added smurf::Visuals" );
         }
     }
-    
+
     void GraphLoader::loadMotors(const ::smurf::Robot& robot)
     {
         using MotorItemPtr = envire::core::Item< ::smurf::Motor >::Ptr;
@@ -306,7 +301,7 @@ namespace envire { namespace smurf {
             }
         }
     }
-    
+
     void GraphLoader::loadRobot(int& nextGroupId, const envire::core::GraphTraits::vertex_descriptor& linkTo, const envire::core::Transform& pose, const ::smurf::Robot& robot)
     {
         // NOTE The only smurf object supported by now are robots, but we should implement it to be compatible with smurfs in general. Will other smurf objects provide joints and so on? maybe yes
@@ -334,7 +329,7 @@ namespace envire { namespace smurf {
         loadMotors(robot);
         loadSensors(robot);
     }
-        
+
     void GraphLoader::initFrames(const ::smurf::Robot& robot)
     {
         envire::core::FrameId frame_id;
@@ -346,13 +341,13 @@ namespace envire { namespace smurf {
             if (debug) { LOG_DEBUG_S << "[GraphLoader::initFrames] Frame Added: " << frame_id;}
         }
     }
-    
+
     void GraphLoader::initTfs(const ::smurf::Robot& robot)
     {
         initStaticTfs(robot);
         initDynamicTfs(robot);
     }
-    
+
     void GraphLoader::initStaticTfs(const ::smurf::Robot& robot)
     {
         using staticTransPtr = envire::core::Item<::smurf::StaticTransformation*  >::Ptr;
@@ -367,7 +362,7 @@ namespace envire { namespace smurf {
             graph->addTransform(sourceId, targetId, envire_tf);
         }
     }
-    
+
     void GraphLoader::initDynamicTfs(const ::smurf::Robot& robot)
     {
         std::vector<::smurf::Joint *> joints = robot.getJoints();
@@ -376,7 +371,7 @@ namespace envire { namespace smurf {
             ::smurf::Frame target = joint -> getTargetFrame();
             // NOTE ParentToJointOrigin transformation is set between parent and child frame
             Eigen::Affine3d parentToJoint = joint->getParentToJointOrigin();
-            envire::core::Transform parent2Joint = envire::core::Transform(base::Time::now(), base::TransformWithCovariance(parentToJoint)); 
+            envire::core::Transform parent2Joint = envire::core::Transform(base::Time::now(), base::TransformWithCovariance(parentToJoint));
             ::smurf::Frame source = joint-> getSourceFrame();
             envire::core::FrameId sourceId = source.getName();
             envire::core::FrameId targetId = target.getName();
@@ -384,5 +379,5 @@ namespace envire { namespace smurf {
             if (debug) { LOG_DEBUG_S << "[GraphLoader::initDynamicTfs] Transformation between " << sourceId << " and " << targetId <<" set.";}
         }
     }
-            
+
 } } // envire::smurf
