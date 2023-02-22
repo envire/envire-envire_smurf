@@ -2,7 +2,7 @@
 # executed from 'project/build' with 'cmake ../'.
 project(envire_smurf)
 cmake_minimum_required(VERSION 3.3)
-set(ROCK_USE_CXX11 TRUE)
+
 find_package(Rock)
 
 find_package(Poco COMPONENTS Foundation)
